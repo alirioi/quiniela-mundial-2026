@@ -1,0 +1,120 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  userProfile?: {
+    full_name: string;
+    role: string;
+    email: string;
+  } | null;
+}
+
+const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title} | Quiniela Mundial 2026</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Outfit', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950">
+    <!-- Premium Header -->
+    <header class="border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <a href={userProfile ? "/dashboard" : "/"} class="flex items-center space-x-2 group">
+          <span class="text-2xl">🏆</span>
+          <span class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 tracking-tight text-xl group-hover:opacity-90 transition-opacity">
+            Quiniela 2026
+          </span>
+        </a>
+
+        {userProfile ? (
+          <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+            <a href="/dashboard" class="text-slate-300 hover:text-emerald-400 transition-colors">Dashboard</a>
+            <a href="/my-entries" class="text-slate-300 hover:text-emerald-400 transition-colors">Mis Cupos</a>
+            {userProfile.role === 'admin' && (
+              <a href="/admin" class="text-amber-400 hover:text-amber-300 font-semibold transition-colors flex items-center gap-1">
+                🛡️ Admin
+              </a>
+            )}
+          </nav>
+        ) : null}
+
+        <div class="flex items-center space-x-4">
+          {userProfile ? (
+            <div class="flex items-center space-x-4">
+              <span class="hidden sm:inline text-xs text-slate-400 font-medium">
+                Hola, <span class="text-slate-200">{userProfile.full_name}</span>
+              </span>
+              <button
+                id="logout-btn"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-red-950/40 hover:text-red-400 border border-slate-700 hover:border-red-900/50 transition-all duration-200"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          ) : (
+            <a
+              href="/"
+              class="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg shadow-emerald-950/20 hover:shadow-emerald-950/40 transition-all duration-200"
+            >
+              Iniciar Sesión
+            </a>
+          )}
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 bg-slate-950/80 py-8 text-center text-xs text-slate-500">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="mb-2">🏆 Quiniela Mundial 2026 — Para uso de amigos y organizadores.</p>
+        <p class="text-[10px] text-slate-600">Desarrollado con Astro, React y Supabase. 15 USDT al pote / 5 USDT a la organización.</p>
+      </div>
+    </footer>
+
+    {userProfile && (
+      <script>
+        document.getElementById('logout-btn')?.addEventListener('click', async () => {
+          try {
+            const response = await fetch('/api/auth/logout', { method: 'POST' });
+            if (response.ok) {
+              window.location.href = '/';
+            } else {
+              console.error('Error al cerrar sesión');
+            }
+          } catch (e) {
+            console.error('Error de red', e);
+          }
+        });
+      </script>
+    )}
+  </body>
+</html>

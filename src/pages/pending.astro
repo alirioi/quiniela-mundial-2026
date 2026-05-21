@@ -1,0 +1,99 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+
+// Obtener datos de locales (inyectados por el middleware)
+const user = Astro.locals.user;
+const profile = Astro.locals.profile;
+const entries = Astro.locals.entries || [];
+const isApproved = Astro.locals.isApproved;
+
+// Si no está logueado, redirigir a index
+if (!user) {
+  return Astro.redirect('/');
+}
+
+// Si ya está aprobado, redirigir a dashboard
+if (isApproved) {
+  return Astro.redirect('/dashboard');
+}
+
+// Obtener el primer cupo (que se crea en el registro)
+const firstEntry = entries.find(e => e.entry_number === 1);
+---
+
+<MainLayout title="Cupo en Revisión" userProfile={profile}>
+  <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 bg-radial-gradient">
+    <div class="max-w-md w-full space-y-8 bg-slate-900/60 backdrop-blur-md p-8 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden text-center">
+      <!-- Decorative gradients -->
+      <div class="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative space-y-4">
+        <div class="mx-auto w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-4xl animate-pulse">
+          ⏳
+        </div>
+        
+        <h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+          Verificando tu Pago
+        </h1>
+        
+        <p class="text-sm text-slate-400 leading-relaxed">
+          ¡Hola <span class="font-semibold text-slate-200">{profile?.full_name}</span>! Hemos recibido tu registro. 
+          Un administrador está revisando tu comprobante de pago para habilitar tu cuenta.
+        </p>
+      </div>
+
+      <!-- Entry Info Card -->
+      {firstEntry && (
+        <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 text-left space-y-3">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            Detalles de tu cupo
+          </div>
+          
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-slate-400">Nombre del Cupo:</span>
+            <span class="font-bold text-slate-200">{firstEntry.display_name}</span>
+          </div>
+
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-slate-400">Estado de Aprobación:</span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+              Pendiente
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-slate-400">Fecha de Registro:</span>
+            <span class="text-slate-300 font-mono text-xs">
+              {new Date(firstEntry.created_at).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </span>
+          </div>
+        </div>
+      )}
+
+      <!-- Informative Note -->
+      <div class="p-4 rounded-xl bg-blue-950/20 border border-blue-900/30 text-xs text-blue-400 text-left leading-relaxed">
+        💡 **Nota**: Una vez aprobado tu cupo por el administrador, recibirás un correo electrónico de confirmación y podrás acceder al Dashboard para llenar tus pronósticos de la Fase de Grupos.
+      </div>
+
+      <!-- Action buttons -->
+      <div class="pt-4 space-y-3">
+        <button
+          onclick="window.location.reload();"
+          class="w-full py-3 px-4 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all duration-200 flex items-center justify-center gap-2 group"
+        >
+          🔄 Re-verificar Estado
+        </button>
+        
+        <p class="text-xs text-slate-500">
+          ¿Problemas con tu registro? Escríbele al organizador.
+        </p>
+      </div>
+    </div>
+  </div>
+</MainLayout>

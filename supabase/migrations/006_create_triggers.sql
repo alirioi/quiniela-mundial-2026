@@ -26,6 +26,11 @@ returns trigger as $$
 declare
   v_match_time timestamptz;
 begin
+  -- Si es una actualización y no se están modificando los goles pronosticados, permitir de inmediato (ej. cálculo de puntos)
+  if (TG_OP = 'UPDATE' and old.predicted_home = new.predicted_home and old.predicted_away = new.predicted_away) then
+    return new;
+  end if;
+
   select match_time into v_match_time
   from public.matches
   where id = new.match_id;

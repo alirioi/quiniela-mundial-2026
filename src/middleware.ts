@@ -104,8 +104,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     // 3. User is pending (no approved entries)
-    // Avoid infinite redirect loop for /pending page itself and public routes or auth APIs
-    if (!isApproved && !isPublicRoute && path !== '/pending' && !path.startsWith('/api/auth/')) {
+    // Avoid infinite redirect loop for /pending page itself, and allow /my-entries and entries-related APIs
+    if (!isApproved && !isPublicRoute && path !== '/pending' && path !== '/my-entries' && !path.startsWith('/api/auth/') && !path.startsWith('/api/entries/') && !path.startsWith('/api/user/')) {
       if (isApiRoute) {
         return new Response(JSON.stringify({ error: 'Account pending approval' }), { status: 403 });
       }

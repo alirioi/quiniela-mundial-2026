@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { supabaseAdmin } from '../../lib/supabase-server';
+import { supabaseAdmin } from '../../../lib/supabase-server';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   const user = locals.user;
@@ -35,23 +35,45 @@ export const GET: APIRoute = async ({ request, locals }) => {
       }
     }
 
-    // 3. Obtener entradas aprobadas del usuario
+    // 3. Obtener todas las entradas del usuario (aprobadas, pendientes, rechazadas)
     const { data: userEntries, error: entriesError } = await supabaseAdmin
       .from('entries')
-      .select('id, display_name, entry_number, status, total_points')
+      .select('id, display_name, entry_number, status, total_points, payment_receipt_url, created_at')
       .eq('user_id', user.id)
-      .eq('status', 'approved');
+      .order('entry_number', { ascending: true });
 
     if (entriesError || !userEntries) {
       return new Response(JSON.stringify({ error: entriesError?.message || 'Error al obtener entradas' }), { status: 400 });
     }
 
-    // 4. Para cada entrada, ver cuántas predicciones guardadas tiene para los partidos activos
+    // 4. Para cada entrada, calcular predicciones pendientes (solo para aprobadas) y generar URL firmada para el comprobante
     const entriesWithPending = await Promise.all(
       userEntries.map(async (entry) => {
+        let signedUrl: string | null = null;
+        if (entry.payment_receipt_url) {
+          try {
+            const { data: signedData } = await supabaseAdmin.storage
+              .from('payment-receipts')
+              .createSignedUrl(entry.payment_receipt_url, 3600); // 1 hora
+            signedUrl = signedData?.signedUrl || null;
+          } catch (e) {
+            console.error('Error al generar URL firmada para comprobante:', e);
+          }
+        }
+
+        if (entry.status !== 'approved') {
+          return {
+            ...entry,
+            signedUrl,
+            pendingPredictions: 0,
+            activePhases: activePhases || [],
+          };
+        }
+
         if (activeMatchIds.length === 0) {
           return {
             ...entry,
+            signedUrl,
             pendingPredictions: 0,
             activePhases: activePhases,
           };
@@ -68,6 +90,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
         return {
           ...entry,
+          signedUrl,
           pendingPredictions: pendingCount < 0 ? 0 : pendingCount,
           activePhases: activePhases,
         };

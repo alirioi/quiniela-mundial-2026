@@ -1,0 +1,19 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import MyEntries from '../components/islands/MyEntries';
+
+// Obtener datos del middleware
+const user = Astro.locals.user;
+const profile = Astro.locals.profile;
+
+// Si no está logueado, redirigir a index (login)
+if (!user || !profile) {
+  return Astro.redirect('/');
+}
+---
+
+<MainLayout title="Mis Cupos" userProfile={profile}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <MyEntries client:load userFullName={profile.full_name} />
+  </div>
+</MainLayout>

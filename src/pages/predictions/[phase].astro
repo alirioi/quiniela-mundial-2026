@@ -18,6 +18,9 @@ const approvedEntries = entries.filter(e => e.status === 'approved');
 
 // Si no hay cupos aprobados (medida extra de seguridad por si falla el middleware)
 if (approvedEntries.length === 0) {
+  if (profile?.role === 'admin') {
+    return Astro.redirect('/dashboard');
+  }
   return Astro.redirect('/pending');
 }
 

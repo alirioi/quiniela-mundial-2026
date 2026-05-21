@@ -6,12 +6,15 @@ import PaymentUpload from '../components/islands/PaymentUpload';
 // Si el usuario ya está autenticado y tiene cupos aprobados, se le redirige al dashboard.
 // Si ya está autenticado pero no está aprobado, se le redirige a pending.
 const user = Astro.locals.user;
+const profile = Astro.locals.profile;
 const isApproved = Astro.locals.isApproved;
 
-if (user && isApproved) {
-  return Astro.redirect('/dashboard');
-} else if (user && !isApproved) {
-  return Astro.redirect('/pending');
+if (user) {
+  if (isApproved || profile?.role === 'admin') {
+    return Astro.redirect('/dashboard');
+  } else {
+    return Astro.redirect('/pending');
+  }
 }
 ---
 

@@ -4,12 +4,15 @@ import MainLayout from '../layouts/MainLayout.astro';
 // If user is already authenticated and approved, middleware handles redirect.
 // But we check here as well to be safe
 const user = Astro.locals.user;
+const profile = Astro.locals.profile;
 const isApproved = Astro.locals.isApproved;
 
-if (user && isApproved) {
-  return Astro.redirect('/dashboard');
-} else if (user && !isApproved) {
-  return Astro.redirect('/pending');
+if (user) {
+  if (isApproved || profile?.role === 'admin') {
+    return Astro.redirect('/dashboard');
+  } else {
+    return Astro.redirect('/pending');
+  }
 }
 ---
 

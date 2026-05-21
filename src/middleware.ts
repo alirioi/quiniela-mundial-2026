@@ -60,13 +60,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Fetch profile and entries if authenticated
   if (user) {
-    const { data: profileData } = await supabaseAdmin
+    const { data: profileData, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
     
-    const { data: entriesData } = await supabaseAdmin
+    const { data: entriesData, error: entriesError } = await supabaseAdmin
       .from('entries')
       .select('*')
       .eq('user_id', user.id);

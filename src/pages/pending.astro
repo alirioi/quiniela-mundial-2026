@@ -7,13 +7,14 @@ const profile = Astro.locals.profile;
 const entries = Astro.locals.entries || [];
 const isApproved = Astro.locals.isApproved;
 
+
 // Si no está logueado, redirigir a index
 if (!user) {
   return Astro.redirect('/');
 }
 
-// Si ya está aprobado, redirigir a dashboard
-if (isApproved) {
+// Si ya está aprobado, redirigir a dashboard (a menos que sea admin, que también debería ir a dashboard)
+if (isApproved || profile?.role === 'admin') {
   return Astro.redirect('/dashboard');
 }
 

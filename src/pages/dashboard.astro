@@ -11,13 +11,14 @@ const profile = Astro.locals.profile;
 const entries = Astro.locals.entries || [];
 const isApproved = Astro.locals.isApproved;
 
+
 // Si no está logueado, redirigir a index
 if (!user) {
   return Astro.redirect('/');
 }
 
-// Si no está aprobado (ningún cupo approved), redirigir a pending
-if (!isApproved) {
+// Si no está aprobado (ningún cupo approved), redirigir a pending (a menos que sea admin)
+if (!isApproved && profile?.role !== 'admin') {
   return Astro.redirect('/pending');
 }
 

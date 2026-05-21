@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-const resendApiKey = import.meta.env.RESEND_API_KEY || '';
+const resendApiKey = import.meta.env.RESEND_API_KEY && import.meta.env.RESEND_API_KEY !== 're_your_api_key' ? import.meta.env.RESEND_API_KEY : '';
 
 export const resend = resendApiKey ? new Resend(resendApiKey) : null;
 

@@ -22,6 +22,10 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const FIRST_MATCH_TIME = new Date('2026-06-11T22:30:00Z');
+  const REGISTRATION_DEADLINE = new Date(FIRST_MATCH_TIME.getTime() - 2 * 24 * 60 * 60 * 1000);
+  const isRegistrationClosed = new Date() >= REGISTRATION_DEADLINE;
   
   // Form states
   const [displayName, setDisplayName] = useState('');
@@ -203,12 +207,21 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
             Aquí puedes ver el estado de tus cupos registrados, consultar sus puntuaciones y comprar cupos adicionales para multiplicar tus oportunidades de ganar.
           </p>
         </div>
-        <button
-          onClick={openModal}
-          className="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-950/20 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
-        >
-          <span>➕ Comprar Cupo Adicional</span>
-        </button>
+        {isRegistrationClosed ? (
+          <div className="flex flex-col items-end gap-1">
+            <span className="px-4 py-2.5 bg-slate-800 text-slate-500 rounded-xl text-xs font-semibold border border-slate-700/50 flex items-center justify-center gap-1.5 cursor-not-allowed">
+              🔒 Compras Cerradas
+            </span>
+            <span className="text-[10px] text-slate-500">Finalizó el 9 de Junio</span>
+          </div>
+        ) : (
+          <button
+            onClick={openModal}
+            className="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-950/20 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+          >
+            <span>➕ Comprar Cupo Adicional</span>
+          </button>
+        )}
       </div>
 
       {/* Lista de cupos */}
@@ -360,19 +373,19 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               <div className="space-y-2 text-xs text-slate-400">
                 <div className="flex justify-between items-center">
                   <span className="flex items-center gap-1.5">
-                    <span className="text-emerald-400">🏆</span> Al pote de premios (75%):
+                    <span className="text-emerald-400">🏆</span> Al pote de premios:
                   </span>
                   <span className="text-slate-200 font-semibold font-mono">15.00 USDT</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="flex items-center gap-1.5">
-                    <span className="text-slate-500">⚙️</span> Organización y desarrollo (25%):
+                    <span className="text-slate-500">⚙️</span> Gastos operativos:
                   </span>
                   <span className="text-slate-200 font-semibold font-mono">5.00 USDT</span>
                 </div>
               </div>
-              <div className="pt-2 border-t border-slate-900 text-[10px] text-emerald-400 font-medium text-center">
-                📢 ¡El 100% del pote acumulado será entregado al finalizar el torneo!
+              <div className="pt-2 border-t border-slate-900 text-[10px] text-emerald-400 font-medium text-center font-bold">
+                📢 El 100% del pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo.
               </div>
             </div>
 

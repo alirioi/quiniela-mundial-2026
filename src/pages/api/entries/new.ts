@@ -19,7 +19,34 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: 'El nombre del cupo y el comprobante son obligatorios' }), { status: 400 });
     }
 
-    // 1. Obtener los cupos existentes para calcular el siguiente número de cupo
+    // 1. Validar fecha límite de registros/compras (2 días antes del mundial)
+    const { data: firstMatch } = await supabaseAdmin
+      .from('matches')
+      .select('match_time')
+      .order('match_time', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (firstMatch) {
+      const firstMatchTime = new Date(firstMatch.match_time).getTime();
+      const limitTime = firstMatchTime - 2 * 24 * 60 * 60 * 1000; // 2 días en ms
+      if (Date.now() >= limitTime) {
+        return new Response(JSON.stringify({ error: 'El registro de nuevos usuarios y la compra de cupos finalizó 2 días antes del inicio del mundial.' }), { status: 400 });
+      }
+    }
+
+    // 2. Validar unicidad del nombre de cupo (display_name)
+    const { data: existingEntry } = await supabaseAdmin
+      .from('entries')
+      .select('id')
+      .ilike('display_name', displayName.trim())
+      .maybeSingle();
+
+    if (existingEntry) {
+      return new Response(JSON.stringify({ error: `El nombre de cupo "${displayName}" ya está en uso. Por favor elige otro.` }), { status: 400 });
+    }
+
+    // 3. Obtener los cupos existentes para calcular el siguiente número de cupo
     const { data: existingEntries, error: fetchError } = await supabaseAdmin
       .from('entries')
       .select('entry_number')

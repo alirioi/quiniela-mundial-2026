@@ -12,19 +12,60 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const password = formData.get('password') as string;
     const fullName = formData.get('fullName') as string;
     const displayName = formData.get('displayName') as string;
+    const birthDateStr = formData.get('birthDate') as string;
     const receipt = formData.get('receipt') as File;
 
-    if (!email || !password || !fullName || !displayName || !receipt) {
+    if (!email || !password || !fullName || !displayName || !birthDateStr || !receipt) {
       return new Response(JSON.stringify({ error: 'Todos los campos son obligatorios' }), { status: 400 });
     }
 
-    // 1. SignUp user in Supabase Auth
+    // 1. Validar fecha límite de registros (2 días antes del mundial)
+    const { data: firstMatch } = await supabaseAdmin
+      .from('matches')
+      .select('match_time')
+      .order('match_time', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (firstMatch) {
+      const firstMatchTime = new Date(firstMatch.match_time).getTime();
+      const limitTime = firstMatchTime - 2 * 24 * 60 * 60 * 1000; // 2 días en ms
+      if (Date.now() >= limitTime) {
+        return new Response(JSON.stringify({ error: 'El registro de nuevos usuarios y la compra de cupos finalizó 2 días antes del inicio del mundial.' }), { status: 400 });
+      }
+    }
+
+    // 2. Validar mayoría de edad (>= 18 años)
+    const birthDate = new Date(birthDateStr);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    if (age < 18) {
+      return new Response(JSON.stringify({ error: 'Debes ser mayor de 18 años para registrarte en la quiniela.' }), { status: 400 });
+    }
+
+    // 3. Validar unicidad del nombre de cupo (display_name)
+    const { data: existingEntry } = await supabaseAdmin
+      .from('entries')
+      .select('id')
+      .ilike('display_name', displayName.trim())
+      .maybeSingle();
+
+    if (existingEntry) {
+      return new Response(JSON.stringify({ error: `El nombre de cupo "${displayName}" ya está en uso. Por favor elige otro.` }), { status: 400 });
+    }
+
+    // 4. SignUp user in Supabase Auth (inyectar birth_date en metadata)
     const { data: authData, error: authError } = await supabaseAdmin.auth.signUp({
       email,
       password,
       options: {
         data: {
           full_name: fullName,
+          birth_date: birthDateStr,
         },
       },
     });
@@ -35,13 +76,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     createdUserId = authData.user.id;
 
-    // 2. Create entry #1 in entries table
+    // 5. Create entry #1 in entries table
     const { data: entryData, error: entryError } = await supabaseAdmin
       .from('entries')
       .insert({
         user_id: createdUserId,
         entry_number: 1,
-        display_name: displayName,
+        display_name: displayName.trim(),
         status: 'pending',
       })
       .select()

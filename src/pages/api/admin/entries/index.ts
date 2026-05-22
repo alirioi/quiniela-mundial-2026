@@ -11,6 +11,7 @@ export const GET: APIRoute = async ({ request }) => {
         user_id,
         entry_number,
         display_name,
+        binance_pay_user,
         status,
         payment_receipt_url,
         total_points,

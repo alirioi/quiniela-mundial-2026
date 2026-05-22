@@ -13,9 +13,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const fullName = formData.get('fullName') as string;
     const displayName = formData.get('displayName') as string;
     const birthDateStr = formData.get('birthDate') as string;
+    const binancePayUser = formData.get('binancePayUser') as string;
     const receipt = formData.get('receipt') as File;
 
-    if (!email || !password || !fullName || !displayName || !birthDateStr || !receipt) {
+    if (!email || !password || !fullName || !displayName || !birthDateStr || !binancePayUser || !receipt) {
       return new Response(JSON.stringify({ error: 'Todos los campos son obligatorios' }), { status: 400 });
     }
 
@@ -83,6 +84,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         user_id: createdUserId,
         entry_number: 1,
         display_name: displayName.trim(),
+        binance_pay_user: binancePayUser.trim(),
         status: 'pending',
       })
       .select()

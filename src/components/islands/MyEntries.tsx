@@ -47,6 +47,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
   
   // Form states
   const [displayName, setDisplayName] = useState('');
+  const [binancePayUser, setBinancePayUser] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -75,6 +76,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
     // Sugerir un nombre por defecto: Nombre #SiguienteNumero
     const nextNumber = entries.length + 1;
     setDisplayName(`${userFullName} #${nextNumber}`);
+    setBinancePayUser('');
     setFile(null);
     setPreviewUrl(null);
     setFormError(null);
@@ -142,6 +144,10 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
       setFormError('El nombre del cupo es obligatorio');
       return;
     }
+    if (!binancePayUser.trim()) {
+      setFormError('El usuario de Binance Pay es obligatorio');
+      return;
+    }
     if (!file) {
       setFormError('Debes subir un comprobante de pago');
       return;
@@ -153,6 +159,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
     try {
       const formData = new FormData();
       formData.append('displayName', displayName);
+      formData.append('binancePayUser', binancePayUser);
       formData.append('receipt', file);
 
       const response = await fetch('/api/entries/new', {
@@ -431,6 +438,22 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   onChange={(e) => setDisplayName(e.target.value)}
                   className="w-full bg-wc-dark border border-wc-border rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-wc-gold transition-all font-semibold"
                   placeholder="Ej: MiNombre #2"
+                  disabled={submitting}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="binancePayUser" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 font-sports">
+                  Usuario de Binance Pay
+                </label>
+                <input
+                  type="text"
+                  id="binancePayUser"
+                  value={binancePayUser}
+                  onChange={(e) => setBinancePayUser(e.target.value)}
+                  className="w-full bg-wc-dark border border-wc-border rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-wc-gold transition-all font-semibold"
+                  placeholder="Ej: alias.pay@gmail.com o ID 12345678"
                   disabled={submitting}
                   required
                 />

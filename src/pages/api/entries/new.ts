@@ -13,10 +13,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const formData = await request.formData();
     const displayName = formData.get('displayName') as string;
+    const binancePayUser = formData.get('binancePayUser') as string;
     const receipt = formData.get('receipt') as File;
 
-    if (!displayName || !receipt) {
-      return new Response(JSON.stringify({ error: 'El nombre del cupo y el comprobante son obligatorios' }), { status: 400 });
+    if (!displayName || !binancePayUser || !receipt) {
+      return new Response(JSON.stringify({ error: 'El nombre del cupo, el usuario de Binance Pay y el comprobante son obligatorios' }), { status: 400 });
     }
 
     // 1. Validar fecha límite de registros/compras (2 días antes del mundial)
@@ -67,6 +68,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         user_id: user.id,
         entry_number: nextEntryNumber,
         display_name: displayName,
+        binance_pay_user: binancePayUser.trim(),
         status: 'pending',
       })
       .select()

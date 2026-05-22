@@ -11,7 +11,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   
   const publicRoutes = [
     '/',
+    '/login',
     '/register',
+    '/faq',
     '/forgot-password',
     '/reset-password',
     '/api/auth/register',
@@ -90,7 +92,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       if (isApiRoute) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
       }
-      return redirect('/');
+      return redirect('/login');
     }
   } else {
     // Authenticated user
@@ -113,7 +115,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     // 4. Approved user trying to access public auth pages (login, register)
-    if (isApproved && (path === '/' || path === '/register')) {
+    if (isApproved && (path === '/login' || path === '/register')) {
       return redirect('/dashboard');
     }
   }

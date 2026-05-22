@@ -1,0 +1,138 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+
+// If user is already authenticated and approved, middleware handles redirect.
+const user = Astro.locals.user;
+const profile = Astro.locals.profile;
+const isApproved = Astro.locals.isApproved;
+
+if (user) {
+  if (isApproved || profile?.role === 'admin') {
+    return Astro.redirect('/dashboard');
+  } else {
+    return Astro.redirect('/pending');
+  }
+}
+---
+
+<MainLayout title="Ingresar">
+  <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 bg-radial-gradient">
+    <div class="max-w-md w-full space-y-8 bg-slate-900/60 backdrop-blur-md p-8 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden">
+      <!-- Decorative gradients -->
+      <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="text-center relative">
+        <span class="text-4xl animate-bounce inline-block">⚽</span>
+        <h1 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          Quiniela <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Mundial 2026</span>
+        </h1>
+        <p class="mt-2 text-sm text-slate-400">
+          Demuestra quién sabe más del deporte rey.
+        </p>
+      </div>
+
+      <form id="login-form" class="mt-8 space-y-6 relative">
+        <div id="error-message" class="hidden p-3 rounded-lg bg-red-950/40 border border-red-900/50 text-red-400 text-xs font-semibold">
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              Correo Electrónico
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
+              placeholder="tu@correo.com"
+            />
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Contraseña
+              </label>
+              <a href="/forgot-password" class="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors">
+                ¿Olvidaste tu contraseña?
+              </label>
+            </div>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            id="submit-btn"
+            class="w-full py-3.5 px-4 rounded-xl text-sm font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg shadow-emerald-950/20 hover:shadow-emerald-950/40 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 group"
+          >
+            <span>Ingresar</span>
+            <span class="group-hover:translate-x-1 transition-transform">➡️</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="text-center text-sm text-slate-400 border-t border-slate-800/80 pt-6">
+        ¿Aún no participas?
+        <a href="/register" class="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300 hover:opacity-90 transition-opacity">
+          Regístrate aquí
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('login-form') as HTMLFormElement;
+    const errorDiv = document.getElementById('error-message');
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!errorDiv || !submitBtn) return;
+
+      errorDiv.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Verificando...</span>';
+
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const password = (document.getElementById('password') as HTMLInputElement).value;
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          window.location.href = '/dashboard';
+        } else {
+          errorDiv.textContent = data.error || 'Error al iniciar sesión';
+          errorDiv.classList.remove('hidden');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Ingresar</span><span>➡️</span>';
+        }
+      } catch (err) {
+        errorDiv.textContent = 'Error de conexión. Inténtalo de nuevo.';
+        errorDiv.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Ingresar</span><span>➡️</span>';
+      }
+    });
+  </script>
+</MainLayout>

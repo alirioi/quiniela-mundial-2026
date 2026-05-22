@@ -50,17 +50,20 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
           </span>
         </a>
 
-        {userProfile ? (
-          <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <a href="/dashboard" class="text-slate-300 hover:text-emerald-400 transition-colors">Dashboard</a>
-            <a href="/my-entries" class="text-slate-300 hover:text-emerald-400 transition-colors">Mis Cupos</a>
-            {userProfile.role === 'admin' && (
-              <a href="/admin" class="text-amber-400 hover:text-amber-300 font-semibold transition-colors flex items-center gap-1">
-                🛡️ Admin
-              </a>
-            )}
-          </nav>
-        ) : null}
+        <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+          {userProfile && (
+            <>
+              <a href="/dashboard" class="text-slate-300 hover:text-emerald-400 transition-colors">Dashboard</a>
+              <a href="/my-entries" class="text-slate-300 hover:text-emerald-400 transition-colors">Mis Cupos</a>
+            </>
+          )}
+          <a href="/faq" class="text-slate-300 hover:text-emerald-400 transition-colors">Reglas y FAQ</a>
+          {userProfile?.role === 'admin' && (
+            <a href="/admin" class="text-amber-400 hover:text-amber-300 font-semibold transition-colors flex items-center gap-1">
+              🛡️ Admin
+            </a>
+          )}
+        </nav>
 
         <div class="flex items-center space-x-4">
           {userProfile ? (
@@ -77,7 +80,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
             </div>
           ) : (
             <a
-              href="/"
+              href="/login"
               class="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg shadow-emerald-950/20 hover:shadow-emerald-950/40 transition-all duration-200"
             >
               Iniciar Sesión
@@ -96,7 +99,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
     <footer class="border-t border-slate-900 bg-slate-950/80 py-8 text-center text-xs text-slate-500">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <p class="mb-2">🏆 Quiniela Mundial 2026 — Para uso de amigos y organizadores.</p>
-        <p class="text-[10px] text-slate-600">Desarrollado con Astro, React y Supabase. 15 USDT al pote / 5 USDT a la organización.</p>
+        <p class="text-[10px] text-slate-600">Desarrollado con Astro, React y Supabase.</p>
       </div>
     </footer>
 

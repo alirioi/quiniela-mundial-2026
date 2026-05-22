@@ -71,7 +71,7 @@ export default function PrizePoolDisplay() {
             Pote Acumulado Oficial
           </h3>
           <p className="text-xs text-slate-400 mt-1">
-            Se reparte el 100% de este pote al finalizar el torneo. ({count} {count === 1 ? 'cupo aprobado' : 'cupos aprobados'})
+            El 100% de este pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo. ({count} {count === 1 ? 'cupo aprobado' : 'cupos aprobados'})
           </p>
         </div>
       </div>
@@ -80,9 +80,6 @@ export default function PrizePoolDisplay() {
         <div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 tracking-tight font-mono">
           {pool.toLocaleString('es-ES', { minimumFractionDigits: 0 })} USDT
         </div>
-        <p className="text-[10px] text-slate-500 mt-1 font-semibold uppercase tracking-wider">
-          15 USDT al pote por cupo de 20 USDT
-        </p>
       </div>
     </div>
   );

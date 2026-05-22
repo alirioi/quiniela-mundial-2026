@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Settings, RefreshCw, AlertTriangle } from 'lucide-react';
 
 interface Phase {
   id: number;
@@ -63,26 +64,26 @@ export default function AdminPhaseManager() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center p-4 bg-slate-900/40 rounded-2xl border border-slate-800/80 backdrop-blur-sm">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
-          ⚙️ Fases de la Quiniela
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+          <Settings className="w-4 h-4 text-emerald-400" /> Fases de la Quiniela
         </h3>
         <button
           onClick={fetchPhases}
-          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all duration-200 text-xs font-semibold"
+          className="p-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all duration-200 text-xs font-semibold flex items-center gap-1.5"
           disabled={loading}
         >
-          🔄 Recargar Fases
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Recargar Fases
         </button>
       </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-slate-900/20 rounded-2xl border border-slate-800/60">
-          <div className="animate-spin text-3xl">🔄</div>
+          <RefreshCw className="w-8 h-8 text-emerald-500 animate-spin" />
           <p className="text-slate-500 text-sm">Cargando fases...</p>
         </div>
       ) : error ? (
         <div className="p-6 rounded-2xl bg-red-950/20 border border-red-900/40 text-center space-y-3">
-          <div className="text-3xl">⚠️</div>
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto" />
           <p className="text-red-400 font-semibold text-sm">{error}</p>
           <button
             onClick={fetchPhases}

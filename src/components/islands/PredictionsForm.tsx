@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Lock, Clock, AlertTriangle, Loader2, Award, CheckCircle2 } from 'lucide-react';
 
 interface Prediction {
   id?: number;
@@ -99,7 +100,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         const now = Date.now();
 
         if (now >= lockTime) {
-          remaining[match.id] = '🔒 Bloqueado';
+          remaining[match.id] = 'Bloqueado';
         } else {
           const diff = lockTime - now;
           const days = Math.floor(diff / (24 * 60 * 60 * 1000));
@@ -108,11 +109,11 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
           const seconds = Math.floor((diff % (60 * 1000)) / 1000);
 
           if (days > 0) {
-            remaining[match.id] = `⏳ Cierra en ${days}d ${hours}h`;
+            remaining[match.id] = `Cierra en ${days}d ${hours}h`;
           } else if (hours > 0) {
-            remaining[match.id] = `⏳ Cierra en ${hours}h ${minutes}m`;
+            remaining[match.id] = `Cierra en ${hours}h ${minutes}m`;
           } else {
-            remaining[match.id] = `⏳ Cierra en ${minutes}m ${seconds}s`;
+            remaining[match.id] = `Cierra en ${minutes}m ${seconds}s`;
           }
         }
       });
@@ -290,8 +291,9 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
 
         {unpredictedCount > 0 && !loading && (
           <div className="flex items-center gap-3">
-            <span className="text-xs text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl">
-              ⚠️ Tienes {unpredictedCount} pronósticos vacíos en esta fase
+            <span className="text-xs text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+              <span>Tienes {unpredictedCount} pronósticos vacíos en esta fase</span>
             </span>
             
             <button
@@ -307,12 +309,12 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
 
       {loading ? (
         <div className="flex flex-col items-center justify-center p-16 space-y-4 bg-slate-900/20 rounded-2xl border border-slate-800/60">
-          <div className="animate-spin text-4xl">⚽</div>
+          <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
           <p className="text-slate-500 text-sm">Cargando partidos y pronósticos...</p>
         </div>
       ) : error ? (
-        <div className="p-6 rounded-2xl bg-red-950/20 border border-red-900/40 text-center space-y-3">
-          <div className="text-3xl">⚠️</div>
+        <div className="p-6 rounded-2xl bg-red-950/20 border border-red-900/40 text-center flex flex-col items-center justify-center space-y-3">
+          <AlertTriangle className="w-10 h-10 text-rose-500" />
           <p className="text-red-400 font-semibold text-sm">{error}</p>
           <button
             onClick={fetchMatchesAndPredictions}
@@ -370,18 +372,24 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                         </div>
 
                         {/* Estado o cuenta regresiva */}
-                        <div className="flex items-center gap-1.5 font-semibold">
+                        <div className="flex items-center gap-1.5 font-semibold text-[10px]">
                           {match.status === 'live' ? (
-                            <span className="px-2 py-0.5 bg-red-500/10 text-red-400 rounded-md border border-red-500/20 animate-pulse text-[9px] uppercase tracking-wider">
-                              🔴 En vivo
+                            <span className="px-2 py-0.5 bg-red-500/10 text-red-400 rounded-md border border-red-500/20 animate-pulse text-[9px] uppercase tracking-wider flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block animate-ping"></span>
+                              <span>En vivo</span>
                             </span>
                           ) : match.status === 'finished' ? (
                             <span className="px-2 py-0.5 bg-slate-900 text-slate-400 rounded-md border border-slate-850 text-[9px] uppercase tracking-wider">
                               Fin
                             </span>
                           ) : (
-                            <span className={locked ? 'text-red-400' : 'text-emerald-400'}>
-                              {countdown}
+                            <span className={`flex items-center gap-1 ${locked ? 'text-red-400' : 'text-emerald-400'}`}>
+                              {locked ? (
+                                <Lock className="w-3 h-3 shrink-0" />
+                              ) : (
+                                <Clock className="w-3 h-3 shrink-0 animate-pulse" />
+                              )}
+                              <span>{countdown}</span>
                             </span>
                           )}
                         </div>
@@ -449,24 +457,27 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                         {/* Puntuación ganada */}
                         <div className="text-xs">
                           {match.status === 'finished' && match.prediction ? (
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-lg font-bold border ${
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold border ${
                               pointsEarned === 3
                                 ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
                                 : pointsEarned === 1
                                 ? 'bg-teal-500/10 border-teal-500/25 text-teal-400'
                                 : 'bg-slate-900 border-slate-800 text-slate-500'
                             }`}>
-                              🏆 {pointsEarned} {pointsEarned === 1 ? 'punto' : 'puntos'}
+                              <Award className="w-3.5 h-3.5" />
+                              <span>{pointsEarned} {pointsEarned === 1 ? 'punto' : 'puntos'}</span>
                             </span>
                           ) : match.status === 'finished' && !match.prediction ? (
                             <span className="text-slate-650 font-medium">Sin pronóstico (0 pts)</span>
                           ) : match.prediction ? (
                             <span className="text-[10px] text-slate-500 font-semibold flex items-center gap-1">
-                              ✓ Pronóstico guardado
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                              <span>Pronóstico guardado</span>
                             </span>
                           ) : (
                             <span className="text-[10px] text-amber-500/80 font-medium flex items-center gap-1">
-                              ⚠️ Sin pronosticar
+                              <AlertTriangle className="w-3.5 h-3.5 text-amber-500/80" />
+                              <span>Sin pronosticar</span>
                             </span>
                           )}
                         </div>

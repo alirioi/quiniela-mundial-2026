@@ -1,5 +1,6 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
+import { Clock, Info, RotateCw } from 'lucide-react';
 
 // Obtener datos de locales (inyectados por el middleware)
 const user = Astro.locals.user;
@@ -29,9 +30,9 @@ const firstEntry = entries.find(e => e.entry_number === 1);
       <div class="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="relative space-y-4">
-        <div class="mx-auto w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-4xl animate-pulse">
-          ⏳
+      <div class="relative space-y-4 flex flex-col items-center">
+        <div class="w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center animate-pulse">
+          <Clock className="w-10 h-10 text-amber-500" />
         </div>
         
         <h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
@@ -78,8 +79,11 @@ const firstEntry = entries.find(e => e.entry_number === 1);
       )}
 
       <!-- Informative Note -->
-      <div class="p-4 rounded-xl bg-blue-950/20 border border-blue-900/30 text-xs text-blue-400 text-left leading-relaxed">
-        💡 **Nota**: Una vez aprobado tu cupo por el administrador, recibirás un correo electrónico de confirmación y podrás acceder al Dashboard para llenar tus pronósticos de la Fase de Grupos.
+      <div class="p-4 rounded-xl bg-blue-950/20 border border-blue-900/30 text-xs text-blue-400 text-left leading-relaxed flex gap-2">
+        <Info className="w-4 h-4 shrink-0 mt-0.5" />
+        <p>
+          <strong class="font-bold">Nota:</strong> Una vez aprobado tu cupo por el administrador, recibirás un correo electrónico de confirmación y podrás acceder al Dashboard para llenar tus pronósticos de la Fase de Grupos.
+        </p>
       </div>
 
       <!-- Action buttons -->
@@ -88,7 +92,8 @@ const firstEntry = entries.find(e => e.entry_number === 1);
           onclick="window.location.reload();"
           class="w-full py-3 px-4 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all duration-200 flex items-center justify-center gap-2 group"
         >
-          🔄 Re-verificar Estado
+          <RotateCw className="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-500" />
+          <span>Re-verificar Estado</span>
         </button>
         
         <p class="text-xs text-slate-500">

@@ -56,7 +56,7 @@ export const PATCH: APIRoute = async ({ params, request }) => {
       // Enviar correo de aprobación
       const htmlContent = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded-lg;">
-          <h2 style="color: #10b981; text-align: center;">🏆 ¡Tu cupo ha sido aprobado!</h2>
+          <h2 style="color: #10b981; text-align: center;">¡Tu cupo ha sido aprobado!</h2>
           <p>Hola <strong>${userFullName}</strong>,</p>
           <p>Te informamos que tu comprobante de pago para el cupo <strong>"${entry.display_name}"</strong> (Cupo #${entry.entry_number}) ha sido verificado con éxito.</p>
           <p>Ya puedes acceder a la plataforma para completar tus predicciones de la Fase de Grupos.</p>
@@ -64,14 +64,14 @@ export const PATCH: APIRoute = async ({ params, request }) => {
             <a href="${siteUrl}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px;">Ir a la Quiniela</a>
           </div>
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #64748b; text-align: center;">Quiniela Mundial 2026 — 15 USDT al pote / 5 USDT a la organización.</p>
+          <p style="font-size: 12px; color: #64748b; text-align: center;">Quiniela Mundial 2026</p>
         </div>
       `;
 
       // Intentar enviar el correo de forma no bloqueante
       sendEmail({
         to: userEmail,
-        subject: `🏆 Cupo Aprobado: ${entry.display_name} - Quiniela Mundial 2026`,
+        subject: `Cupo Aprobado: ${entry.display_name} - Quiniela Mundial 2026`,
         html: htmlContent
       }).catch(err => console.error('Error asíncrono en sendEmail:', err));
 
@@ -79,7 +79,7 @@ export const PATCH: APIRoute = async ({ params, request }) => {
       // Enviar correo de rechazo
       const htmlContent = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded-lg;">
-          <h2 style="color: #ef4444; text-align: center;">⚠️ Problema con tu registro</h2>
+          <h2 style="color: #ef4444; text-align: center;">Problema con tu registro</h2>
           <p>Hola <strong>${userFullName}</strong>,</p>
           <p>Lamentamos informarte que tu comprobante de pago para el cupo <strong>"${entry.display_name}"</strong> no ha podido ser aprobado.</p>
           ${rejectionReason ? `<p><strong>Motivo especificado por el administrador:</strong></p>
@@ -97,7 +97,7 @@ export const PATCH: APIRoute = async ({ params, request }) => {
 
       sendEmail({
         to: userEmail,
-        subject: `⚠️ Problema con tu cupo: ${entry.display_name} - Quiniela Mundial 2026`,
+        subject: `Problema con tu cupo: ${entry.display_name} - Quiniela Mundial 2026`,
         html: htmlContent
       }).catch(err => console.error('Error asíncrono en sendEmail:', err));
     }

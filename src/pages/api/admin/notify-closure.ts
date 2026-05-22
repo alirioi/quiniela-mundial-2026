@@ -55,7 +55,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const htmlContent = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff; color: #1e293b;">
           <div style="text-align: center; margin-bottom: 24px;">
-            <span style="font-size: 48px;">🏆</span>
+            <div style="display: inline-block; padding: 6px 16px; background-color: #f0fdf4; border: 1px solid #d1fae5; border-radius: 9999px; color: #059669; font-size: 12px; font-weight: bold; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-family: sans-serif;">Quiniela Oficial</div>
             <h2 style="color: #0f172a; margin-top: 10px; font-family: 'Outfit', sans-serif;">¡Inscripciones Cerradas!</h2>
             <p style="color: #64748b; font-size: 14px;">El camino al Mundial 2026 ha comenzado</p>
           </div>
@@ -75,7 +75,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
           </div>
 
           <div style="margin: 24px 0; font-size: 14px; line-height: 1.5;">
-            <h3 style="color: #0f172a; font-size: 16px; margin-bottom: 8px;">📌 Recordatorios Importantes:</h3>
+            <h3 style="color: #0f172a; font-size: 16px; margin-bottom: 8px;">Recordatorios Importantes:</h3>
             <ul style="padding-left: 20px; margin: 0; color: #475569;">
               <li style="margin-bottom: 6px;"><strong>Bloqueo de Pronósticos:</strong> Las predicciones de cada partido se bloquean automáticamente <strong>2 horas antes</strong> de su hora programada de inicio. ¡No olvides llenar tus marcadores a tiempo!</li>
               <li style="margin-bottom: 6px;"><strong>Clasificación General:</strong> La tabla de posiciones y los apodos de todos los participantes se harán públicos una vez comience el primer partido.</li>
@@ -98,7 +98,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
       const result = await sendEmail({
         to: email,
-        subject: `🏆 ¡Inscripciones Cerradas y Pote Oficial Confirmado! - Quiniela Mundial 2026`,
+        subject: `¡Inscripciones Cerradas y Pote Oficial Confirmado! - Quiniela Mundial 2026`,
         html: htmlContent
       });
 

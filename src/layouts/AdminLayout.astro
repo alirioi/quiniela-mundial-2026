@@ -1,5 +1,6 @@
 ---
 import MainLayout from './MainLayout.astro';
+import { Shield, CreditCard, Trophy, Settings } from 'lucide-react';
 
 interface Props {
   title: string;
@@ -21,7 +22,7 @@ const activePath = Astro.url.pathname;
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800/80 pb-6 mb-8">
       <div>
         <h1 class="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
-          <span>🛡️</span> Panel de Administración
+          <Shield className="w-8 h-8 text-emerald-400 shrink-0" /> Panel de Administración
         </h1>
         <p class="text-xs text-slate-400 mt-1">
           Gestiona los pagos de los usuarios, registra marcadores oficiales y administra las fases del torneo.
@@ -32,33 +33,36 @@ const activePath = Astro.url.pathname;
       <nav class="flex items-center gap-2 p-1 bg-slate-900/60 border border-slate-800/80 rounded-2xl w-fit">
         <a
           href="/admin"
-          class={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors ${
+          class={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
             activePath === '/admin'
               ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-md shadow-emerald-950/20'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          💳 Cupos y Pagos
+          <CreditCard className="w-3.5 h-3.5" />
+          <span>Cupos y Pagos</span>
         </a>
         <a
           href="/admin/matches"
-          class={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors ${
+          class={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
             activePath === '/admin/matches'
               ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-md shadow-emerald-950/20'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          ⚽ Marcadores
+          <Trophy className="w-3.5 h-3.5" />
+          <span>Marcadores</span>
         </a>
         <a
           href="/admin/phases"
-          class={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors ${
+          class={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
             activePath === '/admin/phases'
               ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-md shadow-emerald-950/20'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          ⚙️ Fases
+          <Settings className="w-3.5 h-3.5" />
+          <span>Fases</span>
         </a>
       </nav>
     </div>

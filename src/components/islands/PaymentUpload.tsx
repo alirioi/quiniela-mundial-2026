@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Upload, FileText, Check, Trash2, AlertTriangle } from 'lucide-react';
 
 interface PaymentUploadProps {
   initialLabel?: string;
@@ -122,8 +123,8 @@ export default function PaymentUpload({ initialLabel = 'Sube tu comprobante de p
       >
         {!file ? (
           <div className="space-y-2.5">
-            <div className="mx-auto w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-xl text-slate-400 shadow-inner">
-              📤
+            <div className="mx-auto w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 shadow-inner">
+              <Upload className="w-5 h-5 text-slate-400" />
             </div>
             <div>
               <p className="text-sm font-medium text-slate-200">
@@ -150,7 +151,7 @@ export default function PaymentUpload({ initialLabel = 'Sube tu comprobante de p
                 </div>
               ) : (
                 <div className="w-16 h-16 rounded-lg bg-red-950/20 border border-red-900/30 flex flex-col items-center justify-center text-red-400 text-xs font-bold uppercase flex-shrink-0">
-                  <span className="text-2xl mb-0.5">📄</span>
+                  <FileText className="w-6 h-6 text-red-400 mb-0.5" />
                   PDF
                 </div>
               )}
@@ -161,8 +162,9 @@ export default function PaymentUpload({ initialLabel = 'Sube tu comprobante de p
                 <p className="text-[10px] text-slate-500 mt-0.5 font-mono">
                   {formatBytes(file.size)}
                 </p>
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 mt-1 border border-emerald-500/10">
-                  ✓ Listo para subir
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 mt-1 border border-emerald-500/10">
+                  <Check className="w-2.5 h-2.5" />
+                  <span>Listo para subir</span>
                 </span>
               </div>
             </div>
@@ -170,18 +172,19 @@ export default function PaymentUpload({ initialLabel = 'Sube tu comprobante de p
             <button
               type="button"
               onClick={removeFile}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-red-950/50 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-900/40 transition-all duration-200"
+              className="p-2 rounded-lg bg-slate-800 hover:bg-red-950/50 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-900/40 transition-all duration-200 flex items-center justify-center"
               title="Quitar archivo"
             >
-              🗑️
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
         )}
       </div>
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-950/40 border border-red-900/50 text-red-400 text-xs font-semibold">
-          ⚠️ {error}
+        <div className="p-3 rounded-lg bg-red-950/40 border border-red-900/50 text-red-400 text-xs font-semibold flex items-center gap-1.5">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
         </div>
       )}
     </div>

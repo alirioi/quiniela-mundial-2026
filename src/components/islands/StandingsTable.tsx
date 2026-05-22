@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase-browser';
+import { Trophy, Lock, BarChart3, AlertTriangle } from 'lucide-react';
 
 interface StandingEntry {
   id: number;
@@ -93,8 +94,9 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
 
   if (error) {
     return (
-      <div className="p-4 rounded-xl bg-red-950/20 border border-red-900/30 text-center text-xs text-red-400">
-        ⚠️ {error}
+      <div className="p-4 rounded-xl bg-red-950/20 border border-red-900/30 text-center text-xs text-red-400 flex items-center justify-center gap-1.5">
+        <AlertTriangle className="w-4 h-4 text-red-400" />
+        <span>{error}</span>
       </div>
     );
   }
@@ -115,7 +117,8 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <span>📊</span> Clasificación General
+            <BarChart3 className="w-4 h-4 text-slate-400" />
+            <span>Clasificación General</span>
           </h3>
           <span className="text-[10px] text-slate-500 font-mono">Privacidad Activa</span>
         </div>
@@ -123,8 +126,8 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
         <div className="p-8 text-center bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center gap-6">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
           
-          <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-3xl shadow-inner select-none animate-pulse-subtle">
-            🔒
+          <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-inner select-none animate-pulse-subtle">
+            <Lock className="w-6 h-6 text-emerald-400" />
           </div>
 
           <div className="max-w-md space-y-2">
@@ -176,14 +179,16 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <span>📊</span> Clasificación General
+          <BarChart3 className="w-4 h-4 text-slate-400" />
+          <span>Clasificación General</span>
         </h3>
         <span className="text-[10px] text-slate-500 font-mono">Actualizado en tiempo real</span>
       </div>
 
       {standings.length === 0 ? (
-        <div className="p-8 text-center bg-slate-900/20 rounded-2xl border border-slate-800/60 text-slate-500 text-sm">
-          🏆 La clasificación se generará una vez que comiencen los partidos y se aprueben los cupos.
+        <div className="p-8 text-center bg-slate-900/20 rounded-2xl border border-slate-800/60 text-slate-500 text-sm flex flex-col items-center justify-center gap-3">
+          <Trophy className="w-8 h-8 text-slate-600" />
+          <p>La clasificación se generará una vez que comiencen los partidos y se aprueben los cupos.</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/40 backdrop-blur-sm shadow-xl">
@@ -207,16 +212,16 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
                   const position = currentRank;
                   
                   // Estilo para el top 3
-                  let medal = '';
+                  let medal: React.ReactNode = null;
                   let posColor = 'text-slate-400';
                   if (position === 1) {
-                    medal = '🥇';
+                    medal = <Trophy className="w-5 h-5 text-amber-400 fill-amber-400/10 mx-auto animate-pulse-subtle" />;
                     posColor = 'text-amber-400 font-bold';
                   } else if (position === 2) {
-                    medal = '🥈';
+                    medal = <Trophy className="w-5 h-5 text-slate-300 fill-slate-300/10 mx-auto" />;
                     posColor = 'text-slate-300 font-bold';
                   } else if (position === 3) {
-                    medal = '🥉';
+                    medal = <Trophy className="w-5 h-5 text-amber-600 fill-amber-600/10 mx-auto" />;
                     posColor = 'text-amber-600 font-bold';
                   }
 
@@ -231,7 +236,7 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
                   >
                     <td className="p-4 text-center">
                       {medal ? (
-                        <span className="text-lg">{medal}</span>
+                        <div className="flex justify-center">{medal}</div>
                       ) : (
                         <span className={`font-mono text-xs ${posColor}`}>{position}</span>
                       )}

@@ -1,6 +1,7 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
 import PredictionsForm from '../../components/islands/PredictionsForm';
+import { Trophy, ArrowLeft, Award } from 'lucide-react';
 
 const { phase } = Astro.params;
 
@@ -44,12 +45,12 @@ const pageTitle = phaseTitles[phase] || 'Pronósticos';
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800/80 pb-6 mb-8">
       <div>
         <div class="flex items-center gap-2">
-          <a href="/dashboard" class="text-xs font-semibold text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-1">
-            ⬅️ Volver al Dashboard
+          <a href="/dashboard" class="text-xs font-semibold text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+            <ArrowLeft className="w-4 h-4 text-slate-400 hover:text-emerald-400 transition-colors" /> Volver al Dashboard
           </a>
         </div>
         <h1 class="text-3xl font-extrabold tracking-tight text-white mt-2 flex items-center gap-2">
-          <span>🏆</span> {pageTitle}
+          <Trophy className="w-8 h-8 text-emerald-400" /> {pageTitle}
         </h1>
         <p class="text-xs text-slate-400 mt-1">
           Ingresa tus marcadores para cada partido. Recuerda que el pronóstico se bloquea exactamente **2 horas antes** del inicio de cada juego.
@@ -58,7 +59,7 @@ const pageTitle = phaseTitles[phase] || 'Pronósticos';
 
       <!-- Fase Info/Stats -->
       <div class="p-3 bg-slate-900/40 border border-slate-800/80 rounded-2xl flex items-center gap-3">
-        <span class="text-xl">⚽</span>
+        <Award className="w-5 h-5 text-emerald-400 flex-shrink-0" />
         <div class="text-xs text-slate-400">
           <div>Puntaje: <span class="font-bold text-slate-200">Exacto = 3 pts</span> | <span class="font-bold text-slate-200">Parcial = 1 pt</span></div>
           <div class="mt-0.5 text-[10px] text-slate-500">Mismo sistema de puntuación para todo el torneo.</div>

@@ -1,4 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Ticket, 
+  Lock, 
+  Plus, 
+  AlertTriangle, 
+  CheckCircle2, 
+  XCircle, 
+  Edit3, 
+  FileText, 
+  Trophy, 
+  Settings, 
+  Megaphone, 
+  UploadCloud, 
+  Trash2, 
+  X,
+  Clock,
+  Check
+} from 'lucide-react';
 
 interface Entry {
   id: number;
@@ -163,14 +181,14 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
       case 'approved':
         return (
           <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 w-fit">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
             Aprobado
           </span>
         );
       case 'rejected':
         return (
           <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center gap-1.5 w-fit">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+            <XCircle className="w-3.5 h-3.5 text-rose-400" />
             Rechazado
           </span>
         );
@@ -178,7 +196,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
       default:
         return (
           <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5 w-fit">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+            <Clock className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
             Pendiente
           </span>
         );
@@ -201,7 +219,8 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
         <div>
           <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
-            🎟️ Gestión de Cupos
+            <Ticket className="w-5 h-5 text-emerald-400" />
+            <span>Gestión de Cupos</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
             Aquí puedes ver el estado de tus cupos registrados, consultar sus puntuaciones y comprar cupos adicionales para multiplicar tus oportunidades de ganar.
@@ -210,7 +229,8 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
         {isRegistrationClosed ? (
           <div className="flex flex-col items-end gap-1">
             <span className="px-4 py-2.5 bg-slate-800 text-slate-500 rounded-xl text-xs font-semibold border border-slate-700/50 flex items-center justify-center gap-1.5 cursor-not-allowed">
-              🔒 Compras Cerradas
+              <Lock className="w-4 h-4 text-slate-500" />
+              <span>Compras Cerradas</span>
             </span>
             <span className="text-[10px] text-slate-500">Finalizó el 9 de Junio</span>
           </div>
@@ -219,7 +239,8 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
             onClick={openModal}
             className="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-950/20 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
           >
-            <span>➕ Comprar Cupo Adicional</span>
+            <Plus className="w-4 h-4 text-slate-950" />
+            <span>Comprar Cupo Adicional</span>
           </button>
         )}
       </div>
@@ -288,11 +309,13 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                       {entry.status === 'approved' ? (
                         hasPending ? (
                           <span className="text-amber-400 flex items-center gap-1">
-                            ⚠️ {entry.pendingPredictions} pendientes
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                            <span>{entry.pendingPredictions} pendientes</span>
                           </span>
                         ) : (
                           <span className="text-emerald-400 flex items-center gap-1">
-                            ✓ Completos
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Completos</span>
                           </span>
                         )
                       ) : (
@@ -310,7 +333,8 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                     href={entry.activePhases.length > 0 ? `/predictions/${entry.activePhases[0].slug}` : '#'}
                     className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 hover:border-slate-600 rounded-xl text-xs font-semibold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"
                   >
-                    📝 Pronosticar
+                    <Edit3 className="w-3.5 h-3.5 text-slate-300" />
+                    <span>Pronosticar</span>
                   </a>
                 )}
                 {entry.signedUrl && (
@@ -320,12 +344,14 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-900 hover:border-slate-800 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5"
                   >
-                    📄 Ver Comprobante
+                    <FileText className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Ver Comprobante</span>
                   </a>
                 )}
                 {entry.status === 'rejected' && (
-                  <div className="text-xs text-rose-400/90 font-medium">
-                    ❌ El administrador rechazó el comprobante. Por favor, sube un cupo nuevo con un pago válido o contáctanos.
+                  <div className="text-xs text-rose-400/90 font-medium flex items-start gap-1.5">
+                    <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                    <span>El administrador rechazó el comprobante. Por favor, sube un cupo nuevo con un pago válido o contáctanos.</span>
                   </div>
                 )}
               </div>
@@ -348,7 +374,8 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  🏆 Comprar Cupo Adicional
+                  <Trophy className="w-5 h-5 text-emerald-400" />
+                  <span>Comprar Cupo Adicional</span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
                   Registra un nuevo cupo subiendo un comprobante de transferencia.
@@ -359,7 +386,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                 disabled={submitting}
                 className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all disabled:opacity-50"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -373,19 +400,22 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               <div className="space-y-2 text-xs text-slate-400">
                 <div className="flex justify-between items-center">
                   <span className="flex items-center gap-1.5">
-                    <span className="text-emerald-400">🏆</span> Al pote de premios:
+                    <Trophy className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Al pote de premios:</span>
                   </span>
                   <span className="text-slate-200 font-semibold font-mono">15.00 USDT</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="flex items-center gap-1.5">
-                    <span className="text-slate-500">⚙️</span> Gastos operativos:
+                    <Settings className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Gastos operativos:</span>
                   </span>
                   <span className="text-slate-200 font-semibold font-mono">5.00 USDT</span>
                 </div>
               </div>
-              <div className="pt-2 border-t border-slate-900 text-[10px] text-emerald-400 font-medium text-center font-bold">
-                📢 El 100% del pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo.
+              <div className="pt-2 border-t border-slate-900 text-[10px] text-emerald-400 font-bold text-center flex items-center justify-center gap-1.5">
+                <Megaphone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>El 100% del pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo.</span>
               </div>
             </div>
 
@@ -438,8 +468,8 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                 >
                   {!file ? (
                     <div className="space-y-2">
-                      <div className="mx-auto w-10 h-10 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-lg text-slate-400">
-                        📤
+                      <div className="mx-auto w-10 h-10 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400">
+                        <UploadCloud className="w-5 h-5 text-slate-400" />
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-slate-200">
@@ -461,16 +491,16 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                             <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                           </div>
                         ) : (
-                          <div className="w-12 h-12 rounded-lg bg-red-950/20 border border-red-900/30 flex flex-col items-center justify-center text-red-400 text-[10px] font-bold uppercase flex-shrink-0">
-                            📄
+                          <div className="w-12 h-12 rounded-lg bg-red-950/20 border border-red-900/30 flex flex-col items-center justify-center text-red-400 flex-shrink-0">
+                            <FileText className="w-6 h-6 text-red-400" />
                           </div>
                         )}
                         <div className="min-w-0">
                           <p className="text-xs font-semibold text-slate-200 truncate max-w-[150px]">
                             {file.name}
                           </p>
-                          <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 mt-1 border border-emerald-500/10">
-                            ✓ Listo
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 mt-1 border border-emerald-500/10">
+                            <Check className="w-2.5 h-2.5" /> Listo
                           </span>
                         </div>
                       </div>
@@ -484,7 +514,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                         disabled={submitting}
                         className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-red-400 transition-all"
                       >
-                        🗑️
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   )}
@@ -492,8 +522,9 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               </div>
 
               {formError && (
-                <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-900/40 text-rose-400 text-xs font-semibold">
-                  ⚠️ {formError}
+                <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-900/40 text-rose-400 text-xs font-semibold flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span>{formError}</span>
                 </div>
               )}
 

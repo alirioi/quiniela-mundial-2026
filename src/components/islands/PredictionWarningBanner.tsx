@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AlertTriangle, Edit3 } from 'lucide-react';
 
 interface EntryWithPending {
   id: number;
@@ -50,7 +51,7 @@ export default function PredictionWarningBanner() {
             <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
 
             <div className="flex items-start space-x-3">
-              <span className="text-xl mt-0.5">⚠️</span>
+              <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-sm font-bold text-amber-400">
                   Pronósticos Incompletos - Cupo "{entry.display_name}"
@@ -63,9 +64,10 @@ export default function PredictionWarningBanner() {
 
             <a
               href={`/predictions/${activePhase.slug}`}
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-950/20 hover:-translate-y-0.5 text-center flex-shrink-0"
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-950/20 hover:-translate-y-0.5 text-center flex-shrink-0 flex items-center justify-center gap-1.5"
             >
-              Completar Pronósticos ✍️
+              <span>Completar Pronósticos</span>
+              <Edit3 className="w-3.5 h-3.5 text-slate-950" />
             </a>
           </div>
         );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase-browser';
+import { Trophy } from 'lucide-react';
 
 interface PrizePool {
   totalPool: number;
@@ -63,8 +64,8 @@ export default function PrizePoolDisplay() {
       <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="flex items-center space-x-4">
-        <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-3xl shadow-inner shadow-emerald-500/5 select-none animate-pulse-subtle">
-          🏆
+        <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-inner shadow-emerald-500/5 select-none animate-pulse-subtle">
+          <Trophy className="w-7 h-7 text-emerald-400" />
         </div>
         <div className="text-center sm:text-left">
           <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-400">

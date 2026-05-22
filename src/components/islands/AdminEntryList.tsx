@@ -1,4 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Folder,
+  RefreshCw,
+  AlertTriangle,
+  Inbox,
+  Eye,
+  Check,
+  X,
+  ExternalLink
+} from 'lucide-react';
 
 interface Entry {
   id: number;
@@ -104,32 +117,48 @@ export default function AdminEntryList() {
                   : 'bg-slate-950/40 border-transparent hover:border-slate-800 text-slate-500 hover:text-slate-300'
               }`}
             >
-              {status === 'pending' && '⏳ Pendientes'}
-              {status === 'approved' && '✅ Aprobados'}
-              {status === 'rejected' && '❌ Rechazados'}
-              {status === 'all' && '📁 Todos'}
+              {status === 'pending' && (
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" /> Pendientes
+                </span>
+              )}
+              {status === 'approved' && (
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Aprobados
+                </span>
+              )}
+              {status === 'rejected' && (
+                <span className="flex items-center gap-1.5">
+                  <XCircle className="w-3.5 h-3.5" /> Rechazados
+                </span>
+              )}
+              {status === 'all' && (
+                <span className="flex items-center gap-1.5">
+                  <Folder className="w-3.5 h-3.5" /> Todos
+                </span>
+              )}
             </button>
           ))}
         </div>
 
         <button
           onClick={fetchEntries}
-          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all duration-200 text-xs font-semibold flex items-center gap-1.5"
+          className="p-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all duration-200 text-xs font-semibold flex items-center gap-1.5"
           disabled={loading}
         >
-          🔄 Recargar
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Recargar
         </button>
       </div>
 
       {/* Lista de Cupos */}
       {loading ? (
         <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-slate-900/20 rounded-2xl border border-slate-800/60">
-          <div className="animate-spin text-3xl">🔄</div>
+          <RefreshCw className="w-8 h-8 text-emerald-500 animate-spin" />
           <p className="text-slate-500 text-sm">Cargando cupos...</p>
         </div>
       ) : error ? (
         <div className="p-6 rounded-2xl bg-red-950/20 border border-red-900/40 text-center space-y-3">
-          <div className="text-3xl">⚠️</div>
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto" />
           <p className="text-red-400 font-semibold text-sm">{error}</p>
           <button
             onClick={fetchEntries}
@@ -139,8 +168,9 @@ export default function AdminEntryList() {
           </button>
         </div>
       ) : filteredEntries.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900/20 rounded-2xl border border-slate-800/60 text-slate-500 text-sm">
-          📭 No hay cupos en esta categoría.
+        <div className="p-12 text-center bg-slate-900/20 rounded-2xl border border-slate-800/60 text-slate-500 text-sm flex flex-col items-center justify-center space-y-2">
+          <Inbox className="w-8 h-8 text-slate-500 mb-1" />
+          <span>No hay cupos en esta categoría.</span>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950/40 backdrop-blur-sm">
@@ -181,9 +211,9 @@ export default function AdminEntryList() {
                       {entry.signedUrl ? (
                         <button
                           onClick={() => setSelectedReceipt({ url: entry.signedUrl!, name: entry.display_name })}
-                          className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors text-xs font-semibold inline-flex items-center gap-1"
+                          className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors text-xs font-semibold inline-flex items-center gap-1.5"
                         >
-                          👁️ Ver Archivo
+                          <Eye className="w-3.5 h-3.5" /> Ver Archivo
                         </button>
                       ) : (
                         <span className="text-slate-600 text-xs">Sin comprobante</span>
@@ -210,19 +240,19 @@ export default function AdminEntryList() {
                           {entry.status !== 'approved' && (
                             <button
                               onClick={() => handleUpdateStatus(entry.id, 'approved')}
-                              className="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs transition-colors"
+                              className="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs transition-colors flex items-center gap-1"
                               title="Aprobar Pago"
                             >
-                              ✓ Aprobar
+                              <Check className="w-3.5 h-3.5" /> Aprobar
                             </button>
                           )}
                           {entry.status !== 'rejected' && (
                             <button
                               onClick={() => setRejectingId(entry.id)}
-                              className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-red-950/40 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-900/50 transition-all duration-200 text-xs font-semibold"
+                              className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-red-950/40 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-900/50 transition-all duration-200 text-xs font-semibold flex items-center gap-1"
                               title="Rechazar Pago"
                             >
-                              ✗ Rechazar
+                              <X className="w-3.5 h-3.5" /> Rechazar
                             </button>
                           )}
                         </div>
@@ -246,7 +276,7 @@ export default function AdminEntryList() {
                 onClick={() => setSelectedReceipt(null)}
                 className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
             
@@ -271,9 +301,9 @@ export default function AdminEntryList() {
                 href={selectedReceipt.url}
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-slate-700 transition-colors"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-slate-700 transition-colors flex items-center gap-1.5"
               >
-                🔗 Abrir en nueva pestaña
+                <ExternalLink className="w-3.5 h-3.5" /> Abrir en nueva pestaña
               </a>
               <button
                 onClick={() => setSelectedReceipt(null)}

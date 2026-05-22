@@ -4,6 +4,7 @@ import PredictionWarningBanner from '../components/islands/PredictionWarningBann
 import PrizePoolDisplay from '../components/islands/PrizePoolDisplay';
 import LiveScoreboard from '../components/islands/LiveScoreboard';
 import StandingsTable from '../components/islands/StandingsTable';
+import { Edit3, CreditCard, Shield, Info, MessageSquare, Sparkles } from 'lucide-react';
 
 // Obtener datos del middleware
 const user = Astro.locals.user;
@@ -38,7 +39,7 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
       
       <div>
         <h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-          ¡Hola, {profile?.full_name}! 👋
+          ¡Hola, {profile?.full_name}!
         </h1>
         <p class="text-xs text-slate-400 mt-1 leading-relaxed">
           Bienvenido a la Quiniela Mundial 2026. Tienes <span class="font-bold text-slate-200">{approvedEntryIds.length} {approvedEntryIds.length === 1 ? 'cupo activo' : 'cupos activos'}</span> participando en el torneo.
@@ -48,22 +49,22 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
       <div class="flex flex-wrap items-center gap-3">
         <a
           href="/predictions/grupos"
-          class="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-950/20 hover:-translate-y-0.5"
+          class="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-950/20 hover:-translate-y-0.5 flex items-center gap-1.5"
         >
-          ✍️ Llenar Pronósticos
+          <Edit3 className="w-3.5 h-3.5 text-slate-950" /> Llenar Pronósticos
         </a>
         <a
           href="/my-entries"
-          class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-all hover:-translate-y-0.5"
+          class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-all hover:-translate-y-0.5 flex items-center gap-1.5"
         >
-          💳 Comprar Más Cupos
+          <CreditCard className="w-3.5 h-3.5 text-slate-400" /> Comprar Más Cupos
         </a>
         {profile?.role === 'admin' && (
           <a
             href="/admin"
-            class="px-5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-amber-950/20 hover:-translate-y-0.5"
+            class="px-5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-amber-950/20 hover:-translate-y-0.5 flex items-center gap-1.5"
           >
-            🛡️ Panel Admin
+            <Shield className="w-3.5 h-3.5 text-slate-950" /> Panel Admin
           </a>
         )}
       </div>
@@ -88,7 +89,7 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
         <!-- Tarjeta de Reglas de Puntuación -->
         <div class="p-5 rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm space-y-4">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 border-b border-slate-900 pb-2.5">
-            <span>ℹ️</span> Reglas de Puntuación
+            <Info className="w-4 h-4 text-emerald-400" /> Reglas de Puntuación
           </h3>
           
           <ul class="space-y-3 text-xs leading-relaxed text-slate-300">
@@ -118,14 +119,15 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
 
         <!-- Tarjeta de Contacto / Soporte -->
         <div class="p-5 rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm space-y-3">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">
-            💬 Soporte y Organización
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <MessageSquare className="w-4 h-4 text-emerald-400" /> Soporte y Organización
           </h3>
           <p class="text-xs text-slate-300 leading-relaxed">
             Si compraste un cupo adicional y tu comprobante sigue en revisión, o tienes dudas sobre las reglas del torneo, comunícate directamente con el administrador.
           </p>
-          <div class="pt-1 text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
-            ¡Buena suerte en la quiniela! 🍀
+          <div class="pt-1 text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            ¡Buena suerte en la quiniela!
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 import MainLayout from '../layouts/MainLayout.astro';
 import PaymentBreakdown from '../components/ui/PaymentBreakdown.astro';
 import PaymentUpload from '../components/islands/PaymentUpload';
+import { UserPlus, Lock } from 'lucide-react';
 
 // Si el usuario ya está autenticado y tiene cupos aprobados, se le redirige al dashboard.
 const user = Astro.locals.user;
@@ -29,9 +30,9 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
       <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="text-center relative">
-        <span class="text-4xl animate-pulse inline-block">📝</span>
-        <h1 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+      <div class="text-center relative flex flex-col items-center">
+        <UserPlus className="w-12 h-12 text-emerald-400 mb-2 animate-pulse-subtle" />
+        <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
           Únete a la <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Quiniela 2026</span>
         </h1>
         <p class="mt-2 text-sm text-slate-400">
@@ -40,8 +41,8 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
       </div>
 
       {isRegistrationClosed ? (
-        <div class="mt-8 space-y-6 bg-slate-950/80 p-6 rounded-xl border border-amber-900/40 text-center">
-          <span class="text-4xl block mb-2">🔒</span>
+        <div class="mt-8 space-y-6 bg-slate-950/80 p-6 rounded-xl border border-amber-900/40 text-center flex flex-col items-center">
+          <Lock className="w-12 h-12 text-slate-500 mb-2" />
           <h2 class="text-lg font-bold text-amber-400">Inscripciones Cerradas</h2>
           <p class="text-xs text-slate-400 mt-2">
             El registro de nuevos usuarios y la compra de cupos finalizaron el 9 de Junio de 2026 a las 22:30 UTC (48 horas antes del inicio del torneo).
@@ -156,7 +157,7 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
               class="w-full py-4 px-4 rounded-xl text-sm font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg shadow-emerald-950/20 hover:shadow-emerald-950/40 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 group font-bold"
             >
               <span>Crear Cuenta y Registrar Cupo</span>
-              <span class="group-hover:translate-x-1 transition-transform">🚀</span>
+              <UserPlus className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-all" />
             </button>
           </div>
         </form>
@@ -175,6 +176,7 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
     const form = document.getElementById('register-form') as HTMLFormElement;
     const errorDiv = document.getElementById('error-message');
     const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+    const USER_PLUS_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-slate-950 group-hover:scale-110 transition-all"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>`;
 
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -225,13 +227,13 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
           errorDiv.textContent = data.error || 'Error al completar el registro';
           errorDiv.classList.remove('hidden');
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span>Crear Cuenta y Registrar Cupo</span><span>🚀</span>';
+          submitBtn.innerHTML = `<span>Crear Cuenta y Registrar Cupo</span>${USER_PLUS_SVG}`;
         }
       } catch (err) {
         errorDiv.textContent = 'Error de conexión. Inténtalo de nuevo.';
         errorDiv.classList.remove('hidden');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span>Crear Cuenta y Registrar Cupo</span><span>🚀</span>';
+        submitBtn.innerHTML = `<span>Crear Cuenta y Registrar Cupo</span>${USER_PLUS_SVG}`;
       }
     });
   </script>

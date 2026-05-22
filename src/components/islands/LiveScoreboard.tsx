@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase-browser';
+import { Trophy } from 'lucide-react';
 
 interface Match {
   id: number;
@@ -79,8 +80,8 @@ export default function LiveScoreboard() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <span>⚽</span> Partidos de la Jornada
+        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <Trophy className="w-4 h-4 text-emerald-400" /> Partidos de la Jornada
         </h3>
         <span className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>

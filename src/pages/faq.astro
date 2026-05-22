@@ -1,5 +1,17 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
+import { 
+  Ticket, 
+  Coins, 
+  Trophy, 
+  Award, 
+  Zap, 
+  Clock, 
+  Calendar, 
+  ShieldAlert, 
+  ChevronDown,
+  AlertTriangle 
+} from 'lucide-react';
 ---
 
 <MainLayout title="Reglas y FAQ">
@@ -30,11 +42,14 @@ import MainLayout from '../layouts/MainLayout.astro';
           <!-- Q1: ¿Cómo participar? -->
           <div class="faq-item rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm overflow-hidden transition-all duration-300">
             <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 font-bold hover:text-white transition-colors">
-              <span>🎟️ ¿Cómo participar en la Quiniela?</span>
-              <span class="faq-icon text-slate-500 transition-transform duration-300">▼</span>
+              <span class="flex items-center gap-2">
+                <Ticket className="w-5 h-5 text-emerald-400" />
+                <span>¿Cómo participar en la Quiniela?</span>
+              </span>
+              <ChevronDown className="faq-icon w-4 h-4 text-slate-500 transition-transform duration-300" />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm text-slate-400 leading-relaxed space-y-3 border-t border-slate-950/20 pt-4">
+              <div class="px-6 pb-6 text-sm text-slate-400 leading-relaxed space-y-4 border-t border-slate-950/20 pt-4">
                 <p>Para participar debes seguir estos pasos:</p>
                 <ol class="list-decimal pl-5 space-y-2">
                   <li>Crea una cuenta en la página de registro ingresando tus datos personales (debes ser mayor de 18 años).</li>
@@ -42,9 +57,10 @@ import MainLayout from '../layouts/MainLayout.astro';
                   <li>Sube tu comprobante de pago en el formulario para que el administrador pueda verificar la transacción.</li>
                   <li>Una vez que el administrador apruebe tu cupo, podrás acceder al Dashboard y rellenar tus predicciones para todos los partidos disponibles.</li>
                 </ol>
-                <p class="text-xs text-amber-500 font-medium">
-                  ⚠️ Recuerda: Puedes comprar múltiples cupos bajo la misma cuenta si deseas enviar predicciones diferentes y multiplicar tus oportunidades de ganar.
-                </p>
+                <div class="text-xs text-amber-500 font-medium flex items-start gap-2 bg-amber-500/10 p-3 rounded-lg border border-amber-500/20">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <span><strong>Recuerda:</strong> Puedes comprar múltiples cupos bajo la misma cuenta si deseas enviar predicciones diferentes y multiplicar tus oportunidades de ganar.</span>
+                </div>
               </div>
             </div>
           </div>
@@ -52,8 +68,11 @@ import MainLayout from '../layouts/MainLayout.astro';
           <!-- Q2: ¿Cuánto cuesta la inscripción y cómo se distribuye el dinero? -->
           <div class="faq-item rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm overflow-hidden transition-all duration-300">
             <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 font-bold hover:text-white transition-colors">
-              <span>💰 ¿Cuánto cuesta el cupo y cómo se distribuye el dinero?</span>
-              <span class="faq-icon text-slate-500 transition-transform duration-300">▼</span>
+              <span class="flex items-center gap-2">
+                <Coins className="w-5 h-5 text-emerald-400" />
+                <span>¿Cuánto cuesta el cupo y cómo se distribuye el dinero?</span>
+              </span>
+              <ChevronDown className="faq-icon w-4 h-4 text-slate-500 transition-transform duration-300" />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
               <div class="px-6 pb-6 text-sm text-slate-400 leading-relaxed space-y-3 border-t border-slate-950/20 pt-4">
@@ -70,8 +89,11 @@ import MainLayout from '../layouts/MainLayout.astro';
           <!-- Q3: ¿Cuál es el premio y cómo se reparte? -->
           <div class="faq-item rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm overflow-hidden transition-all duration-300">
             <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 font-bold hover:text-white transition-colors">
-              <span>🏆 ¿Cuál es el premio y cómo se reparte?</span>
-              <span class="faq-icon text-slate-500 transition-transform duration-300">▼</span>
+              <span class="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-emerald-400" />
+                <span>¿Cuál es el premio y cómo se reparte?</span>
+              </span>
+              <ChevronDown className="faq-icon w-4 h-4 text-slate-500 transition-transform duration-300" />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
               <div class="px-6 pb-6 text-sm text-slate-400 leading-relaxed space-y-3 border-t border-slate-950/20 pt-4">
@@ -84,8 +106,11 @@ import MainLayout from '../layouts/MainLayout.astro';
           <!-- Q4: ¿Cómo funciona el sistema de puntuación? -->
           <div class="faq-item rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm overflow-hidden transition-all duration-300">
             <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 font-bold hover:text-white transition-colors">
-              <span>📊 ¿Cómo funciona el sistema de puntuación?</span>
-              <span class="faq-icon text-slate-500 transition-transform duration-300">▼</span>
+              <span class="flex items-center gap-2">
+                <Award className="w-5 h-5 text-emerald-400" />
+                <span>¿Cómo funciona el sistema de puntuación?</span>
+              </span>
+              <ChevronDown className="faq-icon w-4 h-4 text-slate-500 transition-transform duration-300" />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
               <div class="px-6 pb-6 text-sm text-slate-400 leading-relaxed space-y-3 border-t border-slate-950/20 pt-4">
@@ -111,8 +136,11 @@ import MainLayout from '../layouts/MainLayout.astro';
           <!-- Q4.5: ¿Cómo se manejan los penales en fase eliminatoria? -->
           <div class="faq-item rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm overflow-hidden transition-all duration-300">
             <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 font-bold hover:text-white transition-colors">
-              <span>⚽ ¿Cómo se calculan los puntos en la fase eliminatoria si hay prórroga o penales?</span>
-              <span class="faq-icon text-slate-500 transition-transform duration-300">▼</span>
+              <span class="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-emerald-400" />
+                <span>¿Cómo se calculan los puntos en la fase eliminatoria si hay prórroga o penales?</span>
+              </span>
+              <ChevronDown className="faq-icon w-4 h-4 text-slate-500 transition-transform duration-300" />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
               <div class="px-6 pb-6 text-sm text-slate-400 leading-relaxed space-y-3 border-t border-slate-950/20 pt-4">
@@ -129,8 +157,11 @@ import MainLayout from '../layouts/MainLayout.astro';
           <!-- Q5: ¿Cuándo se bloquean las predicciones? -->
           <div class="faq-item rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm overflow-hidden transition-all duration-300">
             <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 font-bold hover:text-white transition-colors">
-              <span>⏱️ ¿Hasta cuándo tengo tiempo de guardar o modificar mis predicciones?</span>
-              <span class="faq-icon text-slate-500 transition-transform duration-300">▼</span>
+              <span class="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-emerald-400" />
+                <span>¿Hasta cuándo tengo tiempo de guardar o modificar mis predicciones?</span>
+              </span>
+              <ChevronDown className="faq-icon w-4 h-4 text-slate-500 transition-transform duration-300" />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
               <div class="px-6 pb-6 text-sm text-slate-400 leading-relaxed space-y-3 border-t border-slate-950/20 pt-4">
@@ -143,8 +174,11 @@ import MainLayout from '../layouts/MainLayout.astro';
           <!-- Q6: ¿Cuándo cierran las inscripciones y compras de cupos? -->
           <div class="faq-item rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm overflow-hidden transition-all duration-300">
             <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 font-bold hover:text-white transition-colors">
-              <span>📅 ¿Cuándo cierran las inscripciones y el registro de cupos?</span>
-              <span class="faq-icon text-slate-500 transition-transform duration-300">▼</span>
+              <span class="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-emerald-400" />
+                <span>¿Cuándo cierran las inscripciones y el registro de cupos?</span>
+              </span>
+              <ChevronDown className="faq-icon w-4 h-4 text-slate-500 transition-transform duration-300" />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
               <div class="px-6 pb-6 text-sm text-slate-400 leading-relaxed space-y-3 border-t border-slate-950/20 pt-4">
@@ -158,8 +192,11 @@ import MainLayout from '../layouts/MainLayout.astro';
           <!-- Q7: Requisitos Legales y Edad -->
           <div class="faq-item rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm overflow-hidden transition-all duration-300">
             <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 font-bold hover:text-white transition-colors">
-              <span>🔞 ¿Cuáles son las condiciones legales para participar?</span>
-              <span class="faq-icon text-slate-500 transition-transform duration-300">▼</span>
+              <span class="flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5 text-emerald-400" />
+                <span>¿Cuáles son las condiciones legales para participar?</span>
+              </span>
+              <ChevronDown className="faq-icon w-4 h-4 text-slate-500 transition-transform duration-300" />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
               <div class="px-6 pb-6 text-sm text-slate-400 leading-relaxed space-y-3 border-t border-slate-950/20 pt-4">
@@ -194,14 +231,20 @@ import MainLayout from '../layouts/MainLayout.astro';
           document.querySelectorAll('.faq-item').forEach(otherItem => {
             otherItem.classList.remove('active');
             otherItem.querySelector('.faq-content').style.maxHeight = null;
-            otherItem.querySelector('.faq-icon').style.transform = 'rotate(0deg)';
+            
+            const otherIcon = otherItem.querySelector('.faq-icon');
+            if (otherIcon) {
+              otherIcon.style.transform = 'rotate(0deg)';
+            }
           });
 
           // If it wasn't open, open it
           if (!isOpen) {
             item.classList.add('active');
             content.style.maxHeight = content.scrollHeight + 'px';
-            icon.style.transform = 'rotate(180deg)';
+            if (icon) {
+              icon.style.transform = 'rotate(180deg)';
+            }
           }
         });
       });

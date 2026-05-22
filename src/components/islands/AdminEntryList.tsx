@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { showAlert } from '../../utils/alerts';
 import {
   Clock,
   CheckCircle2,
@@ -18,6 +19,7 @@ interface Entry {
   user_id: string;
   entry_number: number;
   display_name: string;
+  binance_pay_user: string | null;
   status: 'pending' | 'approved' | 'rejected';
   payment_receipt_url: string | null;
   signedUrl: string | null;
@@ -85,7 +87,7 @@ export default function AdminEntryList() {
       setRejectingId(null);
       setRejectionReason('');
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      showAlert.error('Error', err.message);
     } finally {
       setActionLoadingId(null);
     }
@@ -179,6 +181,7 @@ export default function AdminEntryList() {
             <thead>
               <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
                 <th className="p-4 sm:p-5">Usuario / Apodo</th>
+                <th className="p-4 sm:p-5">Binance Pay</th>
                 <th className="p-4 sm:p-5">Cupo #</th>
                 <th className="p-4 sm:p-5">Fecha Reg.</th>
                 <th className="p-4 sm:p-5 text-center">Comprobante</th>
@@ -195,7 +198,10 @@ export default function AdminEntryList() {
                   <tr key={entry.id} className="hover:bg-wc-card/85 transition-colors">
                     <td className="p-4 sm:p-5">
                       <div className="font-bold text-white text-sm">{entry.display_name}</div>
-                      <div className="text-xs text-slate-450 mt-0.5">{profileName} • {profileEmail}</div>
+                      <div className="text-xs text-slate-455 mt-0.5">{profileName} • {profileEmail}</div>
+                    </td>
+                    <td className="p-4 sm:p-5 text-slate-300 text-xs font-mono font-medium truncate max-w-[150px]" title={entry.binance_pay_user || 'N/A'}>
+                      {entry.binance_pay_user || <span className="text-slate-550 italic font-sans">N/A</span>}
                     </td>
                     <td className="p-4 sm:p-5 font-mono text-xs text-wc-gold font-bold">
                       #{entry.entry_number}

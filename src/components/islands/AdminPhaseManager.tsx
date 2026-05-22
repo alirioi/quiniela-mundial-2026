@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { showAlert } from '../../utils/alerts';
 import { Settings, RefreshCw, AlertTriangle } from 'lucide-react';
 
 interface Phase {
@@ -55,7 +56,7 @@ export default function AdminPhaseManager() {
         prev.map((p) => (p.id === phaseId ? { ...p, is_active: newStatus } : p))
       );
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      showAlert.error('Error', err.message);
     } finally {
       setTogglingId(null);
     }

@@ -31,7 +31,9 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
     
     <!-- Alertas de Pronósticos Pendientes -->
-    <PredictionWarningBanner client:load />
+    <div>
+      <PredictionWarningBanner client:load />
+    </div>
 
     <!-- Bienvenida y Accesos Rápidos -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 bg-wc-card/90 rounded-2xl border border-wc-border backdrop-blur-sm relative overflow-hidden">
@@ -71,10 +73,18 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
     </div>
 
     <!-- Pote Dinámico Actual -->
-    <PrizePoolDisplay client:load />
+    <div>
+      <PrizePoolDisplay client:load />
+    </div>
 
     <!-- Marcadores en Vivo de la Jornada -->
-    <LiveScoreboard client:load />
+    <div class="space-y-2">
+      <LiveScoreboard client:load />
+      <div class="text-xs text-slate-400 flex items-center justify-center gap-1.5 px-4 py-1 bg-wc-dark/30 rounded-lg max-w-fit mx-auto border border-wc-border/20">
+        <Info className="w-4 h-4 text-wc-gold shrink-0" strokeWidth={2.5} />
+        <span>Los resultados y puntuaciones de la quiniela pueden tardar unos minutos en actualizarse tras finalizar el encuentro.</span>
+      </div>
+    </div>
 
     <!-- Tabla de Clasificación de la Quiniela -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

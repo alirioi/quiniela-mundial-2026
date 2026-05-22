@@ -8,19 +8,50 @@ export const GET: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    // Obtener las posiciones de todas las entradas aprobadas ordenadas por puntos descendente
+    // 1. Obtener la fecha del primer partido
+    const { data: firstMatch, error: matchError } = await supabaseAdmin
+      .from('matches')
+      .select('match_time')
+      .order('match_time', { ascending: true })
+      .limit(1)
+      .single();
+
+    // 2. Verificar si hay algún partido que haya salido del estado 'scheduled'
+    const { count: activeMatchesCount, error: activeMatchesError } = await supabaseAdmin
+      .from('matches')
+      .select('*', { count: 'exact', head: true })
+      .neq('status', 'scheduled');
+
+    const firstMatchTimeStr = firstMatch?.match_time || '2026-06-11T22:30:00Z';
+    const firstMatchTime = new Date(firstMatchTimeStr);
+    const now = new Date();
+
+    const tournamentStarted = (activeMatchesCount !== null && activeMatchesCount > 0) || now >= firstMatchTime;
+
+    if (!tournamentStarted) {
+      return new Response(JSON.stringify({
+        tournamentStarted: false,
+        firstMatchTime: firstMatchTimeStr,
+        standings: []
+      }), { status: 200 });
+    }
+
+    // 3. Si el torneo ya comenzó, obtener standings
     const { data: standings, error } = await supabaseAdmin
       .from('entries')
       .select('id, display_name, total_points, created_at')
       .eq('status', 'approved')
       .order('total_points', { ascending: false })
-      .order('created_at', { ascending: true }); // Desempate por orden de registro
+      .order('display_name', { ascending: true });
 
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), { status: 400 });
     }
 
-    return new Response(JSON.stringify(standings), { status: 200 });
+    return new Response(JSON.stringify({
+      tournamentStarted: true,
+      standings
+    }), { status: 200 });
   } catch (e) {
     return new Response(JSON.stringify({ error: 'Error interno del servidor' }), { status: 500 });
   }

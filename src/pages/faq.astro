@@ -10,7 +10,9 @@ import {
   Calendar, 
   ShieldAlert, 
   ChevronDown,
-  AlertTriangle 
+  AlertTriangle,
+  Info,
+  HelpCircle
 } from 'lucide-react';
 const profile = Astro.locals.profile;
 ---
@@ -76,13 +78,21 @@ const profile = Astro.locals.profile;
               <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
                 <p>El costo por cada cupo registrado es de <strong>20.00 USDT</strong>.</p>
                 <p>La distribución de cada entrada es la siguiente:</p>
                 <ul class="list-disc pl-5 space-y-1.5">
                   <li><strong>15.00 USDT</strong> se destinan de manera íntegra al pozo acumulado de premios.</li>
                   <li><strong>5.00 USDT</strong> se destinan para cubrir los gastos operativos y el mantenimiento técnico de la plataforma web.</li>
                 </ul>
+                <div class="text-xs text-wc-red font-semibold flex items-start gap-2 bg-wc-red/10 p-3 rounded-lg border border-wc-red/20 mt-3">
+                  <AlertTriangle className="w-5.5 h-5.5 text-wc-red shrink-0 mt-0.5" strokeWidth={2.5} />
+                  <span><strong>Política de no reembolso:</strong> Una vez realizado el pago y formalizada la inscripción a la quiniela, no se realizarán reembolsos bajo ninguna circunstancia.</span>
+                </div>
+                <div class="text-xs text-amber-500 font-semibold flex items-start gap-2 bg-amber-500/10 p-3 rounded-lg border border-amber-500/20 mt-2">
+                  <AlertTriangle className="w-5.5 h-5.5 text-amber-500 shrink-0 mt-0.5" strokeWidth={2.5} />
+                  <span><strong>Nota de Binance Pay:</strong> Al realizar el envío, está estrictamente prohibido incluir términos como "apuestas", "quiniela", "sorteo" o "juego de azar" en la nota de transferencia. Esto es para cumplir con las políticas de Binance. Cualquier cuenta suspendida por este motivo es responsabilidad del usuario.</span>
+                </div>
               </div>
             </div>
           </div>
@@ -206,6 +216,57 @@ const profile = Astro.locals.profile;
               <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                 <p>Para evitar cualquier inconveniente legal, la participación está restringida a personas <strong>mayores de 18 años</strong>.</p>
                 <p>Al registrarte, deberás proporcionar tu fecha de nacimiento real. El sistema validará tu edad automáticamente. Si se detecta información falsa o que un participante es menor de edad, el administrador se reserva el derecho de eliminar el usuario y el cupo sin reembolso.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q8: Actualización de Resultados -->
+          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+              <span class="flex items-center gap-3">
+                <Info className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                <span class="font-sports uppercase tracking-wider text-base">¿Los puntos y la tabla se actualizan inmediatamente al terminar un partido?</span>
+              </span>
+              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                <p>Los resultados de los partidos y la tabla de posiciones general de la quiniela pueden tardar unos minutos en actualizarse en la plataforma tras finalizar el encuentro oficial.</p>
+                <p>Este breve lapso es normal y responde al tiempo necesario para procesar los datos de las puntuaciones en el servidor de forma segura. Agradecemos tu paciencia.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q9: Tiempos de verificación de pagos -->
+          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+              <span class="flex items-center gap-3">
+                <Clock className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                <span class="font-sports uppercase tracking-wider text-base">¿Cuánto tiempo tarda en aprobarse mi comprobante de pago?</span>
+              </span>
+              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                <p>La validación de cada comprobante de pago se realiza de manera manual por el administrador de la quiniela para garantizar la seguridad de la transacción.</p>
+                <p>Este proceso suele tomar entre <strong>12 y 24 horas</strong>. Por este motivo, se recomienda registrarse e informar el pago con suficiente antelación antes del inicio del torneo o de los partidos.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q10: Casos de fuerza mayor y reprogramaciones -->
+          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+              <span class="flex items-center gap-3">
+                <HelpCircle className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                <span class="font-sports uppercase tracking-wider text-base">¿Qué ocurre si un partido oficial es suspendido o cancelado?</span>
+              </span>
+              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                <p>Si un encuentro es cancelado, suspendido o reprogramado por la FIFA para jugarse en una fecha fuera de la jornada regular establecida, la administración de la quiniela determinará la asignación oficial de los puntos correspondientes a ese partido de forma equitativa.</p>
+                <p>La decisión que se tome en este tipo de situaciones de fuerza mayor será de carácter final e inapelable para todos los participantes.</p>
               </div>
             </div>
           </div>

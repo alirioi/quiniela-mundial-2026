@@ -92,26 +92,26 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
             <Info className="w-5 h-5 text-wc-gold" strokeWidth={2.5} /> Reglas de Puntuación
           </h3>
           
-          <ul class="space-y-3 text-xs leading-relaxed text-slate-300">
+          <ul class="space-y-3 text-xs md:text-sm leading-relaxed text-slate-300">
             <li class="flex items-start gap-2.5">
-              <span class="text-wc-gold font-bold font-sports text-sm mt-0.5">3 pts</span>
+              <span class="text-wc-gold font-bold font-sports text-sm md:text-base mt-0.5 w-12 shrink-0 text-left">3 pts</span>
               <div>
-                <strong class="text-slate-200">Resultado Exacto</strong>
-                <p class="text-xs text-slate-400 mt-0.5">Acertaste la cantidad de goles de ambos equipos (ej. pronóstico 2-1, resultado 2-1).</p>
+                <strong class="text-slate-200 text-xs md:text-sm">Resultado Exacto</strong>
+                <p class="text-xs md:text-sm text-slate-400 mt-0.5">Acertaste la cantidad de goles de ambos equipos (ej. pronóstico 2-1, resultado 2-1).</p>
               </div>
             </li>
             <li class="flex items-start gap-2.5">
-              <span class="text-wc-blue font-bold font-sports text-sm mt-0.5">1 pt</span>
+              <span class="text-wc-blue font-bold font-sports text-sm md:text-base mt-0.5 w-12 shrink-0 text-left">1 pt</span>
               <div>
-                <strong class="text-slate-200">Resultado Parcial</strong>
-                <p class="text-xs text-slate-400 mt-0.5">Acertaste el ganador o empate, pero no los goles exactos (ej. pronóstico 3-1, resultado 2-0).</p>
+                <strong class="text-slate-200 text-xs md:text-sm">Resultado Parcial</strong>
+                <p class="text-xs md:text-sm text-slate-400 mt-0.5">Acertaste el ganador o empate, pero no los goles exactos (ej. pronóstico 3-1, resultado 2-0).</p>
               </div>
             </li>
             <li class="flex items-start gap-2.5">
-              <span class="text-slate-500 font-bold font-sports text-sm mt-0.5">0 pts</span>
+              <span class="text-slate-500 font-bold font-sports text-sm md:text-base mt-0.5 w-12 shrink-0 text-left">0 pts</span>
               <div>
-                <strong class="text-slate-300">Fallo</strong>
-                <p class="text-xs text-slate-400 mt-0.5">No acertaste el ganador ni el empate del partido.</p>
+                <strong class="text-slate-300 text-xs md:text-sm">Fallo</strong>
+                <p class="text-xs md:text-sm text-slate-400 mt-0.5">No acertaste el ganador ni el empate del partido.</p>
               </div>
             </li>
           </ul>

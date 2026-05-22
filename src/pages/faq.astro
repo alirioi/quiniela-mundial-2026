@@ -12,9 +12,10 @@ import {
   ChevronDown,
   AlertTriangle 
 } from 'lucide-react';
+const profile = Astro.locals.profile;
 ---
 
-<MainLayout title="Reglas y FAQ">
+<MainLayout title="Reglas y FAQ" userProfile={profile}>
   <div class="relative bg-slate-950 text-slate-100 overflow-hidden py-12 min-h-[calc(100vh-4rem)]">
     
     <!-- Background gradients -->
@@ -49,7 +50,7 @@ import {
               <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
                 <p>Para participar debes seguir estos pasos:</p>
                 <ol class="list-decimal pl-5 space-y-2">
                   <li>Crea una cuenta en la página de registro ingresando tus datos personales (debes ser mayor de 18 años).</li>
@@ -75,7 +76,7 @@ import {
               <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                 <p>El costo por cada cupo registrado es de <strong>20.00 USDT</strong>.</p>
                 <p>La distribución de cada entrada es la siguiente:</p>
                 <ul class="list-disc pl-5 space-y-1.5">
@@ -96,7 +97,7 @@ import {
               <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                 <p>El <strong>100% del pozo acumulado</strong> (los 15.00 USDT de cada cupo aprobado) se entregará al primer lugar de la clasificación general al finalizar el mundial.</p>
                 <p><strong>Regla de empate:</strong> Si dos o más participantes empatan en la primera posición al finalizar el último partido del mundial, no habrá desempates de ningún tipo. El dinero del pozo acumulado se repartirá en partes exactamente iguales (de forma equitativa) entre todas las personas que hayan quedado empatadas en el primer lugar.</p>
               </div>
@@ -113,7 +114,7 @@ import {
               <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                 <p>El cálculo de puntos por cada partido se realiza de la siguiente manera:</p>
                 <ul class="list-disc pl-5 space-y-3">
                   <li>
@@ -146,7 +147,7 @@ import {
               <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                 <p>Para mantener el sistema sencillo, transparente y alineado con los estándares oficiales:</p>
                 <ul class="list-disc pl-5 space-y-2">
                   <li>El marcador oficial que se considera para calcular los puntos es el resultado final obtenido tras concluir los 90 minutos reglamentarios y la prórroga de 30 minutos (120 minutos de juego en total), <strong>excluyendo por completo la tanda de penales</strong>.</li>
@@ -167,7 +168,7 @@ import {
               <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                 <p>Las predicciones de cada partido se bloquean automáticamente <strong>2 horas antes</strong> del inicio programado del partido oficial (UTC).</p>
                 <p>Antes de este límite de 2 horas, puedes modificar tus marcadores cuantas veces quieras ingresando a la sección de pronósticos del dashboard. Una vez cruzada la barrera de las 2 horas previas, el sistema bloqueará el formulario para ese partido de forma irreversible y no se permitirán cambios.</p>
               </div>
@@ -184,7 +185,7 @@ import {
               <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                 <p>Las inscripciones de nuevos usuarios y la compra de cupos adicionales cierran exactamente <strong>2 días antes</strong> de que comience el primer partido del mundial.</p>
                 <p>Dado que el primer partido se juega el 11 de Junio de 2026, el registro y las compras finalizarán el <strong>9 de Junio de 2026 a las 22:30 UTC</strong>.</p>
                 <p>Esto se hace con la finalidad de verificar todos los comprobantes de pago pendientes de forma manual, evitar problemas de devoluciones y asegurar que el torneo inicie en óptimas condiciones.</p>
@@ -202,7 +203,7 @@ import {
               <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
             </button>
             <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                 <p>Para evitar cualquier inconveniente legal, la participación está restringida a personas <strong>mayores de 18 años</strong>.</p>
                 <p>Al registrarte, deberás proporcionar tu fecha de nacimiento real. El sistema validará tu edad automáticamente. Si se detecta información falsa o que un participante es menor de edad, el administrador se reserva el derecho de eliminar el usuario y el cupo sin reembolso.</p>
               </div>

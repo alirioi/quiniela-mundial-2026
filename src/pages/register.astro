@@ -148,6 +148,30 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
             
             <!-- Componente de desglose -->
             <PaymentBreakdown />
+
+            <!-- Datos de Binance Pay Organizador -->
+            <div class="p-4 rounded-xl bg-wc-dark/60 border border-wc-border space-y-2.5">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5 font-sports">
+                <span class="w-2 h-2 rounded-full bg-wc-gold animate-pulse"></span>
+                Instrucciones de Pago (Binance Pay)
+              </h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Realiza una transferencia de exactamente <strong class="text-wc-gold">20.00 USDT</strong> a la siguiente cuenta de Binance Pay:
+              </p>
+              <div class="p-3 bg-wc-card rounded-lg border border-wc-border/60 text-xs font-mono space-y-1.5">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Binance Pay ID:</span>
+                  <span class="text-slate-200 font-bold select-all">139030711</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Nombre de la Cuenta:</span>
+                  <span class="text-slate-200 font-bold">Alirio Isea</span>
+                </div>
+              </div>
+              <p class="text-[10px] text-wc-red font-semibold leading-relaxed">
+                * IMPORTANTE: No incluyas palabras como "apuesta", "quiniela", "sorteo" ni referencias a juegos de azar en la nota de transferencia para evitar el bloqueo de las cuentas.
+              </p>
+            </div>
             
             <!-- Isla Reactiva de carga de archivos -->
             <PaymentUpload client:load initialLabel="Sube tu comprobante de 20 USDT" />
@@ -168,7 +192,21 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
             </div>
           </div>
 
-          <div class="pt-4">
+          <!-- Checkbox de aceptación de reglamento -->
+          <div class="flex items-start gap-3 bg-wc-dark/30 p-3.5 rounded-xl border border-wc-border/30">
+            <input
+              id="acceptRules"
+              name="acceptRules"
+              type="checkbox"
+              required
+              class="w-4 h-4 rounded border-wc-border bg-wc-dark text-wc-gold focus:ring-wc-gold focus:ring-offset-wc-dark mt-0.5 cursor-pointer animate-pulse-subtle"
+            />
+            <label for="acceptRules" class="text-xs text-slate-300 leading-relaxed select-none cursor-pointer">
+              He leído y acepto en su totalidad las <a href="/faq" target="_blank" class="font-bold text-wc-gold hover:underline">Reglas e Instrucciones de la Quiniela</a>, y entiendo que una vez formalizada mi inscripción <strong>no se realizarán reembolsos</strong> bajo ninguna circunstancia.
+            </label>
+          </div>
+
+          <div class="pt-2">
             <button
               type="submit"
               id="submit-btn"

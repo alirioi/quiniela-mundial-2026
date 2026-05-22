@@ -425,6 +425,30 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               </div>
             </div>
 
+            {/* Datos de Binance Pay Organizador */}
+            <div className="p-4 rounded-xl bg-wc-dark/65 border border-wc-border space-y-2.5 text-slate-300">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5 font-sports">
+                <span className="w-2 h-2 rounded-full bg-wc-gold animate-pulse"></span>
+                <span>Instrucciones de Pago (Binance Pay)</span>
+              </h4>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Realiza una transferencia de exactamente <strong className="text-wc-gold">20.00 USDT</strong> a la siguiente cuenta de Binance Pay:
+              </p>
+              <div className="p-3 bg-wc-card rounded-lg border border-wc-border/60 text-xs font-mono space-y-1.5 text-slate-200">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Binance Pay ID:</span>
+                  <span className="font-bold select-all">139030711</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Nombre de la Cuenta:</span>
+                  <span className="font-bold">Alirio Isea</span>
+                </div>
+              </div>
+              <p className="text-[10px] text-wc-red font-semibold leading-relaxed">
+                * IMPORTANTE: No incluyas palabras de apuestas en la nota. Una vez realizado el pago, no se realizarán reembolsos bajo ninguna circunstancia.
+              </p>
+            </div>
+
             {/* Formulario */}
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">

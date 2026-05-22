@@ -19,49 +19,49 @@ const activePath = Astro.url.pathname;
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Admin Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800/80 pb-6 mb-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-wc-border pb-6 mb-8">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
-          <Shield className="w-8 h-8 text-emerald-400 shrink-0" /> Panel de Administración
+        <h1 class="text-3xl font-sports font-black tracking-wider text-white flex items-center gap-2.5">
+          <Shield className="w-7 h-7 text-wc-gold shrink-0" strokeWidth={2.5} /> Panel de Administración
         </h1>
-        <p class="text-xs text-slate-400 mt-1">
+        <p class="text-sm text-slate-400 mt-1.5">
           Gestiona los pagos de los usuarios, registra marcadores oficiales y administra las fases del torneo.
         </p>
       </div>
       
       <!-- Subnavegación de Admin -->
-      <nav class="flex items-center gap-2 p-1 bg-slate-900/60 border border-slate-800/80 rounded-2xl w-fit">
+      <nav class="flex items-center gap-2 p-1 bg-wc-card/60 border border-wc-border rounded-2xl w-fit">
         <a
           href="/admin"
-          class={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
+          class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
             activePath === '/admin'
-              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-md shadow-emerald-950/20'
+              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <CreditCard className="w-3.5 h-3.5" />
+          <CreditCard className="w-4.5 h-4.5" strokeWidth={2.5} />
           <span>Cupos y Pagos</span>
         </a>
         <a
           href="/admin/matches"
-          class={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
+          class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
             activePath === '/admin/matches'
-              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-md shadow-emerald-950/20'
+              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Trophy className="w-3.5 h-3.5" />
+          <Trophy className="w-4.5 h-4.5" strokeWidth={2.5} />
           <span>Marcadores</span>
         </a>
         <a
           href="/admin/phases"
-          class={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
+          class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
             activePath === '/admin/phases'
-              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-md shadow-emerald-950/20'
+              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Settings className="w-3.5 h-3.5" />
+          <Settings className="w-4.5 h-4.5" strokeWidth={2.5} />
           <span>Fases</span>
         </a>
       </nav>

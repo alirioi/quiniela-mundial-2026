@@ -2,42 +2,42 @@
 import { Coins, Trophy, Settings } from 'lucide-react';
 ---
 
-<div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-inner relative overflow-hidden">
-  <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+<div class="p-5 rounded-2xl bg-wc-card border border-wc-border shadow-inner relative overflow-hidden">
+  <div class="absolute top-0 right-0 w-24 h-24 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
   
-  <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-1.5">
-    <Coins className="w-4 h-4 text-emerald-400" />
+  <h3 class="text-sm font-bold uppercase tracking-wider text-white mb-4 flex items-center gap-2 font-sports">
+    <Coins className="w-5 h-5 text-wc-gold" strokeWidth={2.5} />
     <span>Detalles del Pago</span>
   </h3>
   
-  <div class="space-y-2.5 text-sm">
-    <div class="flex justify-between items-center text-slate-400">
+  <div class="space-y-3 text-sm">
+    <div class="flex justify-between items-center text-slate-300">
       <span>Costo de Entrada (por cupo)</span>
-      <span class="font-semibold text-slate-200">20.00 USDT</span>
+      <span class="font-bold text-white font-sports text-lg tracking-wide">20.00 USDT</span>
     </div>
     
-    <div class="h-px bg-slate-800/80 my-2"></div>
+    <div class="h-px bg-wc-border my-2"></div>
     
     <div class="flex justify-between items-start text-xs">
-      <div class="text-slate-400 space-y-0.5">
-        <span class="font-medium text-emerald-400 flex items-center gap-1">
-          <Trophy className="w-3.5 h-3.5 text-emerald-400" />
+      <div class="text-slate-300 space-y-0.5">
+        <span class="font-bold text-wc-gold flex items-center gap-1.5 font-sports uppercase tracking-wide">
+          <Trophy className="w-4.5 h-4.5 text-wc-gold" strokeWidth={2.5} />
           <span>Pote de Premios</span>
         </span>
-        <p class="text-[10px] text-slate-500">El 100% de este pote acumulado se entrega al primer lugar (único ganador) al finalizar el torneo.</p>
+        <p class="text-xs text-slate-400">El 100% de este pote acumulado se entrega al primer lugar (único ganador) al finalizar el torneo.</p>
       </div>
-      <span class="font-bold text-emerald-400 text-right shrink-0 ml-4">+15.00 USDT</span>
+      <span class="font-bold text-wc-gold text-right shrink-0 ml-4 font-sports text-base tracking-wide">+15.00 USDT</span>
     </div>
     
     <div class="flex justify-between items-start text-xs pt-1">
-      <div class="text-slate-400 space-y-0.5">
-        <span class="font-medium text-teal-400 flex items-center gap-1">
-          <Settings className="w-3.5 h-3.5 text-teal-400" />
+      <div class="text-slate-300 space-y-0.5">
+        <span class="font-bold text-wc-blue flex items-center gap-1.5 font-sports uppercase tracking-wide">
+          <Settings className="w-4.5 h-4.5 text-wc-blue" strokeWidth={2.5} />
           <span>Gastos Operativos</span>
         </span>
-        <p class="text-[10px] text-slate-500">Mantenimiento técnico de la plataforma y soporte operativo.</p>
+        <p class="text-xs text-slate-400">Mantenimiento técnico de la plataforma y soporte operativo.</p>
       </div>
-      <span class="font-bold text-teal-400 text-right shrink-0 ml-4">+5.00 USDT</span>
+      <span class="font-bold text-wc-blue text-right shrink-0 ml-4 font-sports text-base tracking-wide">+5.00 USDT</span>
     </div>
   </div>
 </div>

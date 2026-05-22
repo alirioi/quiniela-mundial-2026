@@ -149,54 +149,55 @@ export default function AdminMatchResults() {
   return (
     <div className="space-y-6">
       {/* Pestañas de fases */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-900/40 rounded-2xl border border-slate-800/80 backdrop-blur-sm">
-        <div className="flex items-center space-x-2">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="flex flex-wrap items-center gap-2 relative z-10">
           {phases.map((phase) => (
             <button
               key={phase.id}
               onClick={() => setSelectedPhaseId(phase.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 border flex items-center gap-1 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border flex items-center gap-1.5 font-sports relative z-10 ${
                 selectedPhaseId === phase.id
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                  : 'bg-slate-950/40 border-transparent hover:border-slate-800 text-slate-500 hover:text-slate-300'
+                  ? 'bg-wc-green/10 border-wc-green/30 text-wc-green shadow-md shadow-wc-green/5'
+                  : 'bg-wc-dark/40 border-wc-border hover:border-slate-700 text-slate-400 hover:text-slate-200'
               }`}
             >
               <span>{phase.name}</span>
-              {!phase.is_active && <Lock className="w-3 h-3 text-slate-500 shrink-0" />}
+              {!phase.is_active && <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" strokeWidth={2.5} />}
             </button>
           ))}
         </div>
 
         <button
           onClick={fetchData}
-          className="p-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all duration-200 text-xs font-semibold flex items-center gap-1.5"
+          className="p-2 px-3.5 rounded-xl bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white border border-wc-border transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1.5 relative z-10"
           disabled={loading}
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} strokeWidth={2.5} />
           <span>Recargar Partidos</span>
         </button>
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-slate-900/20 rounded-2xl border border-slate-800/60">
-          <RefreshCw className="w-8 h-8 animate-spin text-emerald-500" />
-          <p className="text-slate-500 text-sm">Cargando fixture...</p>
+        <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-wc-card/40 rounded-2xl border border-wc-border">
+          <RefreshCw className="w-9 h-9 animate-spin text-wc-gold" strokeWidth={2.5} />
+          <p className="text-slate-400 text-xs font-sports tracking-wider uppercase">Cargando fixture...</p>
         </div>
       ) : error ? (
-        <div className="p-6 rounded-2xl bg-red-950/20 border border-red-900/40 text-center flex flex-col items-center justify-center space-y-3">
-          <AlertTriangle className="w-8 h-8 text-rose-500" />
-          <p className="text-red-400 font-semibold text-sm">{error}</p>
+        <div className="p-6 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center flex flex-col items-center justify-center space-y-3">
+          <AlertTriangle className="w-9 h-9 text-wc-red" strokeWidth={2.5} />
+          <p className="text-wc-red font-bold text-xs uppercase font-sports tracking-wider">{error}</p>
           <button
             onClick={fetchData}
-            className="px-4 py-2 rounded-xl bg-red-900/20 hover:bg-red-900/40 text-red-300 text-xs font-semibold border border-red-800/40 transition-colors"
+            className="px-4 py-2 rounded-xl bg-wc-red/20 hover:bg-wc-red/35 text-white text-xs font-bold font-sports tracking-wider uppercase border border-wc-red/30 transition-colors"
           >
             Reintentar
           </button>
         </div>
       ) : filteredMatches.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900/20 rounded-2xl border border-slate-800/60 text-slate-500 text-sm flex flex-col items-center justify-center gap-2">
-          <Award className="w-8 h-8 text-slate-650" />
-          <p>No hay partidos registrados para esta fase.</p>
+        <div className="p-12 text-center bg-wc-card/40 rounded-2xl border border-wc-border text-slate-550 text-sm flex flex-col items-center justify-center gap-2">
+          <Award className="w-9 h-9 text-slate-450" strokeWidth={2.5} />
+          <p className="font-sports text-xs uppercase tracking-wider">No hay partidos registrados para esta fase.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -209,27 +210,32 @@ export default function AdminMatchResults() {
             const isAwayScoreChanged = String(match.away_score ?? '') !== editState.away_score;
             const isStatusChanged = match.status !== editState.status;
             const hasChanges = isHomeScoreChanged || isAwayScoreChanged || isStatusChanged;
-
+ 
             return (
               <div
                 key={match.id}
-                className={`p-5 rounded-2xl border transition-all duration-300 ${
+                className={`p-5 rounded-2xl border transition-all duration-300 relative overflow-hidden ${
                   hasChanges
-                    ? 'border-amber-500/40 bg-amber-950/5 shadow-md shadow-amber-950/5'
-                    : 'border-slate-800 bg-slate-950/30'
+                    ? 'border-wc-gold/40 bg-wc-card shadow-lg shadow-wc-gold/5'
+                    : 'border-wc-border bg-wc-card/40'
                 }`}
               >
+                {/* Decorative background when changes are made */}
+                {hasChanges && (
+                  <div className="absolute -top-10 -right-10 w-20 h-20 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
+                )}
+
                 {/* Header de la tarjeta */}
-                <div className="flex justify-between items-center text-xs text-slate-500 mb-3.5 border-b border-slate-900 pb-2">
+                <div className="flex justify-between items-center text-xs text-slate-400 mb-3.5 border-b border-wc-border pb-2 relative z-10 font-medium">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono bg-slate-900 px-2 py-0.5 rounded text-[10px] text-slate-400 border border-slate-800">
+                    <span className="font-mono bg-wc-dark px-2.5 py-0.5 rounded-lg text-xs font-bold text-slate-350 border border-wc-border font-sports tracking-wider uppercase">
                       Partido #{match.match_number}
                     </span>
                     {match.group_name && (
-                      <span className="font-medium text-slate-400">{match.group_name}</span>
+                      <span className="font-bold text-slate-400 font-sports tracking-wider uppercase">{match.group_name}</span>
                     )}
                   </div>
-                  <div className="font-medium">
+                  <div className="font-bold font-sports tracking-wider uppercase text-slate-450">
                     {matchTime.toLocaleDateString('es-ES', {
                       day: 'numeric',
                       month: 'short',
@@ -238,16 +244,16 @@ export default function AdminMatchResults() {
                     })}
                   </div>
                 </div>
-
+ 
                 {/* Grid del Formulario de Marcador */}
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center justify-between gap-4 relative z-10">
                   {/* Local */}
                   <div className="flex-1 text-right min-w-0">
-                    <div className="font-bold text-slate-200 truncate" title={match.home_team}>
+                    <div className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={match.home_team}>
                       {match.home_team}
                     </div>
                   </div>
-
+ 
                   {/* Inputs de Marcador */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <input
@@ -256,62 +262,62 @@ export default function AdminMatchResults() {
                       value={editState.home_score}
                       onChange={(e) => handleScoreChange(match.id, 'home', e.target.value)}
                       disabled={editState.status === 'scheduled'}
-                      placeholder="-"
-                      className={`w-11 h-11 rounded-xl bg-slate-950 text-center text-lg font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all ${
+                      placeholder="- "
+                      className={`w-11 h-11 rounded-xl bg-wc-dark text-center text-lg font-bold border focus:outline-none focus:ring-2 focus:ring-wc-gold/50 transition-all font-mono ${
                         editState.status === 'scheduled'
-                          ? 'border-slate-900 text-slate-600 cursor-not-allowed bg-slate-950/20'
-                          : 'border-slate-800 text-emerald-400 focus:border-emerald-500'
+                          ? 'border-wc-border text-slate-600 cursor-not-allowed bg-wc-dark/30'
+                          : 'border-wc-border text-wc-gold focus:border-wc-gold'
                       }`}
                     />
                     
-                    <span className="text-slate-600 font-bold">:</span>
-
+                    <span className="text-wc-border font-bold">:</span>
+ 
                     <input
                       type="text"
                       maxLength={2}
                       value={editState.away_score}
                       onChange={(e) => handleScoreChange(match.id, 'away', e.target.value)}
                       disabled={editState.status === 'scheduled'}
-                      placeholder="-"
-                      className={`w-11 h-11 rounded-xl bg-slate-950 text-center text-lg font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all ${
+                      placeholder="- "
+                      className={`w-11 h-11 rounded-xl bg-wc-dark text-center text-lg font-bold border focus:outline-none focus:ring-2 focus:ring-wc-gold/50 transition-all font-mono ${
                         editState.status === 'scheduled'
-                          ? 'border-slate-900 text-slate-600 cursor-not-allowed bg-slate-950/20'
-                          : 'border-slate-800 text-emerald-400 focus:border-emerald-500'
+                          ? 'border-wc-border text-slate-600 cursor-not-allowed bg-wc-dark/30'
+                          : 'border-wc-border text-wc-gold focus:border-wc-gold'
                       }`}
                     />
                   </div>
-
+ 
                   {/* Visitante */}
                   <div className="flex-1 text-left min-w-0">
-                    <div className="font-bold text-slate-200 truncate" title={match.away_team}>
+                    <div className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={match.away_team}>
                       {match.away_team}
                     </div>
                   </div>
                 </div>
-
+ 
                 {/* Footer de la tarjeta con selector de estado y botón guardar */}
-                <div className="flex items-center justify-between gap-4 mt-4 pt-3.5 border-t border-slate-900">
+                <div className="flex items-center justify-between gap-4 mt-4 pt-3.5 border-t border-wc-border relative z-10">
                   {/* Selector de Estado */}
-                  <div className="flex gap-1 bg-slate-950 p-1 rounded-xl border border-slate-900">
+                  <div className="flex gap-1 bg-wc-dark p-1 rounded-xl border border-wc-border">
                     {(['scheduled', 'live', 'finished'] as const).map((st) => (
                       <button
                         key={st}
                         type="button"
                         onClick={() => handleStatusChange(match.id, st)}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center ${
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center font-sports ${
                           editState.status === st
                             ? st === 'live'
-                              ? 'bg-red-500/10 text-red-400'
+                              ? 'bg-wc-red/15 text-wc-red border border-wc-red/20'
                               : st === 'finished'
-                              ? 'bg-emerald-500/10 text-emerald-400'
-                              : 'bg-slate-800 text-slate-200'
-                            : 'text-slate-500 hover:text-slate-300'
+                              ? 'bg-wc-green/15 text-wc-green border border-wc-green/20'
+                              : 'bg-wc-blue/15 text-wc-blue border border-wc-blue/20'
+                            : 'text-slate-500 hover:text-slate-350'
                         }`}
                       >
                         {st === 'scheduled' && 'Prog'}
                         {st === 'live' && (
                           <span className="flex items-center gap-1">
-                            <span className="w-1 h-1 rounded-full bg-red-500 inline-block animate-pulse"></span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-wc-red inline-block animate-pulse"></span>
                             <span>Vivo</span>
                           </span>
                         )}
@@ -319,17 +325,17 @@ export default function AdminMatchResults() {
                       </button>
                     ))}
                   </div>
-
+ 
                   {/* Botón de Guardar */}
                   <button
                     onClick={() => handleSaveMatch(match.id)}
                     disabled={!hasChanges || savingId === match.id}
-                    className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-4 py-1.5 rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-all ${
                       savingId === match.id
-                        ? 'bg-slate-800 text-slate-500 cursor-wait'
+                        ? 'bg-wc-dark text-slate-505 cursor-wait'
                         : hasChanges
-                        ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-950/20 hover:-translate-y-0.5'
-                        : 'bg-slate-900 text-slate-600 border border-slate-800 cursor-not-allowed'
+                        ? 'bg-wc-green hover:bg-green-500 text-white shadow-md shadow-wc-green/10 hover:-translate-y-0.5'
+                        : 'bg-wc-dark text-slate-600 border border-wc-border cursor-not-allowed'
                     }`}
                   >
                     {savingId === match.id ? 'Guardando...' : 'Guardar'}

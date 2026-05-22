@@ -60,34 +60,34 @@ export default function AdminPhaseManager() {
       setTogglingId(null);
     }
   };
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center p-4 bg-slate-900/40 rounded-2xl border border-slate-800/80 backdrop-blur-sm">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-          <Settings className="w-4 h-4 text-emerald-400" /> Fases de la Quiniela
+      <div className="flex justify-between items-center p-4 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
+        <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 font-sports relative z-10">
+          <Settings className="w-4.5 h-4.5 text-wc-gold" strokeWidth={2.5} /> Fases de la Quiniela
         </h3>
         <button
           onClick={fetchPhases}
-          className="p-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all duration-200 text-xs font-semibold flex items-center gap-1.5"
+          className="p-2 px-3.5 rounded-xl bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white border border-wc-border transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1.5 relative z-10"
           disabled={loading}
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Recargar Fases
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} strokeWidth={2.5} /> Recargar Fases
         </button>
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-slate-900/20 rounded-2xl border border-slate-800/60">
-          <RefreshCw className="w-8 h-8 text-emerald-500 animate-spin" />
-          <p className="text-slate-500 text-sm">Cargando fases...</p>
+        <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-wc-card/40 rounded-2xl border border-wc-border">
+          <RefreshCw className="w-9 h-9 text-wc-gold animate-spin" strokeWidth={2.5} />
+          <p className="text-slate-400 text-xs font-sports tracking-wider uppercase">Cargando fases...</p>
         </div>
       ) : error ? (
-        <div className="p-6 rounded-2xl bg-red-950/20 border border-red-900/40 text-center space-y-3">
-          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto" />
-          <p className="text-red-400 font-semibold text-sm">{error}</p>
+        <div className="p-6 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center space-y-3">
+          <AlertTriangle className="w-9 h-9 text-wc-red mx-auto" strokeWidth={2.5} />
+          <p className="text-wc-red font-bold text-xs uppercase font-sports tracking-wider">{error}</p>
           <button
             onClick={fetchPhases}
-            className="px-4 py-2 rounded-xl bg-red-900/20 hover:bg-red-900/40 text-red-300 text-xs font-semibold border border-red-800/40 transition-colors"
+            className="px-4 py-2 rounded-xl bg-wc-red/20 hover:bg-wc-red/35 text-white text-xs font-bold font-sports tracking-wider uppercase border border-wc-red/30 transition-all"
           >
             Reintentar
           </button>
@@ -97,37 +97,42 @@ export default function AdminPhaseManager() {
           {phases.map((phase) => (
             <div
               key={phase.id}
-              className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between h-40 ${
+              className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between h-44 relative overflow-hidden ${
                 phase.is_active
-                  ? 'border-emerald-500/30 bg-emerald-950/5 shadow-md shadow-emerald-950/5'
-                  : 'border-slate-800 bg-slate-950/20'
+                  ? 'border-wc-green/30 bg-wc-card shadow-lg shadow-wc-green/5'
+                  : 'border-wc-border bg-wc-card/40'
               }`}
             >
+              {/* Decorative background when active */}
+              {phase.is_active && (
+                <div className="absolute -top-10 -right-10 w-24 h-24 bg-wc-green/5 rounded-full blur-2xl pointer-events-none"></div>
+              )}
+
               {/* Info de la fase */}
-              <div>
+              <div className="relative z-10">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-sports">
                     Orden #{phase.order}
                   </span>
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border font-sports tracking-wider uppercase ${
                       phase.is_active
-                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                        : 'bg-slate-900 border-slate-800 text-slate-500'
+                        ? 'bg-wc-green/10 border-wc-green/20 text-wc-green'
+                        : 'bg-wc-dark border-wc-border text-slate-400'
                     }`}
                   >
                     {phase.is_active ? '● Activa' : '○ Cerrada'}
                   </span>
                 </div>
                 
-                <h4 className="text-lg font-bold text-slate-200 mt-2.5">
+                <h4 className="text-xl font-bold text-white mt-2 font-sports tracking-wide uppercase">
                   {phase.name}
                 </h4>
               </div>
 
               {/* Botón de control */}
-              <div className="flex items-center justify-between border-t border-slate-900/80 pt-3 mt-auto">
-                <span className="text-xs text-slate-400">
+              <div className="flex items-center justify-between border-t border-wc-border pt-3 mt-auto relative z-10">
+                <span className="text-xs text-slate-400 font-medium">
                   {phase.is_active ? 'Acepta predicciones' : 'Pronósticos bloqueados'}
                 </span>
 
@@ -136,10 +141,10 @@ export default function AdminPhaseManager() {
                   onClick={() => handleTogglePhase(phase.id, phase.is_active)}
                   disabled={togglingId === phase.id}
                   className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none flex items-center ${
-                    phase.is_active ? 'bg-emerald-500 justify-end' : 'bg-slate-800 justify-start'
+                    phase.is_active ? 'bg-wc-green justify-end' : 'bg-slate-800 justify-start'
                   } ${togglingId === phase.id ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
                 >
-                  <span className="bg-slate-950 w-4 h-4 rounded-full shadow-md transition-transform duration-200"></span>
+                  <span className="bg-slate-955 w-4 h-4 rounded-full shadow-md transition-transform duration-200"></span>
                 </button>
               </div>
             </div>

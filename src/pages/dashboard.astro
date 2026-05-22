@@ -34,37 +34,37 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
     <PredictionWarningBanner client:load />
 
     <!-- Bienvenida y Accesos Rápidos -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 bg-slate-900/40 rounded-2xl border border-slate-800/80 backdrop-blur-sm relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 bg-wc-card/90 rounded-2xl border border-wc-border backdrop-blur-sm relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
       
       <div>
-        <h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+        <h1 class="text-3xl font-bold uppercase tracking-wider text-white font-sports">
           ¡Hola, {profile?.full_name}!
         </h1>
         <p class="text-xs text-slate-400 mt-1 leading-relaxed">
-          Bienvenido a la Quiniela Mundial 2026. Tienes <span class="font-bold text-slate-200">{approvedEntryIds.length} {approvedEntryIds.length === 1 ? 'cupo activo' : 'cupos activos'}</span> participando en el torneo.
+          Bienvenido a la Quiniela Mundial 2026. Tienes <span class="font-bold text-wc-gold">{approvedEntryIds.length} {approvedEntryIds.length === 1 ? 'cupo activo' : 'cupos activos'}</span> participando en el torneo.
         </p>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
         <a
           href="/predictions/grupos"
-          class="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-950/20 hover:-translate-y-0.5 flex items-center gap-1.5"
+          class="px-5 py-3 bg-gradient-to-r from-wc-gold to-amber-500 hover:from-amber-400 hover:to-wc-gold text-slate-950 rounded-xl text-sm font-bold tracking-wide transition-all shadow-lg shadow-wc-gold/20 hover:-translate-y-0.5 flex items-center gap-2 font-sports cursor-pointer"
         >
-          <Edit3 className="w-3.5 h-3.5 text-slate-950" /> Llenar Pronósticos
+          <Edit3 className="w-5 h-5 text-slate-950" strokeWidth={2.5} /> Llenar Pronósticos
         </a>
         <a
           href="/my-entries"
-          class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-all hover:-translate-y-0.5 flex items-center gap-1.5"
+          class="px-5 py-3 bg-wc-dark hover:bg-wc-border/50 text-white rounded-xl text-sm font-bold tracking-wide border border-wc-border transition-all hover:-translate-y-0.5 flex items-center gap-2 font-sports cursor-pointer"
         >
-          <CreditCard className="w-3.5 h-3.5 text-slate-400" /> Comprar Más Cupos
+          <CreditCard className="w-5 h-5 text-slate-300" strokeWidth={2.5} /> Comprar Más Cupos
         </a>
         {profile?.role === 'admin' && (
           <a
             href="/admin"
-            class="px-5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-amber-950/20 hover:-translate-y-0.5 flex items-center gap-1.5"
+            class="px-5 py-3 bg-wc-red hover:bg-red-500 text-white rounded-xl text-sm font-bold tracking-wide transition-all shadow-lg shadow-wc-red/20 hover:-translate-y-0.5 flex items-center gap-2 font-sports cursor-pointer"
           >
-            <Shield className="w-3.5 h-3.5 text-slate-950" /> Panel Admin
+            <Shield className="w-5 h-5 text-white" strokeWidth={2.5} /> Panel Admin
           </a>
         )}
       </div>
@@ -87,46 +87,46 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
       <!-- Sidebar Informativo (1 columna de ancho) -->
       <div class="space-y-6">
         <!-- Tarjeta de Reglas de Puntuación -->
-        <div class="p-5 rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm space-y-4">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 border-b border-slate-900 pb-2.5">
-            <Info className="w-4 h-4 text-emerald-400" /> Reglas de Puntuación
+        <div class="p-5 rounded-2xl bg-wc-card border border-wc-border backdrop-blur-sm space-y-4">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 border-b border-wc-border pb-2.5 font-sports">
+            <Info className="w-5 h-5 text-wc-gold" strokeWidth={2.5} /> Reglas de Puntuación
           </h3>
           
           <ul class="space-y-3 text-xs leading-relaxed text-slate-300">
-            <li class="flex items-start gap-2">
-              <span class="text-emerald-400 font-bold">3 pts</span>
+            <li class="flex items-start gap-2.5">
+              <span class="text-wc-gold font-bold font-sports text-sm mt-0.5">3 pts</span>
               <div>
-                <strong>Resultado Exacto</strong>
-                <p class="text-[10px] text-slate-500">Acertaste la cantidad de goles de ambos equipos (ej. pronóstico 2-1, resultado 2-1).</p>
+                <strong class="text-slate-200">Resultado Exacto</strong>
+                <p class="text-xs text-slate-400 mt-0.5">Acertaste la cantidad de goles de ambos equipos (ej. pronóstico 2-1, resultado 2-1).</p>
               </div>
             </li>
-            <li class="flex items-start gap-2">
-              <span class="text-teal-400 font-bold">1 pt</span>
+            <li class="flex items-start gap-2.5">
+              <span class="text-wc-blue font-bold font-sports text-sm mt-0.5">1 pt</span>
               <div>
-                <strong>Resultado Parcial</strong>
-                <p class="text-[10px] text-slate-500">Acertaste el ganador o empate, pero no los goles exactos (ej. pronóstico 3-1, resultado 2-0).</p>
+                <strong class="text-slate-200">Resultado Parcial</strong>
+                <p class="text-xs text-slate-400 mt-0.5">Acertaste el ganador o empate, pero no los goles exactos (ej. pronóstico 3-1, resultado 2-0).</p>
               </div>
             </li>
-            <li class="flex items-start gap-2">
-              <span class="text-slate-500 font-bold">0 pts</span>
+            <li class="flex items-start gap-2.5">
+              <span class="text-slate-500 font-bold font-sports text-sm mt-0.5">0 pts</span>
               <div>
-                <strong>Fallo</strong>
-                <p class="text-[10px] text-slate-500">No acertaste el ganador ni el empate del partido.</p>
+                <strong class="text-slate-300">Fallo</strong>
+                <p class="text-xs text-slate-400 mt-0.5">No acertaste el ganador ni el empate del partido.</p>
               </div>
             </li>
           </ul>
         </div>
 
         <!-- Tarjeta de Contacto / Soporte -->
-        <div class="p-5 rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm space-y-3">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4 text-emerald-400" /> Soporte y Organización
+        <div class="p-5 rounded-2xl bg-wc-card border border-wc-border backdrop-blur-sm space-y-3">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 font-sports">
+            <MessageSquare className="w-5 h-5 text-wc-gold" strokeWidth={2.5} /> Soporte y Organización
           </h3>
           <p class="text-xs text-slate-300 leading-relaxed">
             Si compraste un cupo adicional y tu comprobante sigue en revisión, o tienes dudas sobre las reglas del torneo, comunícate directamente con el administrador.
           </p>
-          <div class="pt-1 text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+          <div class="pt-1 text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-2 font-sports">
+            <Sparkles className="w-4.5 h-4.5 text-wc-gold animate-pulse" strokeWidth={2.5} />
             ¡Buena suerte en la quiniela!
           </div>
         </div>

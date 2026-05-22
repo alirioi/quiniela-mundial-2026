@@ -25,30 +25,33 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
 
 <MainLayout title="Registro">
   <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 bg-radial-gradient">
-    <div class="max-w-xl w-full space-y-8 bg-slate-900/60 backdrop-blur-md p-8 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden">
+    <div class="max-w-xl w-full space-y-8 bg-wc-card/65 backdrop-blur-md p-8 rounded-2xl border border-wc-border shadow-2xl relative overflow-hidden">
       <!-- Decorative gradients -->
-      <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -top-10 -right-10 w-40 h-40 bg-wc-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-wc-blue/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div class="text-center relative flex flex-col items-center">
-        <UserPlus className="w-12 h-12 text-emerald-400 mb-2 animate-pulse-subtle" />
+        <UserPlus className="w-14 h-14 text-wc-gold mb-3 animate-pulse-subtle" strokeWidth={2.5} />
         <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-          Únete a la <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Quiniela 2026</span>
+          Únete a la <br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-wc-red via-wc-gold to-wc-green font-sports font-black text-4xl tracking-wider leading-none">
+            Quiniela 2026
+          </span>
         </h1>
-        <p class="mt-2 text-sm text-slate-400">
+        <p class="mt-3 text-sm text-slate-350 font-medium">
           Crea tu cuenta, registra tu primer cupo y comienza a pronosticar.
         </p>
       </div>
 
       {isRegistrationClosed ? (
-        <div class="mt-8 space-y-6 bg-slate-950/80 p-6 rounded-xl border border-amber-900/40 text-center flex flex-col items-center">
-          <Lock className="w-12 h-12 text-slate-500 mb-2" />
-          <h2 class="text-lg font-bold text-amber-400">Inscripciones Cerradas</h2>
+        <div class="mt-8 space-y-6 bg-wc-dark p-6 rounded-xl border border-wc-border text-center flex flex-col items-center">
+          <Lock className="w-12 h-12 text-slate-500 mb-2" strokeWidth={2.5} />
+          <h2 class="text-lg font-sports font-bold text-wc-gold tracking-wider">Inscripciones Cerradas</h2>
           <p class="text-xs text-slate-400 mt-2">
             El registro de nuevos usuarios y la compra de cupos finalizaron el 9 de Junio de 2026 a las 22:30 UTC (48 horas antes del inicio del torneo).
           </p>
           <div class="pt-4">
-            <a href="/" class="inline-block py-2.5 px-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all">
+            <a href="/" class="inline-block py-2.5 px-6 rounded-lg bg-wc-card hover:bg-wc-card/85 text-slate-200 text-xs font-semibold border border-wc-border transition-all">
               Volver al Inicio
             </a>
           </div>
@@ -60,13 +63,13 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="space-y-4 md:col-span-2">
-              <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 border-b border-slate-800/80 pb-2">
+              <h2 class="text-sm font-sports font-bold uppercase tracking-wider text-slate-200 border-b border-wc-border pb-2.5">
                 Información de la Cuenta
               </h2>
             </div>
 
             <div>
-              <label for="fullName" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              <label for="fullName" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
                 Nombre Completo
               </label>
               <input
@@ -74,13 +77,13 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
                 name="fullName"
                 type="text"
                 required
-                class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
+                class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
                 placeholder="Nombre Apellido"
               />
             </div>
 
             <div>
-              <label for="displayName" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              <label for="displayName" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
                 Apodo para la Quiniela (Cupo #1)
               </label>
               <input
@@ -88,14 +91,14 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
                 name="displayName"
                 type="text"
                 required
-                class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
+                class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
                 placeholder="Ej: Alirio #1"
               />
-              <p class="text-[10px] text-slate-500 mt-1">Este nombre saldrá en la tabla de posiciones.</p>
+              <p class="text-xs text-slate-500 mt-1.5">Este nombre saldrá en la tabla de posiciones.</p>
             </div>
 
             <div>
-              <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
                 Correo Electrónico
               </label>
               <input
@@ -103,13 +106,13 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
                 name="email"
                 type="email"
                 required
-                class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
+                class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
                 placeholder="tu@correo.com"
               />
             </div>
 
             <div>
-              <label for="birthDate" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              <label for="birthDate" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
                 Fecha de Nacimiento
               </label>
               <input
@@ -117,13 +120,13 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
                 name="birthDate"
                 type="date"
                 required
-                class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
+                class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
               />
-              <p class="text-[10px] text-slate-500 mt-1">Debes ser mayor de 18 años para participar.</p>
+              <p class="text-xs text-slate-500 mt-1.5">Debes ser mayor de 18 años para participar.</p>
             </div>
 
             <div class="md:col-span-2">
-              <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
                 Contraseña
               </label>
               <input
@@ -132,14 +135,14 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
                 type="password"
                 required
                 minlength="6"
-                class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
+                class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
                 placeholder="Mínimo 6 caracteres"
               />
             </div>
           </div>
 
           <div class="space-y-4 pt-4">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 border-b border-slate-800/80 pb-2">
+            <h2 class="text-sm font-sports font-bold uppercase tracking-wider text-slate-200 border-b border-wc-border pb-2.5">
               Detalles de Pago y Comprobante
             </h2>
             
@@ -154,18 +157,18 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
             <button
               type="submit"
               id="submit-btn"
-              class="w-full py-4 px-4 rounded-xl text-sm font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg shadow-emerald-950/20 hover:shadow-emerald-950/40 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 group font-bold"
+              class="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 shadow-lg shadow-wc-gold/15 hover:shadow-wc-gold/30 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 group font-sports font-black text-lg tracking-wider"
             >
               <span>Crear Cuenta y Registrar Cupo</span>
-              <UserPlus className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-all" />
+              <UserPlus className="w-5 h-5 text-slate-950 group-hover:scale-110 transition-all" strokeWidth={2.5} />
             </button>
           </div>
         </form>
       )}
 
-      <div class="text-center text-sm text-slate-400 border-t border-slate-800/80 pt-6">
+      <div class="text-center text-sm text-slate-400 border-t border-wc-border pt-6">
         ¿Ya tienes una cuenta?
-        <a href="/login" class="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300 hover:opacity-90 transition-opacity">
+        <a href="/login" class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-wc-gold to-amber-500 hover:opacity-90 transition-opacity ml-1">
           Inicia sesión aquí
         </a>
       </div>
@@ -176,7 +179,7 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
     const form = document.getElementById('register-form') as HTMLFormElement;
     const errorDiv = document.getElementById('error-message');
     const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
-    const USER_PLUS_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-slate-950 group-hover:scale-110 transition-all"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>`;
+    const USER_PLUS_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-950 group-hover:scale-110 transition-all"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>`;
 
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();

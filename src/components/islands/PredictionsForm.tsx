@@ -267,20 +267,20 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   return (
     <div className="space-y-6">
       {/* Barra de cabecera con selector de cupo */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 bg-slate-900/60 rounded-2xl border border-slate-800/80 backdrop-blur-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 bg-wc-card/90 rounded-2xl border border-wc-border backdrop-blur-sm">
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5 font-sports">
             Selecciona tu Cupo
           </label>
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             {userEntries.map((entry) => (
               <button
                 key={entry.id}
                 onClick={() => setSelectedEntryId(entry.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all duration-200 ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all duration-200 font-sports cursor-pointer ${
                   selectedEntryId === entry.id
-                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 border-transparent shadow-md shadow-emerald-950/20'
-                    : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                    ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 border-transparent shadow-md shadow-wc-gold/20'
+                    : 'bg-wc-dark border-wc-border text-slate-400 hover:text-slate-200 hover:border-slate-700'
                 }`}
               >
                 {entry.display_name}
@@ -290,16 +290,16 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         </div>
 
         {unpredictedCount > 0 && !loading && (
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-              <span>Tienes {unpredictedCount} pronósticos vacíos en esta fase</span>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <span className="text-xs text-wc-gold font-bold bg-wc-gold/10 border border-wc-gold/20 px-3.5 py-2.5 rounded-xl flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-wc-gold" strokeWidth={2.5} />
+              <span>Tienes {unpredictedCount} pronósticos vacíos</span>
             </span>
             
             <button
               onClick={handleSaveBulk}
               disabled={bulkSaving}
-              className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-950/20 disabled:opacity-50"
+              className="px-5 py-2.5 bg-gradient-to-r from-wc-gold to-amber-500 hover:from-amber-400 hover:to-wc-gold text-slate-950 rounded-xl text-sm font-bold font-sports tracking-wide transition-all shadow-lg shadow-wc-gold/20 disabled:opacity-50 cursor-pointer"
             >
               {bulkSaving ? 'Guardando...' : 'Guardar Todo'}
             </button>
@@ -308,17 +308,17 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center p-16 space-y-4 bg-slate-900/20 rounded-2xl border border-slate-800/60">
-          <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
-          <p className="text-slate-500 text-sm">Cargando partidos y pronósticos...</p>
+        <div className="flex flex-col items-center justify-center p-16 space-y-4 bg-wc-card/20 rounded-2xl border border-wc-border">
+          <Loader2 className="w-10 h-10 animate-spin text-wc-gold" strokeWidth={2.5} />
+          <p className="text-slate-400 text-sm">Cargando partidos y pronósticos...</p>
         </div>
       ) : error ? (
-        <div className="p-6 rounded-2xl bg-red-950/20 border border-red-900/40 text-center flex flex-col items-center justify-center space-y-3">
-          <AlertTriangle className="w-10 h-10 text-rose-500" />
+        <div className="p-6 rounded-2xl bg-red-950/20 border border-wc-red/40 text-center flex flex-col items-center justify-center space-y-3">
+          <AlertTriangle className="w-10 h-10 text-wc-red" strokeWidth={2.5} />
           <p className="text-red-400 font-semibold text-sm">{error}</p>
           <button
             onClick={fetchMatchesAndPredictions}
-            className="px-4 py-2 rounded-xl bg-red-900/20 hover:bg-red-900/40 text-red-300 text-xs font-semibold border border-red-800/40 transition-colors"
+            className="px-4 py-2 rounded-xl bg-wc-red/20 hover:bg-wc-red/40 text-red-200 text-xs font-semibold border border-wc-red/35 transition-colors font-sports tracking-wide cursor-pointer"
           >
             Reintentar
           </button>
@@ -327,7 +327,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         <div className="space-y-8">
           {Object.entries(groupedMatches).map(([dateLabel, dateMatches]) => (
             <div key={dateLabel} className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 border-l-2 border-emerald-500 pl-2.5">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 border-l-3 border-wc-gold pl-2.5 font-sports">
                 {dateLabel}
               </h3>
               
@@ -352,42 +352,42 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                       key={match.id}
                       className={`p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between ${
                         locked
-                          ? 'border-slate-900 bg-slate-950/20 opacity-90'
+                          ? 'border-wc-border bg-wc-dark/30 opacity-90'
                           : hasChanges
-                          ? 'border-amber-500/30 bg-amber-950/5'
+                          ? 'border-wc-gold/30 bg-wc-gold/5 animate-pulse'
                           : match.prediction
-                          ? 'border-emerald-500/10 bg-slate-900/10'
-                          : 'border-slate-800/80 bg-slate-900/40'
+                          ? 'border-wc-gold/25 bg-wc-card/50'
+                          : 'border-wc-border bg-wc-card'
                       }`}
                     >
                       {/* Fila superior: Info de Partido y Countdown */}
-                      <div className="flex justify-between items-center text-[10px] text-slate-500 mb-3 border-b border-slate-950 pb-2">
+                      <div className="flex justify-between items-center text-xs text-slate-500 mb-3 border-b border-wc-border pb-2">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-mono bg-slate-950 px-1.5 py-0.5 rounded text-slate-400 border border-slate-900">
+                          <span className="font-sports bg-wc-dark px-2 py-0.5 rounded text-slate-300 border border-wc-border">
                             #{match.match_number}
                           </span>
                           {match.group_name && (
-                            <span className="font-medium text-slate-400">{match.group_name}</span>
+                            <span className="font-bold text-slate-400 font-sports uppercase tracking-wider">{match.group_name}</span>
                           )}
                         </div>
 
                         {/* Estado o cuenta regresiva */}
-                        <div className="flex items-center gap-1.5 font-semibold text-[10px]">
+                        <div className="flex items-center gap-1.5 font-bold text-xs">
                           {match.status === 'live' ? (
-                            <span className="px-2 py-0.5 bg-red-500/10 text-red-400 rounded-md border border-red-500/20 animate-pulse text-[9px] uppercase tracking-wider flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block animate-ping"></span>
+                            <span className="px-2 py-0.5 bg-wc-red/10 text-wc-red rounded-md border border-wc-red/20 animate-pulse text-xs uppercase tracking-wider flex items-center gap-1 font-sports">
+                              <span className="w-1.5 h-1.5 rounded-full bg-wc-red inline-block animate-ping"></span>
                               <span>En vivo</span>
                             </span>
                           ) : match.status === 'finished' ? (
-                            <span className="px-2 py-0.5 bg-slate-900 text-slate-400 rounded-md border border-slate-850 text-[9px] uppercase tracking-wider">
+                            <span className="px-2 py-0.5 bg-wc-dark text-slate-400 rounded-md border border-wc-border text-xs uppercase tracking-wider font-sports">
                               Fin
                             </span>
                           ) : (
-                            <span className={`flex items-center gap-1 ${locked ? 'text-red-400' : 'text-emerald-400'}`}>
+                            <span className={`flex items-center gap-1 font-sports ${locked ? 'text-wc-red' : 'text-wc-gold'}`}>
                               {locked ? (
-                                <Lock className="w-3 h-3 shrink-0" />
+                                <Lock className="w-4 h-4 shrink-0 text-wc-red" strokeWidth={2.5} />
                               ) : (
-                                <Clock className="w-3 h-3 shrink-0 animate-pulse" />
+                                <Clock className="w-4 h-4 shrink-0 text-wc-gold animate-pulse" strokeWidth={2.5} />
                               )}
                               <span>{countdown}</span>
                             </span>
@@ -396,17 +396,17 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                       </div>
 
                       {/* Fila central: Marcador del Partido y Predicción */}
-                      <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center justify-between gap-3 my-2">
                         {/* Local */}
                         <div className="flex-1 text-right min-w-0 pr-1">
-                          <div className="font-bold text-slate-200 text-sm truncate" title={match.home_team}>
+                          <div className="font-bold text-white text-sm sm:text-base truncate" title={match.home_team}>
                             {match.home_team}
                           </div>
                         </div>
 
                         {/* Marcador Real (si está jugando o terminado) */}
                         {locked && (match.status === 'finished' || match.status === 'live') && (
-                          <div className="px-2.5 py-1 bg-slate-900/80 rounded-lg border border-slate-850 text-slate-200 font-bold text-xs font-mono">
+                          <div className="px-3 py-1.5 bg-wc-dark rounded-lg border border-wc-border text-white font-bold text-sm font-sports tracking-widest">
                             {match.home_score} - {match.away_score}
                           </div>
                         )}
@@ -420,14 +420,14 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                             onChange={(e) => handleInputChange(match.id, 'home', e.target.value)}
                             disabled={locked}
                             placeholder="-"
-                            className={`w-9 h-9 rounded-xl bg-slate-950 text-center text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all ${
+                            className={`w-11 h-11 rounded-xl bg-wc-dark text-center text-lg font-bold font-sports border focus:outline-none focus:ring-2 focus:ring-wc-gold/40 transition-all ${
                               locked
-                                ? 'border-slate-900 text-slate-500 cursor-not-allowed bg-slate-950/20'
-                                : 'border-slate-800 text-emerald-400 focus:border-emerald-500'
+                                ? 'border-wc-border text-slate-500 cursor-not-allowed bg-wc-dark/55'
+                                : 'border-wc-border text-wc-gold focus:border-wc-gold'
                             }`}
                           />
 
-                          <span className="text-slate-600 font-bold text-xs">:</span>
+                          <span className="text-slate-600 font-bold text-lg font-sports">:</span>
 
                           <input
                             type="text"
@@ -436,48 +436,48 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                             onChange={(e) => handleInputChange(match.id, 'away', e.target.value)}
                             disabled={locked}
                             placeholder="-"
-                            className={`w-9 h-9 rounded-xl bg-slate-950 text-center text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all ${
+                            className={`w-11 h-11 rounded-xl bg-wc-dark text-center text-lg font-bold font-sports border focus:outline-none focus:ring-2 focus:ring-wc-gold/40 transition-all ${
                               locked
-                                ? 'border-slate-900 text-slate-500 cursor-not-allowed bg-slate-950/20'
-                                : 'border-slate-800 text-emerald-400 focus:border-emerald-500'
+                                ? 'border-wc-border text-slate-500 cursor-not-allowed bg-wc-dark/55'
+                                : 'border-wc-border text-wc-gold focus:border-wc-gold'
                             }`}
                           />
                         </div>
 
                         {/* Visitante */}
                         <div className="flex-1 text-left min-w-0 pl-1">
-                          <div className="font-bold text-slate-200 text-sm truncate" title={match.away_team}>
+                          <div className="font-bold text-white text-sm sm:text-base truncate" title={match.away_team}>
                             {match.away_team}
                           </div>
                         </div>
                       </div>
 
                       {/* Fila inferior: Puntuación ganada o Botón Guardar */}
-                      <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-slate-950/60">
+                      <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-wc-border">
                         {/* Puntuación ganada */}
                         <div className="text-xs">
                           {match.status === 'finished' && match.prediction ? (
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold border ${
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold border font-sports text-sm tracking-wider uppercase ${
                               pointsEarned === 3
-                                ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                                ? 'bg-wc-gold/10 border-wc-gold/25 text-wc-gold'
                                 : pointsEarned === 1
-                                ? 'bg-teal-500/10 border-teal-500/25 text-teal-400'
-                                : 'bg-slate-900 border-slate-800 text-slate-500'
+                                ? 'bg-wc-blue/10 border-wc-blue/25 text-wc-blue'
+                                : 'bg-wc-dark border-wc-border text-slate-500'
                             }`}>
-                              <Award className="w-3.5 h-3.5" />
+                              <Award className="w-4 h-4" strokeWidth={2.5} />
                               <span>{pointsEarned} {pointsEarned === 1 ? 'punto' : 'puntos'}</span>
                             </span>
                           ) : match.status === 'finished' && !match.prediction ? (
-                            <span className="text-slate-650 font-medium">Sin pronóstico (0 pts)</span>
+                            <span className="text-slate-500 font-medium font-sports tracking-wide uppercase">Sin pronóstico (0 pts)</span>
                           ) : match.prediction ? (
-                            <span className="text-[10px] text-slate-500 font-semibold flex items-center gap-1">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                              <span>Pronóstico guardado</span>
+                            <span className="text-xs text-slate-400 font-bold flex items-center gap-1.5 font-sports uppercase tracking-wider">
+                              <CheckCircle2 className="w-4.5 h-4.5 text-wc-gold animate-pulse" strokeWidth={2.5} />
+                              <span>Guardado</span>
                             </span>
                           ) : (
-                            <span className="text-[10px] text-amber-500/80 font-medium flex items-center gap-1">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-500/80" />
-                              <span>Sin pronosticar</span>
+                            <span className="text-xs text-wc-gold font-bold flex items-center gap-1.5 font-sports uppercase tracking-wider">
+                              <AlertTriangle className="w-4.5 h-4.5 text-wc-gold" strokeWidth={2.5} />
+                              <span>Sin pronóstico</span>
                             </span>
                           )}
                         </div>
@@ -488,7 +488,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                             type="button"
                             onClick={() => handleSaveIndividual(match.id)}
                             disabled={savingIds[match.id]}
-                            className="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-[10px] transition-all"
+                            className="px-4 py-1.5 bg-gradient-to-r from-wc-gold to-amber-500 hover:from-amber-400 hover:to-wc-gold text-slate-950 font-bold rounded-lg text-xs font-sports uppercase tracking-wider transition-all cursor-pointer shadow-sm shadow-wc-gold/10"
                           >
                             {savingIds[match.id] ? '...' : 'Guardar'}
                           </button>

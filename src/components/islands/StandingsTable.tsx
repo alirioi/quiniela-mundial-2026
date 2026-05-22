@@ -85,17 +85,17 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-slate-900/20 rounded-2xl border border-slate-800/60">
-        <div className="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-500 text-sm">Cargando clasificación...</p>
+      <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-wc-card/20 rounded-2xl border border-wc-border">
+        <div className="w-8 h-8 border-3 border-wc-gold border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-400 text-sm font-sports uppercase tracking-wider">Cargando clasificación...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-4 rounded-xl bg-red-950/20 border border-red-900/30 text-center text-xs text-red-400 flex items-center justify-center gap-1.5">
-        <AlertTriangle className="w-4 h-4 text-red-400" />
+      <div className="p-4 rounded-xl bg-wc-red/10 border border-wc-red/20 text-center text-xs text-red-200 flex items-center justify-center gap-1.5">
+        <AlertTriangle className="w-4.5 h-4.5 text-wc-red" strokeWidth={2.5} />
         <span>{error}</span>
       </div>
     );
@@ -116,58 +116,58 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <BarChart3 className="w-4 h-4 text-slate-400" />
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 font-sports">
+            <BarChart3 className="w-5 h-5 text-wc-gold" strokeWidth={2.5} />
             <span>Clasificación General</span>
           </h3>
-          <span className="text-[10px] text-slate-500 font-mono">Privacidad Activa</span>
+          <span className="text-xs text-slate-400 font-sports uppercase tracking-wider">Privacidad Activa</span>
         </div>
 
-        <div className="p-8 text-center bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center gap-6">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="p-8 text-center bg-wc-card border border-wc-border shadow-2xl relative overflow-hidden flex flex-col items-center justify-center gap-6 rounded-2xl">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
           
-          <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-inner select-none animate-pulse-subtle">
-            <Lock className="w-6 h-6 text-emerald-400" />
+          <div className="w-14 h-14 rounded-full bg-wc-gold/10 border border-wc-gold/20 flex items-center justify-center shadow-inner select-none animate-pulse">
+            <Lock className="w-6 h-6 text-wc-gold" strokeWidth={2.5} />
           </div>
 
           <div className="max-w-md space-y-2">
-            <h4 className="text-md font-bold text-slate-200">Clasificación Privada</h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h4 className="text-lg font-bold text-white font-sports uppercase tracking-wider">Clasificación Privada</h4>
+            <p className="text-sm text-slate-350 leading-relaxed">
               Para garantizar una competencia justa, los nombres de los participantes y la clasificación general se revelarán públicamente al comenzar el primer partido del mundial.
             </p>
           </div>
 
           {/* Countdown Container */}
           <div className="grid grid-cols-4 gap-3 max-w-sm w-full pt-2">
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col items-center">
-              <span className="text-2xl font-black text-emerald-400 tracking-tight font-mono">
+            <div className="bg-wc-dark border border-wc-border rounded-xl p-3 flex flex-col items-center">
+              <span className="text-3xl font-bold text-wc-gold tracking-wider font-sports">
                 {timeLeft.days.toString().padStart(2, '0')}
               </span>
-              <span className="text-[8px] uppercase tracking-wider text-slate-500 font-bold mt-1">Días</span>
+              <span className="text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Días</span>
             </div>
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col items-center">
-              <span className="text-2xl font-black text-teal-400 tracking-tight font-mono">
+            <div className="bg-wc-dark border border-wc-border rounded-xl p-3 flex flex-col items-center">
+              <span className="text-3xl font-bold text-wc-blue tracking-wider font-sports">
                 {timeLeft.hours.toString().padStart(2, '0')}
               </span>
-              <span className="text-[8px] uppercase tracking-wider text-slate-500 font-bold mt-1">Horas</span>
+              <span className="text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Horas</span>
             </div>
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col items-center">
-              <span className="text-2xl font-black text-indigo-400 tracking-tight font-mono">
+            <div className="bg-wc-dark border border-wc-border rounded-xl p-3 flex flex-col items-center">
+              <span className="text-3xl font-bold text-white tracking-wider font-sports">
                 {timeLeft.minutes.toString().padStart(2, '0')}
               </span>
-              <span className="text-[8px] uppercase tracking-wider text-slate-500 font-bold mt-1">Minutos</span>
+              <span className="text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Minutos</span>
             </div>
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col items-center">
-              <span className="text-2xl font-black text-rose-400 tracking-tight font-mono">
+            <div className="bg-wc-dark border border-wc-border rounded-xl p-3 flex flex-col items-center">
+              <span className="text-3xl font-bold text-wc-red tracking-wider font-sports">
                 {timeLeft.seconds.toString().padStart(2, '0')}
               </span>
-              <span className="text-[8px] uppercase tracking-wider text-slate-500 font-bold mt-1">Segundos</span>
+              <span className="text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Segundos</span>
             </div>
           </div>
 
           {formattedDate && (
-            <p className="text-[10px] text-slate-500 font-medium">
-              El torneo inicia el: <span className="capitalize text-slate-400">{formattedDate}</span>
+            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider font-sports">
+              El torneo inicia el: <span className="capitalize text-white">{formattedDate}</span>
             </p>
           )}
         </div>
@@ -178,29 +178,29 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <BarChart3 className="w-4 h-4 text-slate-400" />
+        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 font-sports">
+          <BarChart3 className="w-5 h-5 text-wc-gold" strokeWidth={2.5} />
           <span>Clasificación General</span>
         </h3>
-        <span className="text-[10px] text-slate-500 font-mono">Actualizado en tiempo real</span>
+        <span className="text-xs text-slate-400 font-sports uppercase tracking-wider">En tiempo real</span>
       </div>
 
       {standings.length === 0 ? (
-        <div className="p-8 text-center bg-slate-900/20 rounded-2xl border border-slate-800/60 text-slate-500 text-sm flex flex-col items-center justify-center gap-3">
-          <Trophy className="w-8 h-8 text-slate-600" />
+        <div className="p-8 text-center bg-wc-card/45 border border-wc-border text-slate-400 text-sm flex flex-col items-center justify-center gap-3 rounded-2xl">
+          <Trophy className="w-8 h-8 text-slate-600" strokeWidth={2.5} />
           <p>La clasificación se generará una vez que comiencen los partidos y se aprueben los cupos.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/40 backdrop-blur-sm shadow-xl">
+        <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-card shadow-xl">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800 text-[10px] uppercase font-bold tracking-wider text-slate-400 bg-slate-900/20">
+              <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-300 bg-wc-dark/50 font-sports">
                 <th className="p-4 w-16 text-center">Pos</th>
                 <th className="p-4">Participante / Cupo</th>
                 <th className="p-4 text-right w-24">Puntos</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/40 text-sm font-medium">
+            <tbody className="divide-y divide-wc-border/50 text-sm font-medium">
               {(() => {
                 let currentRank = 1;
                 return standings.map((entry, index) => {
@@ -213,53 +213,53 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
                   
                   // Estilo para el top 3
                   let medal: React.ReactNode = null;
-                  let posColor = 'text-slate-400';
+                  let posColor = 'text-slate-450';
                   if (position === 1) {
-                    medal = <Trophy className="w-5 h-5 text-amber-400 fill-amber-400/10 mx-auto animate-pulse-subtle" />;
-                    posColor = 'text-amber-400 font-bold';
+                    medal = <Trophy className="w-5.5 h-5.5 text-wc-gold fill-wc-gold/10 mx-auto animate-pulse" strokeWidth={2.5} />;
+                    posColor = 'text-wc-gold font-bold';
                   } else if (position === 2) {
-                    medal = <Trophy className="w-5 h-5 text-slate-300 fill-slate-300/10 mx-auto" />;
+                    medal = <Trophy className="w-5.5 h-5.5 text-slate-300 fill-slate-300/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-slate-300 font-bold';
                   } else if (position === 3) {
-                    medal = <Trophy className="w-5 h-5 text-amber-600 fill-amber-600/10 mx-auto" />;
+                    medal = <Trophy className="w-5.5 h-5.5 text-amber-600 fill-amber-600/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-amber-600 font-bold';
                   }
 
                   return (
-                  <tr
-                    key={entry.id}
-                    className={`transition-all duration-200 hover:bg-slate-900/10 ${
-                      isMyEntry
-                        ? 'bg-emerald-500/5 hover:bg-emerald-500/10 border-l-4 border-l-emerald-500'
-                        : ''
-                    }`}
-                  >
-                    <td className="p-4 text-center">
-                      {medal ? (
-                        <div className="flex justify-center">{medal}</div>
-                      ) : (
-                        <span className={`font-mono text-xs ${posColor}`}>{position}</span>
-                      )}
-                    </td>
-                    <td className="p-4 flex items-center gap-2">
-                      <span className={isMyEntry ? 'font-bold text-emerald-400' : 'text-slate-200'}>
-                        {entry.display_name}
-                      </span>
-                      {isMyEntry && (
-                        <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[9px] font-bold uppercase border border-emerald-500/10">
-                          Tú
+                    <tr
+                      key={entry.id}
+                      className={`transition-all duration-200 hover:bg-wc-dark/30 ${
+                        isMyEntry
+                          ? 'bg-wc-gold/5 hover:bg-wc-gold/10 border-l-4 border-l-wc-gold'
+                          : ''
+                      }`}
+                    >
+                      <td className="p-4 text-center">
+                        {medal ? (
+                          <div className="flex justify-center">{medal}</div>
+                        ) : (
+                          <span className={`font-sports text-sm ${posColor}`}>{position}</span>
+                        )}
+                      </td>
+                      <td className="p-4 flex items-center gap-2">
+                        <span className={isMyEntry ? 'font-bold text-wc-gold' : 'text-slate-200 font-medium'}>
+                          {entry.display_name}
                         </span>
-                      )}
-                    </td>
-                    <td className={`p-4 text-right font-mono font-bold text-sm ${
-                      isMyEntry ? 'text-emerald-400' : 'text-slate-300'
-                    }`}>
-                      {entry.total_points}
-                    </td>
-                  </tr>
-                );
-              })
-            })()}
+                        {isMyEntry && (
+                          <span className="px-2 py-0.5 rounded bg-wc-gold/15 text-wc-gold text-xs font-bold uppercase border border-wc-gold/20 font-sports tracking-wider">
+                            Tú
+                          </span>
+                        )}
+                      </td>
+                      <td className={`p-4 text-right font-sports text-base tracking-wider ${
+                        isMyEntry ? 'text-wc-gold font-bold' : 'text-slate-250 font-medium'
+                      }`}>
+                        {entry.total_points}
+                      </td>
+                    </tr>
+                  );
+                });
+              })()}
             </tbody>
           </table>
         </div>

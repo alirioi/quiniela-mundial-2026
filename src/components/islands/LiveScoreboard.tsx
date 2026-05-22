@@ -68,9 +68,9 @@ export default function LiveScoreboard() {
 
   if (loading) {
     return (
-      <div className="w-full p-4 bg-slate-900/40 border border-slate-800 rounded-2xl animate-pulse space-y-3">
-        <div className="h-3 bg-slate-800 rounded w-1/4"></div>
-        <div className="h-6 bg-slate-800 rounded w-full"></div>
+      <div className="w-full p-4 bg-wc-card/50 border border-wc-border rounded-2xl animate-pulse space-y-3">
+        <div className="h-3 bg-wc-border rounded w-1/4"></div>
+        <div className="h-6 bg-wc-border rounded w-full"></div>
       </div>
     );
   }
@@ -80,12 +80,12 @@ export default function LiveScoreboard() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-          <Trophy className="w-4 h-4 text-emerald-400" /> Partidos de la Jornada
+        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2 font-sports">
+          <Trophy className="w-4.5 h-4.5 text-wc-gold" strokeWidth={2.5} /> Partidos de la Jornada
         </h3>
-        <span className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-          Marcadores en Vivo
+        <span className="flex items-center gap-1 text-xs text-slate-500 font-sports tracking-wider uppercase">
+          <span className="w-2 h-2 rounded-full bg-wc-red animate-ping"></span>
+          En Vivo
         </span>
       </div>
 
@@ -100,32 +100,32 @@ export default function LiveScoreboard() {
               key={match.id}
               className={`p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
                 isLive
-                  ? 'border-red-500/30 bg-red-950/5 shadow-md shadow-red-950/5'
-                  : 'border-slate-800 bg-slate-950/40'
+                  ? 'border-wc-red/40 bg-wc-red/5 shadow-md shadow-wc-red/5'
+                  : 'border-wc-border bg-wc-card/50'
               }`}
             >
               {/* Shine decorativo para partido en vivo */}
               {isLive && (
-                <div className="absolute top-0 right-0 w-16 h-16 bg-red-500/5 rounded-full blur-xl pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-16 h-16 bg-wc-red/10 rounded-full blur-xl pointer-events-none"></div>
               )}
 
               {/* Header: Número y hora */}
-              <div className="flex justify-between items-center text-[9px] text-slate-500 mb-2.5">
-                <span className="font-mono bg-slate-900 px-1.5 py-0.5 rounded border border-slate-850">
+              <div className="flex justify-between items-center text-xs text-slate-500 mb-2.5">
+                <span className="font-sports tracking-wide bg-wc-dark px-2 py-0.5 rounded border border-wc-border text-slate-400">
                   M#{match.match_number}
                 </span>
 
                 {isLive ? (
-                  <span className="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/10 font-bold uppercase tracking-wider flex items-center gap-1 animate-pulse">
-                    <span className="w-1 h-1 rounded-full bg-red-500"></span>
+                  <span className="px-2 py-0.5 rounded bg-wc-red/15 text-wc-red border border-wc-red/25 font-bold uppercase tracking-wider flex items-center gap-1 animate-pulse font-sports">
+                    <span className="w-1.5 h-1.5 rounded-full bg-wc-red"></span>
                     En Vivo
                   </span>
                 ) : isFinished ? (
-                  <span className="px-1.5 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-850 font-bold uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded bg-wc-dark text-slate-500 border border-wc-border font-bold uppercase tracking-wider font-sports">
                     Finalizado
                   </span>
                 ) : (
-                  <span className="font-semibold text-slate-400">
+                  <span className="font-semibold text-slate-400 font-sports tracking-wider">
                     {matchTime.toLocaleTimeString('es-ES', {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -137,21 +137,21 @@ export default function LiveScoreboard() {
               {/* Contenido principal: Equipos y Marcadores */}
               <div className="flex items-center justify-between gap-2 my-1">
                 {/* Local */}
-                <div className="flex-1 text-right font-bold text-slate-200 text-sm truncate" title={match.home_team}>
+                <div className="flex-1 text-right font-bold text-slate-200 text-sm truncate font-sports tracking-wide uppercase" title={match.home_team}>
                   {match.home_team}
                 </div>
 
                 {/* Score */}
-                <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-950 rounded-xl border border-slate-900/60 font-mono font-black text-sm text-slate-100 flex-shrink-0">
+                <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-wc-dark rounded-xl border border-wc-border/80 font-sports font-black text-base text-slate-100 flex-shrink-0 min-w-[3.5rem] justify-center">
                   {match.status === 'scheduled' ? (
-                    <span className="text-slate-650 text-xs">vs</span>
+                    <span className="text-slate-600 text-xs uppercase tracking-wider font-bold">vs</span>
                   ) : (
                     <>
-                      <span className={isLive ? 'text-red-400' : 'text-slate-100'}>
+                      <span className={isLive ? 'text-wc-red' : 'text-slate-100'}>
                         {match.home_score}
                       </span>
                       <span className="text-slate-600 font-normal">-</span>
-                      <span className={isLive ? 'text-red-400' : 'text-slate-100'}>
+                      <span className={isLive ? 'text-wc-red' : 'text-slate-100'}>
                         {match.away_score}
                       </span>
                     </>
@@ -159,14 +159,14 @@ export default function LiveScoreboard() {
                 </div>
 
                 {/* Visitante */}
-                <div className="flex-1 text-left font-bold text-slate-200 text-sm truncate" title={match.away_team}>
+                <div className="flex-1 text-left font-bold text-slate-200 text-sm truncate font-sports tracking-wide uppercase" title={match.away_team}>
                   {match.away_team}
                 </div>
               </div>
 
               {/* Sub-info */}
               {match.group_name && (
-                <div className="text-[9px] text-slate-500 font-semibold text-center mt-2 pt-1.5 border-t border-slate-900/40">
+                <div className="text-xs text-slate-500 font-bold text-center mt-2.5 pt-2 border-t border-wc-border/50 font-sports tracking-wider uppercase">
                   {match.group_name}
                 </div>
               )}

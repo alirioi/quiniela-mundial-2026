@@ -58,27 +58,27 @@ export default function PrizePoolDisplay() {
   const count = data?.approvedEntriesCount || 0;
 
   return (
-    <div className="w-full p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-indigo-500/10 border border-emerald-500/20 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 backdrop-blur-md">
+    <div className="w-full p-6 rounded-2xl bg-gradient-to-r from-wc-gold/5 via-amber-500/5 to-wc-blue/5 border border-wc-gold/20 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 backdrop-blur-md animate-fade-in">
       {/* Decorative shine */}
-      <div className="absolute -top-12 -left-12 w-32 h-32 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -top-12 -left-12 w-32 h-32 bg-wc-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-wc-blue/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="flex items-center space-x-4">
-        <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-inner shadow-emerald-500/5 select-none animate-pulse-subtle">
-          <Trophy className="w-7 h-7 text-emerald-400" />
+        <div className="w-14 h-14 rounded-full bg-wc-gold/10 border border-wc-gold/30 flex items-center justify-center shadow-inner shadow-wc-gold/5 select-none animate-pulse-subtle">
+          <Trophy className="w-7 h-7 text-wc-gold" strokeWidth={2.5} />
         </div>
         <div className="text-center sm:text-left">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-400">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-wc-gold font-sports">
             Pote Acumulado Oficial
           </h3>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-400 mt-1 leading-relaxed max-w-md">
             El 100% de este pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo. ({count} {count === 1 ? 'cupo aprobado' : 'cupos aprobados'})
           </p>
         </div>
       </div>
 
       <div className="text-center sm:text-right flex-shrink-0">
-        <div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 tracking-tight font-mono">
+        <div className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-wc-gold via-amber-400 to-yellow-300 tracking-wider font-sports select-none">
           {pool.toLocaleString('es-ES', { minimumFractionDigits: 0 })} USDT
         </div>
       </div>

@@ -180,23 +180,23 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
     switch (status) {
       case 'approved':
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 w-fit">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-wc-green/10 text-wc-green border border-wc-green/20 flex items-center gap-1.5 w-fit font-sports tracking-wider uppercase">
+            <CheckCircle2 className="w-3.5 h-3.5 text-wc-green" strokeWidth={2.5} />
             Aprobado
           </span>
         );
       case 'rejected':
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center gap-1.5 w-fit">
-            <XCircle className="w-3.5 h-3.5 text-rose-400" />
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-wc-red/10 text-wc-red border border-wc-red/20 flex items-center gap-1.5 w-fit font-sports tracking-wider uppercase">
+            <XCircle className="w-3.5 h-3.5 text-wc-red" strokeWidth={2.5} />
             Rechazado
           </span>
         );
       case 'pending':
       default:
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5 w-fit">
-            <Clock className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-wc-gold/10 text-wc-gold border border-wc-gold/20 flex items-center gap-1.5 w-fit font-sports tracking-wider uppercase">
+            <Clock className="w-3.5 h-3.5 text-wc-gold animate-pulse-subtle" strokeWidth={2.5} />
             Pendiente
           </span>
         );
@@ -206,20 +206,19 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
-        <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm text-slate-400">Cargando tus cupos...</p>
+        <div className="w-10 h-10 border-4 border-wc-gold border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm text-slate-400 font-sports tracking-wider uppercase">Cargando tus cupos...</p>
       </div>
     );
   }
-
   return (
     <div className="space-y-8">
       {/* Encabezado y botón */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-900/40 border border-slate-800 p-6 rounded-2xl backdrop-blur-md relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-wc-card/50 border border-wc-border p-6 rounded-2xl backdrop-blur-md relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
         <div>
-          <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
-            <Ticket className="w-5 h-5 text-emerald-400" />
+          <h2 className="text-xl font-extrabold text-white flex items-center gap-2 font-sports tracking-wider uppercase">
+            <Ticket className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
             <span>Gestión de Cupos</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
@@ -228,18 +227,18 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
         </div>
         {isRegistrationClosed ? (
           <div className="flex flex-col items-end gap-1">
-            <span className="px-4 py-2.5 bg-slate-800 text-slate-500 rounded-xl text-xs font-semibold border border-slate-700/50 flex items-center justify-center gap-1.5 cursor-not-allowed">
-              <Lock className="w-4 h-4 text-slate-500" />
+            <span className="px-4 py-2.5 bg-wc-dark text-slate-500 rounded-xl text-xs font-semibold border border-wc-border flex items-center justify-center gap-1.5 cursor-not-allowed font-sports tracking-wider uppercase">
+              <Lock className="w-4 h-4 text-slate-500" strokeWidth={2.5} />
               <span>Compras Cerradas</span>
             </span>
-            <span className="text-[10px] text-slate-500">Finalizó el 9 de Junio</span>
+            <span className="text-xs text-slate-500 font-sports tracking-wider">Finalizó el 9 de Junio</span>
           </div>
         ) : (
           <button
             onClick={openModal}
-            className="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-950/20 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+            className="px-5 py-3 bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-955 rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-all shadow-lg shadow-wc-gold/10 hover:shadow-wc-gold/25 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
           >
-            <Plus className="w-4 h-4 text-slate-950" />
+            <Plus className="w-4 h-4 text-slate-955" strokeWidth={2.5} />
             <span>Comprar Cupo Adicional</span>
           </button>
         )}
@@ -252,36 +251,36 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
           return (
             <div
               key={entry.id}
-              className={`p-6 rounded-2xl border bg-slate-900/60 backdrop-blur-md flex flex-col justify-between gap-5 relative overflow-hidden transition-all duration-300 ${
+              className={`p-6 rounded-2xl border bg-wc-card/50 backdrop-blur-md flex flex-col justify-between gap-5 relative overflow-hidden transition-all duration-300 ${
                 entry.status === 'approved' 
-                  ? 'border-slate-800 hover:border-emerald-500/30' 
+                  ? 'border-wc-border hover:border-wc-gold/30' 
                   : entry.status === 'rejected'
-                  ? 'border-slate-800 hover:border-rose-500/30'
-                  : 'border-slate-800 hover:border-amber-500/30 animate-pulse-subtle'
+                  ? 'border-wc-border hover:border-wc-red/30'
+                  : 'border-wc-border hover:border-wc-gold/20 animate-pulse-subtle'
               }`}
             >
               {/* Decorative backgrounds based on status */}
               {entry.status === 'approved' && (
-                <div className="absolute -top-10 -right-10 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                <div className="absolute -top-10 -right-10 w-24 h-24 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
               )}
               {entry.status === 'pending' && (
-                <div className="absolute -top-10 -right-10 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                <div className="absolute -top-10 -right-10 w-24 h-24 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
               )}
               {entry.status === 'rejected' && (
-                <div className="absolute -top-10 -right-10 w-24 h-24 bg-rose-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                <div className="absolute -top-10 -right-10 w-24 h-24 bg-wc-red/5 rounded-full blur-2xl pointer-events-none"></div>
               )}
 
               {/* Contenido Superior */}
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-lg font-bold text-slate-100 flex items-center gap-1.5">
+                    <h3 className="text-lg font-bold text-slate-100 flex items-center gap-1.5 font-sports tracking-wide uppercase">
                       {entry.display_name}
                       <span className="text-xs font-mono font-medium text-slate-500">
                         #{entry.entry_number}
                       </span>
                     </h3>
-                    <p className="text-[10px] text-slate-500 mt-1 font-mono">
+                    <p className="text-xs text-slate-400 mt-1 font-sports tracking-wider">
                       Registrado el:{' '}
                       {new Date(entry.created_at).toLocaleDateString('es-ES', {
                         year: 'numeric',
@@ -295,26 +294,26 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   {getStatusBadge(entry.status)}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-950 border border-slate-900/80">
+                <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-wc-dark border border-wc-border">
                   <div>
-                    <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Puntuación</div>
-                    <div className="text-2xl font-black text-white mt-1">
+                    <div className="text-xs uppercase font-bold text-slate-500 tracking-wider font-sports">Puntuación</div>
+                    <div className="text-2xl font-black text-white mt-1 font-sports tracking-wider">
                       {entry.status === 'approved' ? entry.total_points : '--'}
-                      <span className="text-xs font-normal text-slate-400 ml-1">pts</span>
+                      <span className="text-xs font-normal text-slate-400 ml-1 font-sports tracking-normal">pts</span>
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Pronósticos</div>
-                    <div className="text-sm font-bold text-slate-300 mt-2">
+                    <div className="text-xs uppercase font-bold text-slate-500 tracking-wider font-sports">Pronósticos</div>
+                    <div className="text-sm font-bold text-slate-300 mt-2 font-sports tracking-wider uppercase">
                       {entry.status === 'approved' ? (
                         hasPending ? (
-                          <span className="text-amber-400 flex items-center gap-1">
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                          <span className="text-wc-gold flex items-center gap-1">
+                            <AlertTriangle className="w-4 h-4 text-wc-gold" strokeWidth={2.5} />
                             <span>{entry.pendingPredictions} pendientes</span>
                           </span>
                         ) : (
-                          <span className="text-emerald-400 flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-wc-green flex items-center gap-1">
+                            <CheckCircle2 className="w-4 h-4 text-wc-green" strokeWidth={2.5} />
                             <span>Completos</span>
                           </span>
                         )
@@ -327,13 +326,13 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               </div>
 
               {/* Botones de acción inferiores */}
-              <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-800/60">
+              <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-wc-border/50">
                 {entry.status === 'approved' && (
                   <a
                     href={entry.activePhases.length > 0 ? `/predictions/${entry.activePhases[0].slug}` : '#'}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 hover:border-slate-600 rounded-xl text-xs font-semibold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"
+                    className="px-4 py-2 bg-slate-800 hover:bg-wc-card text-slate-200 border border-slate-700 hover:border-wc-border rounded-xl text-xs font-semibold transition-all hover:-translate-y-0.5 flex items-center gap-1.5 font-sports tracking-wider uppercase"
                   >
-                    <Edit3 className="w-3.5 h-3.5 text-slate-300" />
+                    <Edit3 className="w-4 h-4 text-slate-300" strokeWidth={2.5} />
                     <span>Pronosticar</span>
                   </a>
                 )}
@@ -342,15 +341,15 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                     href={entry.signedUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-900 hover:border-slate-800 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5"
+                    className="px-4 py-2 bg-wc-dark hover:bg-wc-card text-slate-400 hover:text-slate-200 border border-wc-border rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 font-sports tracking-wider uppercase"
                   >
-                    <FileText className="w-3.5 h-3.5 text-slate-400" />
+                    <FileText className="w-4 h-4 text-slate-400" strokeWidth={2.5} />
                     <span>Ver Comprobante</span>
                   </a>
                 )}
                 {entry.status === 'rejected' && (
-                  <div className="text-xs text-rose-400/90 font-medium flex items-start gap-1.5">
-                    <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <div className="text-xs text-wc-red font-medium flex items-start gap-1.5">
+                    <XCircle className="w-4 h-4 text-wc-red shrink-0 mt-0.5" strokeWidth={2.5} />
                     <span>El administrador rechazó el comprobante. Por favor, sube un cupo nuevo con un pago válido o contáctanos.</span>
                   </div>
                 )}
@@ -364,17 +363,17 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
           <div 
-            className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col gap-6"
+            className="w-full max-w-lg bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col gap-6"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Gradients */}
-            <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
 
             {/* Cabecera modal */}
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-xl font-bold text-white flex items-center gap-2 font-sports tracking-wider uppercase">
+                  <Trophy className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
                   <span>Comprar Cupo Adicional</span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
@@ -386,35 +385,35 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                 disabled={submitting}
                 className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all disabled:opacity-50"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4.5 h-4.5" strokeWidth={2.5} />
               </button>
             </div>
 
             {/* Desglose de Pago */}
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-              <div className="text-xs font-semibold text-slate-400 flex justify-between">
+            <div className="p-4 rounded-xl bg-wc-dark border border-wc-border space-y-3">
+              <div className="text-xs font-semibold text-slate-400 flex justify-between font-sports tracking-wider">
                 <span>Costo del cupo:</span>
-                <span className="text-white font-bold">20.00 USDT</span>
+                <span className="text-wc-gold font-bold">20.00 USDT</span>
               </div>
-              <div className="h-[1px] bg-slate-800/80"></div>
-              <div className="space-y-2 text-xs text-slate-400">
+              <div className="h-[1px] bg-wc-border/60"></div>
+              <div className="space-y-2 text-xs text-slate-400 font-sports tracking-wider">
                 <div className="flex justify-between items-center">
                   <span className="flex items-center gap-1.5">
-                    <Trophy className="w-3.5 h-3.5 text-emerald-400" />
+                    <Trophy className="w-4 h-4 text-wc-gold" strokeWidth={2.5} />
                     <span>Al pote de premios:</span>
                   </span>
                   <span className="text-slate-200 font-semibold font-mono">15.00 USDT</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="flex items-center gap-1.5">
-                    <Settings className="w-3.5 h-3.5 text-slate-500" />
+                    <Settings className="w-4 h-4 text-slate-500" strokeWidth={2.5} />
                     <span>Gastos operativos:</span>
                   </span>
                   <span className="text-slate-200 font-semibold font-mono">5.00 USDT</span>
                 </div>
               </div>
-              <div className="pt-2 border-t border-slate-900 text-[10px] text-emerald-400 font-bold text-center flex items-center justify-center gap-1.5">
-                <Megaphone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <div className="pt-2 border-t border-wc-border/50 text-xs text-wc-gold font-bold text-center flex items-center justify-center gap-1.5 font-sports tracking-wider uppercase">
+                <Megaphone className="w-4 h-4 text-wc-gold shrink-0 animate-pulse-subtle" strokeWidth={2.5} />
                 <span>El 100% del pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo.</span>
               </div>
             </div>
@@ -422,7 +421,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
             {/* Formulario */}
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <label htmlFor="displayName" className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <label htmlFor="displayName" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 font-sports">
                   Nombre del Cupo
                 </label>
                 <input
@@ -430,7 +429,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   id="displayName"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-all font-semibold"
+                  className="w-full bg-wc-dark border border-wc-border rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-wc-gold transition-all font-semibold"
                   placeholder="Ej: MiNombre #2"
                   disabled={submitting}
                   required
@@ -438,7 +437,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-405 font-sports">
                   Comprobante de Pago
                 </label>
 
@@ -460,47 +459,48 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   onClick={() => fileInputRef.current?.click()}
                   className={`w-full min-h-[140px] p-5 rounded-2xl border-2 border-dashed transition-all duration-300 cursor-pointer flex flex-col items-center justify-center text-center ${
                     dragActive
-                      ? 'border-emerald-400 bg-emerald-950/10'
+                      ? 'border-wc-gold bg-wc-gold/10'
                       : file
-                      ? 'border-emerald-500/50 bg-slate-950/40'
-                      : 'border-slate-800 hover:border-slate-700 bg-slate-950/30 hover:bg-slate-950/50'
+                      ? 'border-wc-gold/50 bg-wc-dark'
+                      : 'border-wc-border hover:border-slate-700 bg-wc-dark/50 hover:bg-wc-dark/80'
                   }`}
                 >
                   {!file ? (
                     <div className="space-y-2">
-                      <div className="mx-auto w-10 h-10 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400">
-                        <UploadCloud className="w-5 h-5 text-slate-400" />
+                      <div className="mx-auto w-10 h-10 rounded-full bg-wc-dark border border-wc-border flex items-center justify-center text-wc-gold">
+                        <UploadCloud className="w-5 h-5 text-wc-gold" strokeWidth={2.5} />
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-slate-200">
                           Sube tu comprobante de pago
                         </p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">
+                        <p className="text-xs text-slate-500 mt-0.5">
                           Haz clic para explorar o arrastra aquí
                         </p>
                       </div>
-                      <p className="text-[9px] text-slate-500">
+                      <p className="text-xs text-slate-500 font-sports tracking-wider uppercase">
                         Formatos: JPG, PNG, WEBP, PDF (Máx. 5MB)
                       </p>
                     </div>
                   ) : (
-                    <div className="w-full flex items-center justify-between gap-3 p-2 bg-slate-950 rounded-xl border border-slate-800">
+                    <div className="w-full flex items-center justify-between gap-3 p-2 bg-wc-dark rounded-xl border border-wc-border">
                       <div className="flex items-center space-x-3 text-left min-w-0">
                         {previewUrl ? (
-                          <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-800 bg-slate-950 flex-shrink-0">
+                          <div className="w-12 h-12 rounded-lg overflow-hidden border border-wc-border bg-wc-dark flex-shrink-0">
                             <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                           </div>
                         ) : (
-                          <div className="w-12 h-12 rounded-lg bg-red-950/20 border border-red-900/30 flex flex-col items-center justify-center text-red-400 flex-shrink-0">
-                            <FileText className="w-6 h-6 text-red-400" />
+                          <div className="w-12 h-12 rounded-lg bg-wc-red/10 border border-wc-red/20 flex flex-col items-center justify-center text-wc-red flex-shrink-0 font-sports tracking-wide text-xs">
+                            <FileText className="w-6 h-6 text-wc-red" strokeWidth={2.5} />
+                            PDF
                           </div>
                         )}
                         <div className="min-w-0">
                           <p className="text-xs font-semibold text-slate-200 truncate max-w-[150px]">
                             {file.name}
                           </p>
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 mt-1 border border-emerald-500/10">
-                            <Check className="w-2.5 h-2.5" /> Listo
+                          <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold bg-wc-green/10 text-wc-green mt-1 border border-wc-green/15 font-sports tracking-wider uppercase">
+                            <Check className="w-3 h-3 text-wc-green" strokeWidth={2.5} /> Listo
                           </span>
                         </div>
                       </div>
@@ -512,9 +512,9 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                           setPreviewUrl(null);
                         }}
                         disabled={submitting}
-                        className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-red-400 transition-all"
+                        className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-wc-red transition-all"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4.5 h-4.5" strokeWidth={2.5} />
                       </button>
                     </div>
                   )}
@@ -522,8 +522,8 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               </div>
 
               {formError && (
-                <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-900/40 text-rose-400 text-xs font-semibold flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                <div className="p-3 rounded-xl bg-wc-red/10 border border-wc-red/20 text-wc-red text-xs font-semibold flex items-center gap-1.5">
+                  <AlertTriangle className="w-4.5 h-4.5 text-wc-red shrink-0" strokeWidth={2.5} />
                   <span>{formError}</span>
                 </div>
               )}
@@ -534,14 +534,14 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   type="button"
                   onClick={closeModal}
                   disabled={submitting}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-slate-950 hover:bg-slate-900 border border-slate-900 hover:border-slate-800 transition-all disabled:opacity-50"
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-wc-dark hover:bg-slate-900 border border-wc-border hover:border-slate-800 transition-all disabled:opacity-50 font-sports tracking-wider uppercase"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-950/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-955 shadow-lg shadow-wc-gold/15 disabled:opacity-50 transition-all flex items-center justify-center gap-2 font-sports tracking-wider uppercase"
                 >
                   {submitting ? (
                     <>

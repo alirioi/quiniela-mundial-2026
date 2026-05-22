@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { showAlert } from '../../utils/alerts';
+import { getTeamFlagUrl } from '../../utils/flags';
 import { Lock, RefreshCw, AlertTriangle, Award } from 'lucide-react';
 
 interface Phase {
@@ -135,9 +137,9 @@ export default function AdminMatchResults() {
         )
       );
 
-      alert('Partido actualizado con éxito. ¡Los puntos se han recalculado en la base de datos!');
+      showAlert.success('Éxito', 'Partido actualizado con éxito. ¡Los puntos se han recalculado en la base de datos!');
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      showAlert.error('Error', err.message);
     } finally {
       setSavingId(null);
     }
@@ -248,9 +250,18 @@ export default function AdminMatchResults() {
                 {/* Grid del Formulario de Marcador */}
                 <div className="flex items-center justify-between gap-4 relative z-10">
                   {/* Local */}
-                  <div className="flex-1 text-right min-w-0">
-                    <div className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={match.home_team}>
-                      {match.home_team}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={match.home_team}>
+                        {match.home_team}
+                      </span>
+                      {getTeamFlagUrl(match.home_team) && (
+                        <img
+                          src={getTeamFlagUrl(match.home_team)!}
+                          alt={`Bandera de ${match.home_team}`}
+                          className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
+                        />
+                      )}
                     </div>
                   </div>
  
@@ -288,9 +299,18 @@ export default function AdminMatchResults() {
                   </div>
  
                   {/* Visitante */}
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={match.away_team}>
-                      {match.away_team}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-start gap-2">
+                      {getTeamFlagUrl(match.away_team) && (
+                        <img
+                          src={getTeamFlagUrl(match.away_team)!}
+                          alt={`Bandera de ${match.away_team}`}
+                          className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
+                        />
+                      )}
+                      <span className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={match.away_team}>
+                        {match.away_team}
+                      </span>
                     </div>
                   </div>
                 </div>

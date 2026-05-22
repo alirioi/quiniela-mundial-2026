@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase-browser';
 import { Trophy } from 'lucide-react';
+import { getTeamFlagUrl } from '../../utils/flags';
 
 interface Match {
   id: number;
@@ -137,8 +138,19 @@ export default function LiveScoreboard() {
               {/* Contenido principal: Equipos y Marcadores */}
               <div className="flex items-center justify-between gap-2 my-1">
                 {/* Local */}
-                <div className="flex-1 text-right font-bold text-slate-200 text-sm truncate font-sports tracking-wide uppercase" title={match.home_team}>
-                  {match.home_team}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-end gap-2">
+                    <span className="font-bold text-slate-200 text-sm font-sports tracking-wide uppercase truncate" title={match.home_team}>
+                      {match.home_team}
+                    </span>
+                    {getTeamFlagUrl(match.home_team) && (
+                      <img
+                        src={getTeamFlagUrl(match.home_team)!}
+                        alt={`Bandera de ${match.home_team}`}
+                        className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
+                      />
+                    )}
+                  </div>
                 </div>
 
                 {/* Score */}
@@ -159,8 +171,19 @@ export default function LiveScoreboard() {
                 </div>
 
                 {/* Visitante */}
-                <div className="flex-1 text-left font-bold text-slate-200 text-sm truncate font-sports tracking-wide uppercase" title={match.away_team}>
-                  {match.away_team}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-start gap-2">
+                    {getTeamFlagUrl(match.away_team) && (
+                      <img
+                        src={getTeamFlagUrl(match.away_team)!}
+                        alt={`Bandera de ${match.away_team}`}
+                        className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
+                      />
+                    )}
+                    <span className="font-bold text-slate-200 text-sm font-sports tracking-wide uppercase truncate" title={match.away_team}>
+                      {match.away_team}
+                    </span>
+                  </div>
                 </div>
               </div>
 

@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { showAlert } from '../../utils/alerts';
+import { getTeamFlagUrl } from '../../utils/flags';
 import { Lock, Clock, AlertTriangle, Loader2, Award, CheckCircle2 } from 'lucide-react';
 
 interface Prediction {
@@ -153,7 +155,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
 
     const match = matches.find((m) => m.id === matchId);
     if (!match || isLocked(match.match_time)) {
-      alert('Este partido ya está bloqueado para predicciones.');
+      showAlert.warning('Advertencia', 'Este partido ya está bloqueado para predicciones.');
       return;
     }
 
@@ -197,7 +199,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
       // Volver a cargar predicciones del cupo para actualizar IDs
       await fetchMatchesAndPredictions();
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      showAlert.error('Error', err.message);
     } finally {
       setSavingIds((prev) => ({ ...prev, [matchId]: false }));
     }
@@ -218,7 +220,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
       .filter((p) => p.predictedHome !== '' && p.predictedAway !== '');
 
     if (predictionsToSave.length === 0) {
-      alert('Completa al menos un marcador antes de guardar.');
+      showAlert.warning('Advertencia', 'Completa al menos un marcador antes de guardar.');
       return;
     }
 
@@ -238,10 +240,10 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         throw new Error(errData.error || 'Error al guardar las predicciones');
       }
 
-      alert('¡Todas tus predicciones se guardaron correctamente!');
+      showAlert.success('Éxito', '¡Todas tus predicciones se guardaron correctamente!');
       await fetchMatchesAndPredictions();
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      showAlert.error('Error', err.message);
     } finally {
       setBulkSaving(false);
     }
@@ -398,9 +400,18 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                       {/* Fila central: Marcador del Partido y Predicción */}
                       <div className="flex items-center justify-between gap-3 my-2">
                         {/* Local */}
-                        <div className="flex-1 text-right min-w-0 pr-1">
-                          <div className="font-bold text-white text-sm sm:text-base truncate" title={match.home_team}>
-                            {match.home_team}
+                        <div className="flex-1 min-w-0 pr-1">
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="font-bold text-white text-sm sm:text-base truncate" title={match.home_team}>
+                              {match.home_team}
+                            </span>
+                            {getTeamFlagUrl(match.home_team) && (
+                              <img
+                                src={getTeamFlagUrl(match.home_team)!}
+                                alt={`Bandera de ${match.home_team}`}
+                                className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
+                              />
+                            )}
                           </div>
                         </div>
 
@@ -445,9 +456,18 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                         </div>
 
                         {/* Visitante */}
-                        <div className="flex-1 text-left min-w-0 pl-1">
-                          <div className="font-bold text-white text-sm sm:text-base truncate" title={match.away_team}>
-                            {match.away_team}
+                        <div className="flex-1 min-w-0 pl-1">
+                          <div className="flex items-center justify-start gap-2">
+                            {getTeamFlagUrl(match.away_team) && (
+                              <img
+                                src={getTeamFlagUrl(match.away_team)!}
+                                alt={`Bandera de ${match.away_team}`}
+                                className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
+                              />
+                            )}
+                            <span className="font-bold text-white text-sm sm:text-base truncate" title={match.away_team}>
+                              {match.away_team}
+                            </span>
                           </div>
                         </div>
                       </div>

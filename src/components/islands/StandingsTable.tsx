@@ -173,7 +173,10 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
           )}
         </div>
       </div>
-      // Pre-calcular posiciones globales del ranking
+    );
+  }
+
+  // Pre-calcular posiciones globales del ranking
   const rankedStandings: Array<StandingEntry & { rank: number }> = [];
   let currentRank = 1;
   for (let i = 0; i < standings.length; i++) {

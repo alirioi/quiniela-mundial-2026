@@ -8,8 +8,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response(JSON.stringify({ error: 'Tokens no válidos' }), { status: 400 });
     }
 
-    cookies.set('sb-access-token', accessToken, { path: '/', httpOnly: true, secure: true, sameSite: 'lax' });
-    cookies.set('sb-refresh-token', refreshToken, { path: '/', httpOnly: true, secure: true, sameSite: 'lax' });
+    const cookieOptions = {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax' as const,
+      maxAge: 60 * 60 * 24 * 30, // 30 días
+    };
+
+    cookies.set('sb-access-token', accessToken, cookieOptions);
+    cookies.set('sb-refresh-token', refreshToken, cookieOptions);
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (e) {

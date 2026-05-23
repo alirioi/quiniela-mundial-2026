@@ -12,7 +12,9 @@ import {
   ChevronDown,
   AlertTriangle,
   Info,
-  HelpCircle
+  HelpCircle,
+  HelpCircle as QuestionIcon,
+  Layers
 } from 'lucide-react';
 const profile = Astro.locals.profile;
 ---
@@ -25,9 +27,9 @@ const profile = Astro.locals.profile;
     <div class="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-wc-blue/5 rounded-full blur-3xl pointer-events-none"></div>
 
     <!-- FAQ content -->
-    <main class="relative z-10 flex-grow max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-16">
+    <main class="relative z-10 flex-grow max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
       
-      <div class="space-y-12">
+      <div class="space-y-10">
         
         <!-- Header -->
         <div class="text-center space-y-4">
@@ -35,240 +37,357 @@ const profile = Astro.locals.profile;
             Reglas e <span class="text-transparent bg-clip-text bg-gradient-to-r from-wc-gold to-amber-500">Instrucciones</span>
           </h1>
           <p class="text-sm sm:text-base text-slate-400 max-w-xl mx-auto">
-            Aquí encontrarás todo lo relacionado con el funcionamiento, la puntuación, las inscripciones y los términos de participación en la Quiniela Mundial 2026.
+            Explora las secciones para conocer el reglamento, los pasos de inscripción, respuestas a dudas frecuentes y términos de participación en la Quiniela Mundial 2026.
           </p>
         </div>
 
-        <!-- FAQ Accordion Container -->
-        <div class="space-y-4">
-          
-          <!-- Q1: ¿Cómo participar? -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <Ticket className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Cómo participar en la Quiniela?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
-                <p>Para participar debes seguir estos pasos:</p>
-                <ol class="list-decimal pl-5 space-y-2">
-                  <li>Crea una cuenta en la página de registro ingresando tus datos personales (debes ser mayor de 18 años).</li>
-                  <li>Escoge un nombre único para tu cupo y realiza el pago de la entrada (20.00 USDT).</li>
-                  <li>Sube tu comprobante de pago en el formulario para que el administrador pueda verificar la transacción.</li>
-                  <li>Una vez que el administrador apruebe tu cupo, podrás acceder al Dashboard y rellenar tus predicciones para todos los partidos disponibles.</li>
-                </ol>
-                <div class="text-xs text-wc-gold font-medium flex items-start gap-2 bg-wc-gold/10 p-3 rounded-lg border border-wc-gold/20">
-                  <AlertTriangle className="w-5 h-5 text-wc-gold shrink-0 mt-0.5" strokeWidth={2.5} />
-                  <span><strong>Recuerda:</strong> Puedes comprar múltiples cupos bajo la misma cuenta si deseas enviar predicciones diferentes y multiplicar tus oportunidades de ganar.</span>
+        <!-- Pestañas Interactivas (Tabs Header) -->
+        <div class="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-wc-card border border-wc-border rounded-2xl w-full max-w-3xl mx-auto font-sports text-xs tracking-wider uppercase select-none">
+          <button
+            type="button"
+            data-tab="instructions"
+            class="tab-btn px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
+          >
+            Instrucciones
+          </button>
+          <button
+            type="button"
+            data-tab="rules"
+            class="tab-btn px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
+          >
+            Reglamento
+          </button>
+          <button
+            type="button"
+            data-tab="faq"
+            class="tab-btn px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
+          >
+            Preguntas Frecuentes
+          </button>
+          <button
+            type="button"
+            data-tab="disclaimers"
+            class="tab-btn px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
+          >
+            Avisos Legales
+          </button>
+        </div>
+
+        <!-- Contenedores de Acordeones por Pestaña -->
+        <div class="space-y-4 max-w-3xl mx-auto">
+
+          <!-- Pestaña 1: INSTRUCCIONES (Guía de Participación) -->
+          <div id="tab-content-instructions" class="tab-pane space-y-4 hidden">
+            
+            <!-- Q1: ¿Cómo participar? -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Ticket className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Cómo participar en la Quiniela?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
+                  <p>Para participar debes seguir estos pasos secuenciales:</p>
+                  <ol class="list-decimal pl-5 space-y-2.5">
+                    <li>
+                      <strong>Crea una cuenta</strong> en la página de registro ingresando tus datos reales (Nombre, Correo, WhatsApp y Fecha de nacimiento). Debes ser mayor de 18 años.
+                    </li>
+                    <li>
+                      <strong>Elige tu apodo de cupo</strong>. Este campo funciona como un username público de clasificación. Puedes escribir cualquier nombre de fantasía para proteger tu privacidad.
+                    </li>
+                    <li>
+                      <strong>Realiza el pago</strong> de 20.00 USDT vía Binance Pay a los datos del organizador suministrados en pantalla y copia tu Binance Pay ID de la transacción.
+                    </li>
+                    <li>
+                      <strong>Sube la captura de tu comprobante</strong> en el formulario de registro y escribe tu usuario/ID de Binance Pay para que el administrador valide tu pago.
+                    </li>
+                    <li>
+                      Una vez que tu cupo sea aprobado (12-24h de espera), tendrás acceso completo para <strong>guardar y modificar tus predicciones</strong> en el Dashboard.
+                    </li>
+                  </ol>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Q2: ¿Cuánto cuesta la inscripción y cómo se distribuye el dinero? -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <Coins className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Cuánto cuesta el cupo y cómo se distribuye el dinero?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
-                <p>El costo por cada cupo registrado es de <strong>20.00 USDT</strong>.</p>
-                <p>La distribución de cada entrada es la siguiente:</p>
-                <ul class="list-disc pl-5 space-y-1.5">
-                  <li><strong>15.00 USDT</strong> se destinan de manera íntegra al pozo acumulado de premios.</li>
-                  <li><strong>5.00 USDT</strong> se destinan para cubrir los gastos operativos y el mantenimiento técnico de la plataforma web.</li>
-                </ul>
-                <div class="text-xs text-wc-red font-semibold flex items-start gap-2 bg-wc-red/10 p-3 rounded-lg border border-wc-red/20 mt-3">
-                  <AlertTriangle className="w-5.5 h-5.5 text-wc-red shrink-0 mt-0.5" strokeWidth={2.5} />
-                  <span><strong>Política de no reembolso:</strong> Una vez realizado el pago y formalizada la inscripción a la quiniela, no se realizarán reembolsos bajo ninguna circunstancia.</span>
-                </div>
-                <div class="text-xs text-amber-500 font-semibold flex items-start gap-2 bg-amber-500/10 p-3 rounded-lg border border-amber-500/20 mt-2">
-                  <AlertTriangle className="w-5.5 h-5.5 text-amber-500 shrink-0 mt-0.5" strokeWidth={2.5} />
-                  <span><strong>Nota de Binance Pay:</strong> Al realizar el envío, está estrictamente prohibido incluir términos como "apuestas", "quiniela", "sorteo" o "juego de azar" en la nota de transferencia. Esto es para cumplir con las políticas de Binance. Cualquier cuenta suspendida por este motivo es responsabilidad del usuario.</span>
+            <!-- Q2: Múltiples Cupos -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Layers className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Puedo registrar múltiples cupos bajo una misma cuenta?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p><strong>Sí, totalmente.</strong> Puedes comprar y administrar todos los cupos que desees dentro de la misma cuenta de usuario.</p>
+                  <p>Al comprar cupos adicionales desde la sección "Mis Cupos" del Dashboard:</p>
+                  <ul class="list-disc pl-5 space-y-1.5">
+                    <li>Podrás asignarles nombres o apodos distintos a cada uno (ej. "Campeón #1", "Campeón #2").</li>
+                    <li>Tendrás paneles de predicciones independientes para cada cupo, permitiéndote enviar combinaciones de resultados distintas para multiplicar tus probabilidades.</li>
+                    <li>Todos tus cupos aparecerán listados de forma independiente en la clasificación general.</li>
+                  </ul>
                 </div>
               </div>
             </div>
+
           </div>
 
-          <!-- Q3: ¿Cuál es el premio y cómo se reparte? -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <Trophy className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Cuál es el premio y cómo se reparte?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                <p>El <strong>100% del pozo acumulado</strong> (los 15.00 USDT de cada cupo aprobado) se entregará al primer lugar de la clasificación general al finalizar el mundial.</p>
-                <p><strong>Regla de empate:</strong> Si dos o más participantes empatan en la primera posición al finalizar el último partido del mundial, no habrá desempates de ningún tipo. El dinero del pozo acumulado se repartirá en partes exactamente iguales (de forma equitativa) entre todas las personas que hayan quedado empatadas en el primer lugar.</p>
+          <!-- Pestaña 2: REGLAMENTO (Reglas de Juego) -->
+          <div id="tab-content-rules" class="tab-pane space-y-4 hidden">
+            
+            <!-- Q3: Sistema de Puntuación -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Award className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Cómo funciona el sistema de puntuación?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>El cálculo de puntos por cada partido se realiza de forma automática al cargarse el resultado oficial en el sistema:</p>
+                  <ul class="space-y-4 pl-2">
+                    <li class="flex items-start gap-2.5">
+                      <span class="text-wc-gold font-bold font-sports text-sm md:text-base w-12 shrink-0">3 Ptos</span>
+                      <div>
+                        <strong class="text-slate-200 block text-xs md:text-sm">Marcador Exacto</strong>
+                        <span>Si aciertas los goles exactos de ambos equipos. (Ej: Pronóstico 2-1, Resultado 2-1).</span>
+                      </div>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                      <span class="text-wc-blue font-bold font-sports text-sm md:text-base w-12 shrink-0">1 Pto</span>
+                      <div>
+                        <strong class="text-slate-200 block text-xs md:text-sm">Resultado Parcial</strong>
+                        <span>Si aciertas el ganador o el empate del partido, pero no los goles exactos. (Ej: Pronóstico 3-1, Resultado 2-0).</span>
+                      </div>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                      <span class="text-slate-500 font-bold font-sports text-sm md:text-base w-12 shrink-0">0 Ptos</span>
+                      <div>
+                        <strong class="text-slate-350 block text-xs md:text-sm">Fallo</strong>
+                        <span>Si no aciertas ni el ganador ni el empate.</span>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
+
+            <!-- Q4: Bloqueo de Predicciones -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Clock className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Hasta cuándo tengo tiempo de guardar o modificar mis predicciones?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>Las predicciones de cada partido se bloquean de manera automática e inalterable **2 horas antes** de la hora programada de inicio oficial del partido (UTC).</p>
+                  <p>Antes de ese límite de 2 horas previas, puedes ingresar al formulario de pronósticos en el Dashboard y modificar tus marcadores cuantas veces quieras. Cruzado ese límite de tiempo, la casilla de ese encuentro quedará bloqueada en gris y no se permitirán excepciones manuales de ningún tipo.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Q5: Eliminatoria y Penales -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Zap className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Cómo se calculan los puntos en la fase eliminatoria si hay prórroga o penales?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>Para mantener un sistema simplificado y transparente:</p>
+                  <ul class="list-disc pl-5 space-y-2">
+                    <li>El resultado oficial considerado para la quiniela es el marcador final obtenido **al concluir los 90 minutos reglamentarios y los 30 minutos de tiempo extra (120 minutos de juego totales)**, excluyendo por completo la tanda de penales final.</li>
+                    <li>Si un encuentro finaliza empatado tras los 120 minutos, el marcador oficial de la quiniela se registrará como **Empate** (ej. 1-1 o 2-2), sin importar cuál selección resulte ganadora o clasificada mediante los penales.</li>
+                    <li>Esto te permite pronosticar empates válidos en todas las fases eliminatorias. No necesitas adivinar quién pasa en penales.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Q6: Premio y Empates -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Trophy className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Cuál es el premio y cómo se reparte en caso de empate en standings?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>El **100% del pote acumulado de premios** (los 15.00 USDT de cada cupo registrado y aprobado) se entregará al primer lugar de la tabla de posiciones general.</p>
+                  <p><strong>Regla de Empate en Posiciones:</strong> Si dos o más cupos comparten la primera posición en puntaje al finalizar el último partido del mundial, el dinero total del pote acumulado se repartirá en partes exactamente iguales y equitativas entre todos los empatados. No se aplicarán criterios de desempate artificiales como el orden de registro.</p>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          <!-- Q4: ¿Cómo funciona el sistema de puntuación? -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <Award className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Cómo funciona el sistema de puntuación?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                <p>El cálculo de puntos por cada partido se realiza de la siguiente manera:</p>
-                <ul class="list-disc pl-5 space-y-3">
-                  <li>
-                    <strong class="text-wc-gold font-sports uppercase tracking-wider text-sm block">3 Puntos (Marcador Exacto):</strong>
-                    <span>Si aciertas la cantidad de goles exacta de ambos equipos.</span>
-                    <br /><span class="text-xs text-slate-400">Ejemplo: Pronosticaste 2-1 y el partido terminó 2-1.</span>
-                  </li>
-                  <li>
-                    <strong class="text-wc-blue font-sports uppercase tracking-wider text-sm block">1 Punto (Ganador o Empate Parcial):</strong>
-                    <span>Si aciertas el ganador del partido o el empate, pero no los goles exactos.</span>
-                    <br /><span class="text-xs text-slate-400">Ejemplo: Pronosticaste 3-1, el partido terminó 2-0 (acertaste la victoria del local pero no la cantidad de goles).</span>
-                  </li>
-                  <li>
-                    <strong class="text-slate-500 font-sports uppercase tracking-wider text-sm block">0 Puntos (Fallo):</strong>
-                    <span>Si no aciertas ni el ganador ni el empate.</span>
-                  </li>
-                </ul>
-                <p class="pt-2">La puntuación es uniforme en todas las fases del mundial.</p>
+          <!-- Pestaña 3: PREGUNTAS FRECUENTES (FAQ Operativo) -->
+          <div id="tab-content-faq" class="tab-pane space-y-4 hidden">
+            
+            <!-- Q7: Costo e Inscripción -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Coins className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Cuánto cuesta el cupo y cómo se distribuye el dinero?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>Cada cupo tiene un costo de **20.00 USDT**. La distribución es la siguiente:</p>
+                  <ul class="list-disc pl-5 space-y-1.5">
+                    <li><strong>15.00 USDT</strong> van íntegros al pote de premios oficial a ser repartido.</li>
+                    <li><strong>5.00 USDT</strong> se destinan a gastos de hosting, desarrollo técnico y soporte operativo del sistema.</li>
+                  </ul>
+                </div>
               </div>
             </div>
+
+            <!-- Q8: Tiempos de Verificación -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Clock className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Cuánto tiempo tarda en aprobarse mi comprobante de pago?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>La validación de los comprobantes de pago subidos se realiza de manera manual por el administrador de la plataforma por razones de seguridad.</p>
+                  <p>Este proceso toma en promedio entre **12 y 24 horas**. Recibirás un correo electrónico de confirmación una vez tu cupo haya sido aprobado y puedas acceder a cargar tus predicciones.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Q9: Cierre de Inscripciones -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Calendar className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Cuándo cierran las inscripciones y el registro de nuevos cupos?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>El registro de nuevos usuarios y la compra de cupos adicionales cierran estrictamente **2 días (48 horas) antes** de que inicie el primer partido oficial del mundial.</p>
+                  <p>El cierre está programado para el **9 de Junio de 2026 a las 22:30 UTC**. Este plazo es inamovible para garantizar que el administrador pueda conciliar todos los pagos pendientes antes del inicio de la jornada inaugural.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Q10: Demora de Standings -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <Info className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Los puntos y la tabla se actualizan inmediatamente al terminar un partido?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>Los resultados cargados y el cálculo de la tabla de posiciones general de la quiniela pueden tomar unos minutos en reflejarse en las interfaces tras el pitazo final del encuentro oficial.</p>
+                  <p>Esto se debe al procesamiento de datos del servidor. Agradecemos tu paciencia y te sugerimos refrescar la página pasados unos minutos si no ves el cambio reflejado de inmediato.</p>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          <!-- Q4.5: ¿Cómo se manejan los penales en fase eliminatoria? -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <Zap className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Cómo se calculan los puntos en la fase eliminatoria si hay prórroga o penales?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                <p>Para mantener el sistema sencillo, transparente y alineado con los estándares oficiales:</p>
-                <ul class="list-disc pl-5 space-y-2">
-                  <li>El marcador oficial que se considera para calcular los puntos es el resultado final obtenido tras concluir los 90 minutos reglamentarios y la prórroga de 30 minutos (120 minutos de juego en total), <strong>excluyendo por completo la tanda de penales</strong>.</li>
-                  <li>Si un partido de eliminación directa (octavos, cuartos, etc.) finaliza 1-1 tras los 120 minutos, el marcador oficial para la quiniela se registrará como <strong>1-1 (empate)</strong>, independientemente de qué selección termine clasificando en la tanda de penales.</li>
-                  <li>Por lo tanto, en la fase eliminatoria puedes pronosticar empates. Si aciertas el empate o el marcador exacto de los 120 minutos, recibirás tus puntos de forma regular. No necesitas predecir quién gana la tanda de penales ni quién clasifica.</li>
-                </ul>
+          <!-- Pestaña 4: AVISOS LEGALES (Disclaimers) -->
+          <div id="tab-content-disclaimers" class="tab-pane space-y-4 hidden">
+            
+            <!-- Q11: Reembolsos -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <AlertTriangle className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Existe alguna política de reembolsos?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
+                  <div class="text-xs text-wc-red font-semibold flex items-start gap-2 bg-wc-red/10 p-3.5 rounded-lg border border-wc-red/20">
+                    <AlertTriangle className="w-5.5 h-5.5 text-wc-red shrink-0 mt-0.5" strokeWidth={2.5} />
+                    <span><strong>Política estricta de NO reembolso:</strong> Una vez realizado el pago de la entrada y completado el registro de tu cuenta o cupo adicional en la plataforma, no se realizarán reembolsos de dinero bajo ninguna circunstancia o justificación.</span>
+                  </div>
+                  <p>Al participar, declaras que comprendes que los fondos recaudados se asignan al pozo de premios de forma permanente y no pueden ser devueltos.</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Q5: ¿Cuándo se bloquean las predicciones? -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <Clock className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Hasta cuándo tengo tiempo de guardar o modificar mis predicciones?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                <p>Las predicciones de cada partido se bloquean automáticamente <strong>2 horas antes</strong> del inicio programado del partido oficial (UTC).</p>
-                <p>Antes de este límite de 2 horas, puedes modificar tus marcadores cuantas veces quieras ingresando a la sección de pronósticos del dashboard. Una vez cruzada la barrera de las 2 horas previas, el sistema bloqueará el formulario para ese partido de forma irreversible y no se permitirán cambios.</p>
+            <!-- Q12: Requisitos de Edad -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <ShieldAlert className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Cuáles son las condiciones de edad para participar?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>Por razones legales de regulaciones locales, la participación está restringida única y exclusivamente a personas **mayores de 18 años**.</p>
+                  <p>Al registrarte, debes proveer tu fecha de nacimiento real. El sistema validará tu edad automáticamente. Si la organización comprueba que un participante falsificó sus datos de edad para evadir el control de minoridad, **su cuenta y cupos serán bloqueados y eliminados permanentemente sin derecho a reembolso del monto transferido**.</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Q6: ¿Cuándo cierran las inscripciones y compras de cupos? -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <Calendar className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Cuándo cierran las inscripciones y el registro de cupos?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                <p>Las inscripciones de nuevos usuarios y la compra de cupos adicionales cierran exactamente <strong>2 días antes</strong> de que comience el primer partido del mundial.</p>
-                <p>Dado que el primer partido se juega el 11 de Junio de 2026, el registro y las compras finalizarán el <strong>9 de Junio de 2026 a las 22:30 UTC</strong>.</p>
-                <p>Esto se hace con la finalidad de verificar todos los comprobantes de pago pendientes de forma manual, evitar problemas de devoluciones y asegurar que el torneo inicie en óptimas condiciones.</p>
+            <!-- Q13: Restricciones de Binance Pay -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <AlertTriangle className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Existen restricciones con las notas de transferencia en Binance Pay?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
+                  <div class="text-xs text-amber-500 font-semibold flex items-start gap-2 bg-amber-500/10 p-3.5 rounded-lg border border-amber-500/20">
+                    <AlertTriangle className="w-5.5 h-5.5 text-amber-500 shrink-0 mt-0.5" strokeWidth={2.5} />
+                    <span><strong>Prohibición en Binance Pay:</strong> Al realizar el pago, no escribas palabras como "apuesta", "quiniela", "sorteo", "azar" ni términos de juego en la nota de transferencia de Binance.</span>
+                  </div>
+                  <p>Binance prohíbe el uso de sus servicios para transferencias relacionadas con apuestas de juego y podría congelar o bloquear de forma irreversible las cuentas asociadas. Cualquier bloqueo de fondos por esta causa es responsabilidad exclusiva del participante y no exime del pago para participar.</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Q7: Requisitos Legales y Edad -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <ShieldAlert className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Cuáles son las condiciones legales para participar?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                <p>Para evitar cualquier inconveniente legal, la participación está restringida a personas <strong>mayores de 18 años</strong>.</p>
-                <p>Al registrarte, deberás proporcionar tu fecha de nacimiento real. El sistema validará tu edad automáticamente. Si se detecta información falsa o que un participante es menor de edad, el administrador se reserva el derecho de eliminar el usuario y el cupo sin reembolso.</p>
+            <!-- Q14: Partidos Suspendidos -->
+            <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
+              <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
+                <span class="flex items-center gap-3">
+                  <HelpCircle className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+                  <span class="font-sports uppercase tracking-wider text-base">¿Qué ocurre si un partido oficial es suspendido o cancelado por la FIFA?</span>
+                </span>
+                <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
+              </button>
+              <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
+                  <p>Si la FIFA suspende, posterga o cancela un partido oficial del mundial y lo programa para jugarse fuera de la jornada regular establecida, la administración de la quiniela determinará un criterio justo y equitativo para la asignación de puntos de ese encuentro.</p>
+                  <p>La decisión final y las medidas compensatorias que se tomen ante situaciones imprevistas de fuerza mayor serán de carácter final e inapelable para todos los participantes.</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Q8: Actualización de Resultados -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <Info className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Los puntos y la tabla se actualizan inmediatamente al terminar un partido?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                <p>Los resultados de los partidos y la tabla de posiciones general de la quiniela pueden tardar unos minutos en actualizarse en la plataforma tras finalizar el encuentro oficial.</p>
-                <p>Este breve lapso es normal y responde al tiempo necesario para procesar los datos de las puntuaciones en el servidor de forma segura. Agradecemos tu paciencia.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Q9: Tiempos de verificación de pagos -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <Clock className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Cuánto tiempo tarda en aprobarse mi comprobante de pago?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                <p>La validación de cada comprobante de pago se realiza de manera manual por el administrador de la quiniela para garantizar la seguridad de la transacción.</p>
-                <p>Este proceso suele tomar entre <strong>12 y 24 horas</strong>. Por este motivo, se recomienda registrarse e informar el pago con suficiente antelación antes del inicio del torneo o de los partidos.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Q10: Casos de fuerza mayor y reprogramaciones -->
-          <div class="faq-item rounded-2xl bg-wc-card border border-wc-border overflow-hidden transition-all duration-300">
-            <button class="faq-trigger w-full px-6 py-5 text-left flex justify-between items-center text-slate-200 hover:text-white transition-colors cursor-pointer">
-              <span class="flex items-center gap-3">
-                <HelpCircle className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
-                <span class="font-sports uppercase tracking-wider text-base">¿Qué ocurre si un partido oficial es suspendido o cancelado?</span>
-              </span>
-              <ChevronDown className="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300" strokeWidth={2.5} />
-            </button>
-            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-              <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                <p>Si un encuentro es cancelado, suspendido o reprogramado por la FIFA para jugarse en una fecha fuera de la jornada regular establecida, la administración de la quiniela determinará la asignación oficial de los puntos correspondientes a ese partido de forma equitativa.</p>
-                <p>La decisión que se tome en este tipo de situaciones de fuerza mayor será de carácter final e inapelable para todos los participantes.</p>
-              </div>
-            </div>
           </div>
 
         </div>
@@ -278,22 +397,23 @@ const profile = Astro.locals.profile;
 
   </div>
 
-  <!-- Interactive Accordion Script -->
+  <!-- Interactive Script for FAQ Accordions and Tab Switching -->
   <script is:inline>
     document.addEventListener('DOMContentLoaded', () => {
-      const triggers = document.querySelectorAll('.faq-trigger');
+      // 1. Accordion logic
+      const accordionTriggers = document.querySelectorAll('.faq-trigger');
 
-      triggers.forEach(trigger => {
+      accordionTriggers.forEach(trigger => {
         trigger.addEventListener('click', () => {
           const item = trigger.closest('.faq-item');
           const content = item.querySelector('.faq-content');
           const icon = item.querySelector('.faq-icon');
           
-          // Check if it is currently open
           const isOpen = item.classList.contains('active');
 
-          // Close all FAQ items
-          document.querySelectorAll('.faq-item').forEach(otherItem => {
+          // Close all accordion items within the active tab panel
+          const activePanel = item.closest('.tab-pane');
+          activePanel.querySelectorAll('.faq-item').forEach(otherItem => {
             otherItem.classList.remove('active');
             otherItem.querySelector('.faq-content').style.maxHeight = null;
             
@@ -313,6 +433,46 @@ const profile = Astro.locals.profile;
           }
         });
       });
+
+      // 2. Tab switching logic
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabPanes = document.querySelectorAll('.tab-pane');
+
+      function switchTab(tabId) {
+        tabButtons.forEach(btn => {
+          if (btn.getAttribute('data-tab') === tabId) {
+            btn.classList.add('bg-gradient-to-r', 'from-wc-gold', 'to-amber-500', 'text-slate-950', 'shadow-md', 'shadow-wc-gold/10');
+            btn.classList.remove('text-slate-400', 'hover:text-slate-200');
+          } else {
+            btn.classList.remove('bg-gradient-to-r', 'from-wc-gold', 'to-amber-500', 'text-slate-950', 'shadow-md', 'shadow-wc-gold/10');
+            btn.classList.add('text-slate-400', 'hover:text-slate-200');
+          }
+        });
+
+        tabPanes.forEach(pane => {
+          if (pane.id === `tab-content-${tabId}`) {
+            pane.classList.remove('hidden');
+          } else {
+            pane.classList.add('hidden');
+            // Close any open accordion items in hidden panels
+            pane.querySelectorAll('.faq-item').forEach(item => {
+              item.classList.remove('active');
+              item.querySelector('.faq-content').style.maxHeight = null;
+              const icon = item.querySelector('.faq-icon');
+              if (icon) icon.style.transform = 'rotate(0deg)';
+            });
+          }
+        });
+      }
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchTab(btn.getAttribute('data-tab'));
+        });
+      });
+
+      // Default active tab
+      switchTab('instructions');
     });
   </script>
 </MainLayout>

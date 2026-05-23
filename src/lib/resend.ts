@@ -1,4 +1,6 @@
 import { Resend } from 'resend';
+import type * as React from 'react';
+import { render } from '@react-email/render';
 
 const resendApiKey = import.meta.env.RESEND_API_KEY && import.meta.env.RESEND_API_KEY !== 're_your_api_key' ? import.meta.env.RESEND_API_KEY : '';
 
@@ -8,10 +10,12 @@ export async function sendEmail({
   to,
   subject,
   html,
+  react,
 }: {
-  to: string;
+  to: string | string[];
   subject: string;
-  html: string;
+  html?: string;
+  react?: React.ReactElement;
 }) {
   if (!resend) {
     console.warn('Resend no está configurado (falta RESEND_API_KEY). El email no se enviará.');
@@ -19,12 +23,16 @@ export async function sendEmail({
   }
 
   try {
-    const fromAddress = 'Quiniela 2026 <onboarding@resend.dev>'; // Se puede cambiar a un dominio verificado cuando esté listo
+    const fromAddress = 'Quiniela 2026 <soporte@alirioi.dev>'; // Usando el dominio verificado
+    
+    // Si se envía un componente de React, lo renderizamos a HTML puro
+    const finalHtml = react ? await render(react) : html;
+
     const { data, error } = await resend.emails.send({
       from: fromAddress,
       to,
       subject,
-      html,
+      html: finalHtml || '',
     });
 
     if (error) {

@@ -14,6 +14,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     '/login',
     '/register',
     '/faq',
+    '/privacidad',
     '/forgot-password',
     '/reset-password',
     '/api/auth/register',

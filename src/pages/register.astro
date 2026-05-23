@@ -309,14 +309,18 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
       }
     });
   </script>
-  <style>
+  <style is:global>
     /* Soporte de modo oscuro para input de fecha de nacimiento */
     input[type="date"] {
       color-scheme: dark !important;
     }
     input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1) !important;
+      filter: brightness(0) invert(1) !important;
+      opacity: 0.7;
       cursor: pointer;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
     }
   </style>
 </MainLayout>

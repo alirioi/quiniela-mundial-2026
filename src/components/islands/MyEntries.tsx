@@ -370,7 +370,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
           <div 
-            className="w-full max-w-lg bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col gap-6"
+            className="w-full max-w-lg bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-y-auto max-h-[calc(100vh-2rem)] flex flex-col gap-6"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Gradients */}

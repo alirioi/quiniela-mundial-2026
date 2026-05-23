@@ -162,31 +162,42 @@ export default function MundialDashboard({ matches }: Props) {
     }
 
     const flagUrl = getTeamFlagUrl(team.team);
+    const paddingClass = isThirdPlaceTable ? "p-4" : "px-1 py-2 sm:px-2 sm:py-2.5";
+    const teamCellPadding = isThirdPlaceTable ? "p-4 min-w-0" : "px-1 py-2 sm:px-2 sm:py-2.5 min-w-0";
 
     return (
       <tr key={team.team} className={`border-b border-wc-border/30 hover:bg-white/5 transition-colors ${rowClass}`}>
-        <td className="p-2 sm:p-3 text-center w-8">
+        <td className={`${paddingClass} text-center ${isThirdPlaceTable ? 'w-12' : 'w-8'}`}>
           <span className={`font-sports text-sm sm:text-base ${indicatorClass}`}>{index + 1}</span>
         </td>
-        <td className="p-2 sm:p-3">
-          <div className="flex items-center gap-2">
+        <td className={teamCellPadding}>
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             {flagUrl ? (
-              <img src={flagUrl} alt={`Bandera de ${team.team}`} className="w-5 h-3.5 object-cover rounded-[2px] shadow-sm" />
+              <img src={flagUrl} alt={`Bandera de ${team.team}`} className="w-5 h-3.5 object-cover rounded-[2px] shadow-sm flex-shrink-0" />
             ) : (
-              <div className="w-5 h-3.5 bg-slate-700 rounded-[2px]"></div>
+              <div className="w-5 h-3.5 bg-slate-700 rounded-[2px] flex-shrink-0"></div>
             )}
-            <span className="font-bold text-slate-200 text-sm">{team.team}</span>
-            {isThirdPlaceTable && <span className="hidden sm:inline-block ml-1 text-[10px] uppercase font-sports text-slate-500">({team.group})</span>}
+            <span 
+              className={`font-bold text-slate-200 text-xs sm:text-sm truncate block ${
+                isThirdPlaceTable 
+                  ? "max-w-[150px] sm:max-w-none" 
+                  : "max-w-[90px] sm:max-w-[130px] md:max-w-[180px] lg:max-w-[110px] xl:max-w-[150px] 2xl:max-w-[110px] [@media(min-width:1700px)]:max-w-[165px]"
+              }`}
+              title={team.team}
+            >
+              {team.team}
+            </span>
+            {isThirdPlaceTable && <span className="hidden sm:inline-block ml-1 text-[10px] uppercase font-sports text-slate-500 flex-shrink-0">({team.group})</span>}
           </div>
         </td>
-        <td className="p-2 sm:p-3 text-center text-slate-300 text-xs sm:text-sm">{team.pj}</td>
-        <td className="p-2 sm:p-3 text-center text-slate-400 hidden sm:table-cell text-xs">{team.g}</td>
-        <td className="p-2 sm:p-3 text-center text-slate-400 hidden sm:table-cell text-xs">{team.e}</td>
-        <td className="p-2 sm:p-3 text-center text-slate-400 hidden sm:table-cell text-xs">{team.p}</td>
-        <td className="p-2 sm:p-3 text-center text-slate-300 hidden md:table-cell text-xs">{team.gf}</td>
-        <td className="p-2 sm:p-3 text-center text-slate-300 hidden md:table-cell text-xs">{team.gc}</td>
-        <td className="p-2 sm:p-3 text-center font-bold text-slate-300 text-xs sm:text-sm">{team.dg > 0 ? `+${team.dg}` : team.dg}</td>
-        <td className="p-2 sm:p-3 text-center font-bold text-wc-gold text-sm sm:text-base font-sports">{team.pts}</td>
+        <td className={`${paddingClass} text-center text-slate-300 text-xs sm:text-sm`}>{team.pj}</td>
+        <td className={`${paddingClass} text-center text-slate-400 hidden sm:table-cell text-xs`}>{team.g}</td>
+        <td className={`${paddingClass} text-center text-slate-400 hidden sm:table-cell text-xs`}>{team.e}</td>
+        <td className={`${paddingClass} text-center text-slate-400 hidden sm:table-cell text-xs`}>{team.p}</td>
+        <td className={`${paddingClass} text-center text-slate-300 hidden md:table-cell text-xs`}>{team.gf}</td>
+        <td className={`${paddingClass} text-center text-slate-300 hidden md:table-cell text-xs`}>{team.gc}</td>
+        <td className={`${paddingClass} text-center font-bold text-slate-300 text-xs sm:text-sm`}>{team.dg > 0 ? `+${team.dg}` : team.dg}</td>
+        <td className={`${paddingClass} text-center font-bold text-wc-gold text-sm sm:text-base font-sports`}>{team.pts}</td>
       </tr>
     );
   };
@@ -254,16 +265,16 @@ export default function MundialDashboard({ matches }: Props) {
                 <table className="w-full text-left border-collapse min-w-full">
                   <thead>
                     <tr className="bg-wc-dark/30 text-[10px] sm:text-xs uppercase font-sports tracking-wider text-slate-500">
-                      <th className="p-2 sm:p-3 text-center w-8">#</th>
-                      <th className="p-2 sm:p-3">Equipo</th>
-                      <th className="p-2 sm:p-3 text-center" title="Partidos Jugados">PJ</th>
-                      <th className="p-2 sm:p-3 text-center hidden sm:table-cell" title="Ganados">G</th>
-                      <th className="p-2 sm:p-3 text-center hidden sm:table-cell" title="Empatados">E</th>
-                      <th className="p-2 sm:p-3 text-center hidden sm:table-cell" title="Perdidos">P</th>
-                      <th className="p-2 sm:p-3 text-center hidden md:table-cell" title="Goles a Favor">GF</th>
-                      <th className="p-2 sm:p-3 text-center hidden md:table-cell" title="Goles en Contra">GC</th>
-                      <th className="p-2 sm:p-3 text-center" title="Diferencia de Goles">DG</th>
-                      <th className="p-2 sm:p-3 text-center text-wc-gold" title="Puntos">PTS</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center w-8">#</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5">Equipo</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center" title="Partidos Jugados">PJ</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden sm:table-cell" title="Ganados">G</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden sm:table-cell" title="Empatados">E</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden sm:table-cell" title="Perdidos">P</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden md:table-cell" title="Goles a Favor">GF</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden md:table-cell" title="Goles en Contra">GC</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center" title="Diferencia de Goles">DG</th>
+                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center text-wc-gold" title="Puntos">PTS</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -357,19 +368,19 @@ export default function MundialDashboard({ matches }: Props) {
             <div className="flex bg-wc-dark border border-wc-border rounded-xl p-1 w-full md:w-auto">
               <button 
                 onClick={() => setFilterStatus('todos')}
-                className={`flex-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === 'todos' ? 'bg-wc-gold text-slate-950 shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                className={`flex-1 px-2.5 sm:px-4 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${filterStatus === 'todos' ? 'bg-wc-gold text-slate-950 shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
               >
                 Todos
               </button>
               <button 
                 onClick={() => setFilterStatus('finalizados')}
-                className={`flex-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === 'finalizados' ? 'bg-green-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-green-400 hover:bg-green-500/10'}`}
+                className={`flex-1 px-2.5 sm:px-4 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${filterStatus === 'finalizados' ? 'bg-green-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-green-400 hover:bg-green-500/10'}`}
               >
                 Jugados
               </button>
               <button 
                 onClick={() => setFilterStatus('por_jugar')}
-                className={`flex-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === 'por_jugar' ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/10'}`}
+                className={`flex-1 px-2.5 sm:px-4 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${filterStatus === 'por_jugar' ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/10'}`}
               >
                 Por Jugar
               </button>

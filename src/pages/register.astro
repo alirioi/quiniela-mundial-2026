@@ -94,7 +94,7 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
                 class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
                 placeholder="Ej: Campeón #1"
               />
-              <p class="text-xs text-slate-500 mt-1.5">Este nombre saldrá en la tabla de posiciones.</p>
+              <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Se mostrará públicamente en la clasificación. Puedes usar un seudónimo si prefieres ocultar tu identidad real.</p>
             </div>
 
             <div>
@@ -112,6 +112,21 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
             </div>
 
             <div>
+              <label for="phone" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                Teléfono (WhatsApp)
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
+                placeholder="Ej: +58 412 1234567"
+              />
+              <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Para contacto directo e inmediato en caso de resultar ganador o por problemas con tu registro.</p>
+            </div>
+
+            <div>
               <label for="birthDate" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
                 Fecha de Nacimiento
               </label>
@@ -122,10 +137,10 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
                 required
                 class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
               />
-              <p class="text-xs text-slate-500 mt-1.5">Debes ser mayor de 18 años para participar.</p>
+              <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Debes ser mayor de 18 años para participar en la quiniela.</p>
             </div>
 
-            <div class="md:col-span-2">
+            <div>
               <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
                 Contraseña
               </label>
@@ -138,6 +153,7 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
                 class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
                 placeholder="Mínimo 6 caracteres"
               />
+              <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Para acceder a tu panel y modificar tus pronósticos.</p>
             </div>
           </div>
 

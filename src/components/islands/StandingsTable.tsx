@@ -20,6 +20,7 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchStandings = async () => {
     try {
@@ -172,56 +173,121 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
           )}
         </div>
       </div>
-    );
+      // Pre-calcular posiciones globales del ranking
+  const rankedStandings: Array<StandingEntry & { rank: number }> = [];
+  let currentRank = 1;
+  for (let i = 0; i < standings.length; i++) {
+    if (i > 0 && standings[i].total_points < standings[i - 1].total_points) {
+      currentRank = i + 1;
+    }
+    rankedStandings.push({
+      ...standings[i],
+      rank: currentRank
+    });
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 font-sports">
-          <BarChart3 className="w-5 h-5 text-wc-gold" strokeWidth={2.5} />
-          <span>Clasificación General</span>
-        </h3>
-        <span className="text-xs text-slate-400 font-sports uppercase tracking-wider">En tiempo real</span>
-      </div>
+  // Filtrar cupos propios
+  const myRankedEntries = rankedStandings.filter(entry => myEntryIds.includes(entry.id));
 
-      {standings.length === 0 ? (
-        <div className="p-8 text-center bg-wc-card/45 border border-wc-border text-slate-400 text-sm flex flex-col items-center justify-center gap-3 rounded-2xl">
-          <Trophy className="w-8 h-8 text-slate-600" strokeWidth={2.5} />
-          <p>La clasificación se generará una vez que comiencen los partidos y se aprueben los cupos.</p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-card shadow-xl">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-300 bg-wc-dark/50 font-sports">
-                <th className="p-4 w-16 text-center">Pos</th>
-                <th className="p-4">Participante / Cupo</th>
-                <th className="p-4 text-right w-24">Puntos</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-wc-border/50 text-sm font-medium">
-              {(() => {
-                let currentRank = 1;
-                return standings.map((entry, index) => {
-                  if (index > 0 && entry.total_points < standings[index - 1].total_points) {
-                    currentRank = index + 1;
+  // Paginación local
+  const itemsPerPage = 10;
+  const totalPages = Math.max(1, Math.ceil(rankedStandings.length / itemsPerPage));
+  const activePage = Math.min(currentPage, totalPages);
+  const paginatedStandings = rankedStandings.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
+
+  return (
+    <div className="space-y-6">
+      {/* Tus Posiciones (Parte Superior) */}
+      {myRankedEntries.length > 0 && (
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-wc-gold flex items-center gap-1.5 font-sports">
+              <Trophy className="w-4 h-4 text-wc-gold" strokeWidth={2.5} />
+              <span>Mis Cupos en la Clasificación</span>
+            </h4>
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-wc-gold/20 bg-wc-gold/5 shadow-inner">
+            <table className="w-full text-left border-collapse">
+              <tbody className="divide-y divide-wc-border/30 text-sm font-medium">
+                {myRankedEntries.map((entry) => {
+                  const position = entry.rank;
+                  let medal: React.ReactNode = null;
+                  let posColor = 'text-slate-350';
+                  if (position === 1) {
+                    medal = <Trophy className="w-4.5 h-4.5 text-wc-gold fill-wc-gold/10 mx-auto" strokeWidth={2.5} />;
+                    posColor = 'text-wc-gold font-bold';
+                  } else if (position === 2) {
+                    medal = <Trophy className="w-4.5 h-4.5 text-slate-300 fill-slate-300/10 mx-auto" strokeWidth={2.5} />;
+                    posColor = 'text-slate-300 font-bold';
+                  } else if (position === 3) {
+                    medal = <Trophy className="w-4.5 h-4.5 text-amber-600 fill-amber-600/10 mx-auto" strokeWidth={2.5} />;
+                    posColor = 'text-amber-600 font-bold';
                   }
-                  
+
+                  return (
+                    <tr key={entry.id} className="bg-wc-gold/5 border-l-4 border-l-wc-gold">
+                      <td className="p-3.5 w-16 text-center">
+                        {medal ? (
+                          <div className="flex justify-center">{medal}</div>
+                        ) : (
+                          <span className={`font-sports text-xs sm:text-sm ${posColor}`}>{position}</span>
+                        )}
+                      </td>
+                      <td className="p-3.5">
+                        <span className="font-bold text-wc-gold">{entry.display_name}</span>
+                      </td>
+                      <td className="p-3.5 text-right font-sports text-sm sm:text-base tracking-wider text-wc-gold font-bold w-24">
+                        {entry.total_points} Pts
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Clasificación General (Parte Inferior) */}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5 font-sports">
+            <BarChart3 className="w-4.5 h-4.5 text-wc-gold" strokeWidth={2.5} />
+            <span>Clasificación General</span>
+          </h3>
+          <span className="text-[10px] text-slate-400 font-sports uppercase tracking-wider">En tiempo real</span>
+        </div>
+
+        {standings.length === 0 ? (
+          <div className="p-8 text-center bg-wc-card/45 border border-wc-border text-slate-400 text-xs flex flex-col items-center justify-center gap-3 rounded-2xl">
+            <Trophy className="w-8 h-8 text-slate-655" strokeWidth={2.5} />
+            <p>La clasificación se generará una vez que comiencen los partidos y se aprueben los cupos.</p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-card shadow-xl">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
+                  <th className="p-4 w-16 text-center">Pos</th>
+                  <th className="p-4">Participante / Cupo</th>
+                  <th className="p-4 text-right w-24">Puntos</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-wc-border/50 text-sm font-medium">
+                {paginatedStandings.map((entry) => {
                   const isMyEntry = myEntryIds.includes(entry.id);
-                  const position = currentRank;
+                  const position = entry.rank;
                   
-                  // Estilo para el top 3
                   let medal: React.ReactNode = null;
                   let posColor = 'text-slate-450';
                   if (position === 1) {
-                    medal = <Trophy className="w-5.5 h-5.5 text-wc-gold fill-wc-gold/10 mx-auto animate-pulse" strokeWidth={2.5} />;
+                    medal = <Trophy className="w-4.5 h-4.5 text-wc-gold fill-wc-gold/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-wc-gold font-bold';
                   } else if (position === 2) {
-                    medal = <Trophy className="w-5.5 h-5.5 text-slate-300 fill-slate-300/10 mx-auto" strokeWidth={2.5} />;
+                    medal = <Trophy className="w-4.5 h-4.5 text-slate-300 fill-slate-300/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-slate-300 font-bold';
                   } else if (position === 3) {
-                    medal = <Trophy className="w-5.5 h-5.5 text-amber-600 fill-amber-600/10 mx-auto" strokeWidth={2.5} />;
+                    medal = <Trophy className="w-4.5 h-4.5 text-amber-600 fill-amber-600/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-amber-600 font-bold';
                   }
 
@@ -246,24 +312,49 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
                           {entry.display_name}
                         </span>
                         {isMyEntry && (
-                          <span className="px-2 py-0.5 rounded bg-wc-gold/15 text-wc-gold text-xs font-bold uppercase border border-wc-gold/20 font-sports tracking-wider">
+                          <span className="px-2 py-0.5 rounded bg-wc-gold/15 text-wc-gold text-[9px] font-bold uppercase border border-wc-gold/20 font-sports tracking-wider">
                             Tú
                           </span>
                         )}
                       </td>
-                      <td className={`p-4 text-right font-sports text-base tracking-wider ${
+                      <td className={`p-4 text-right font-sports text-sm sm:text-base tracking-wider ${
                         isMyEntry ? 'text-wc-gold font-bold' : 'text-slate-250 font-medium'
                       }`}>
                         {entry.total_points}
                       </td>
                     </tr>
                   );
-                });
-              })()}
-            </tbody>
-          </table>
-        </div>
-      )}
+                })}
+              </tbody>
+            </table>
+
+            {/* Paginador */}
+            {totalPages > 1 && (
+              <div className="px-5 py-4 border-t border-wc-border bg-wc-dark/40 flex items-center justify-between gap-4 text-xs font-sports tracking-wider uppercase select-none">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={activePage === 1}
+                  className="px-3.5 py-1.5 rounded-lg border border-wc-border hover:border-wc-gold text-slate-450 hover:text-wc-gold disabled:opacity-40 disabled:hover:text-slate-450 disabled:hover:border-wc-border transition-all cursor-pointer font-bold"
+                >
+                  Anterior
+                </button>
+                <span className="text-slate-450 text-[10px] sm:text-xs">
+                  Página <strong className="text-white font-sans text-xs sm:text-sm">{activePage}</strong> de <strong className="text-white font-sans text-xs sm:text-sm">{totalPages}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={activePage === totalPages}
+                  className="px-3.5 py-1.5 rounded-lg border border-wc-border hover:border-wc-gold text-slate-450 hover:text-wc-gold disabled:opacity-40 disabled:hover:text-slate-450 disabled:hover:border-wc-border transition-all cursor-pointer font-bold"
+                >
+                  Siguiente
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

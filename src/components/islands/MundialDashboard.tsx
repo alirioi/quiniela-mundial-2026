@@ -209,13 +209,48 @@ export default function MundialDashboard({ matches }: Props) {
         <div className="p-6 sm:p-8 bg-gradient-to-br from-wc-dark/50 to-wc-card relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 relative z-10">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-black font-sports tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-wc-gold to-amber-500 uppercase">
-                Mundial FIFA 2026
-              </h1>
-              <p className="text-slate-400 mt-2 max-w-2xl text-sm leading-relaxed">
-                Consulta los resultados oficiales, las tablas de posiciones actualizadas y la clasificación de los mejores terceros de la fase de grupos.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              {/* Inline SVG Logo - Variant Mundial */}
+              <div className="w-16 h-16 shrink-0 transition-transform duration-300 hover:scale-105">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                  <defs>
+                    <linearGradient id="gold-grad-react" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FFF3B0" />
+                      <stop offset="50%" stopColor="#F3C623" />
+                      <stop offset="100%" stopColor="#B8860B" />
+                    </linearGradient>
+                    <linearGradient id="silver-grad-react" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FFFFFF" />
+                      <stop offset="100%" stopColor="#A1A8BA" />
+                    </linearGradient>
+                    <linearGradient id="red-grad-react" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FF5E62" />
+                      <stop offset="100%" stopColor="#E61D25" />
+                    </linearGradient>
+                    <linearGradient id="blue-grad-react" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#00C6FF" />
+                      <stop offset="100%" stopColor="#2A398D" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="50" cy="50" r="38" fill="#121217" stroke="url(#silver-grad-react)" strokeWidth="2.5" />
+                  <path d="M50 12 L50 25 M50 25 L38 33 M50 25 L62 33 M38 33 L26 30 M62 33 L74 30 M38 33 L42 48 M62 33 L58 48 M42 48 L58 48 M42 48 L32 58 M58 48 L68 58 M32 58 L20 54 M68 58 L80 54 M32 58 L38 74 M68 58 L62 74 M38 74 L50 78 V88 M38 74 L26 78 M62 74 L74 78" stroke="url(#silver-grad-react)" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M12 50 C12 25, 88 25, 88 50 C88 75, 12 75, 12 50" stroke="url(#gold-grad-react)" strokeWidth="2.5" strokeLinecap="round" className="opacity-90" style={{ transformOrigin: 'center' }} />
+                  <path d="M20 50 C20 30, 80 30, 80 50 C80 70, 20 70, 20 50" stroke="url(#red-grad-react)" strokeWidth="1.5" className="opacity-70" style={{ transformOrigin: 'center' }} />
+                  <g className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    <path d="M42 66 H58 L54 60 H46 L42 66 Z" fill="url(#gold-grad-react)" />
+                    <path d="M48 60 V52 H52 V60 H48 Z" fill="url(#gold-grad-react)" />
+                    <path d="M38 42 C38 52, 42 55, 50 55 C58 55, 62 52, 62 42 H38 Z" fill="url(#gold-grad-react)" />
+                  </g>
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-black font-sports tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-wc-gold to-amber-500 uppercase">
+                  Mundial FIFA 2026
+                </h1>
+                <p className="text-slate-400 mt-2 max-w-2xl text-sm leading-relaxed">
+                  Consulta los resultados oficiales, las tablas de posiciones actualizadas y la clasificación de los mejores terceros de la fase de grupos.
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 bg-wc-dark/60 p-1.5 rounded-xl border border-wc-border">
               <button

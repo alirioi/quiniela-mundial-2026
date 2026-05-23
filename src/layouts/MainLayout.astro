@@ -79,6 +79,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
             </>
           )}
           <a href="/faq" class="text-slate-300 hover:text-wc-gold transition-colors">Reglas y FAQ</a>
+          <a href="/mundial" class="text-slate-300 hover:text-wc-gold transition-colors">El Mundial</a>
           {userProfile?.role === 'admin' && (
             <a href="/admin" class="text-wc-gold hover:text-yellow-400 font-semibold transition-colors flex items-center gap-1.5">
               <Shield className="w-4.5 h-4.5 text-wc-gold animate-pulse-subtle" strokeWidth={2.5} />
@@ -147,6 +148,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
           </>
         )}
         <a href="/faq" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">Reglas y FAQ</a>
+        <a href="/mundial" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">El Mundial</a>
         
         {userProfile?.role === 'admin' && (
           <a href="/admin" class="py-2 text-wc-gold hover:text-yellow-400 font-semibold transition-colors flex items-center gap-1.5">

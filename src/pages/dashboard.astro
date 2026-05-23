@@ -43,7 +43,7 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
         <h1 class="text-3xl font-bold uppercase tracking-wider text-white font-sports">
           ¡Hola, {profile?.full_name}!
         </h1>
-        <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+        <p class="text-xs md:text-sm text-slate-400 mt-1 leading-relaxed">
           Bienvenido a la Quiniela Mundial 2026. Tienes <span class="font-bold text-wc-gold">{approvedEntryIds.length} {approvedEntryIds.length === 1 ? 'cupo activo' : 'cupos activos'}</span> participando en el torneo.
         </p>
       </div>
@@ -80,7 +80,7 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
     <!-- Marcadores en Vivo de la Jornada -->
     <div class="space-y-2">
       <LiveScoreboard client:load />
-      <div class="text-xs text-slate-400 flex items-center justify-center gap-1.5 px-4 py-1 bg-wc-dark/30 rounded-lg max-w-fit mx-auto border border-wc-border/20">
+      <div class="text-xs md:text-sm text-slate-400 flex items-center justify-center gap-1.5 px-4 py-1 bg-wc-dark/30 rounded-lg max-w-fit mx-auto border border-wc-border/20">
         <Info className="w-4 h-4 text-wc-gold shrink-0" strokeWidth={2.5} />
         <span>Los resultados y puntuaciones de la quiniela pueden tardar unos minutos en actualizarse tras finalizar el encuentro.</span>
       </div>
@@ -132,10 +132,10 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
           <h3 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 font-sports">
             <MessageSquare className="w-5 h-5 text-wc-gold" strokeWidth={2.5} /> Soporte y Organización
           </h3>
-          <p class="text-xs text-slate-300 leading-relaxed">
+          <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
             Si compraste un cupo adicional y tu comprobante sigue en revisión, o tienes dudas sobre las reglas del torneo, comunícate directamente con el administrador.
           </p>
-          <div class="pt-1 text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-2 font-sports">
+          <div class="pt-1 text-xs md:text-sm text-slate-400 font-bold uppercase tracking-wider flex items-center gap-2 font-sports">
             <Sparkles className="w-4.5 h-4.5 text-wc-gold animate-pulse" strokeWidth={2.5} />
             ¡Buena suerte en la quiniela!
           </div>

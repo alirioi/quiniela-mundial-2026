@@ -370,7 +370,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
           <div 
-            className="w-full max-w-lg bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-y-auto max-h-[calc(100vh-2rem)] flex flex-col gap-6"
+            className="w-full max-w-lg bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-y-auto overflow-x-hidden custom-scrollbar max-h-[calc(100vh-2rem)] flex flex-col gap-6"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Gradients */}
@@ -383,7 +383,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   <Trophy className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
                   <span>Comprar Cupo Adicional</span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs md:text-sm text-slate-400 mt-1">
                   Registra un nuevo cupo subiendo un comprobante de transferencia.
                 </p>
               </div>
@@ -398,12 +398,12 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
 
             {/* Desglose de Pago */}
             <div className="p-4 rounded-xl bg-wc-dark border border-wc-border space-y-3">
-              <div className="text-xs font-semibold text-slate-400 flex justify-between font-sports tracking-wider">
+              <div className="text-xs md:text-sm font-semibold text-slate-400 flex justify-between font-sports tracking-wider">
                 <span>Costo del cupo:</span>
                 <span className="text-wc-gold font-bold">20.00 USDT</span>
               </div>
               <div className="h-[1px] bg-wc-border/60"></div>
-              <div className="space-y-2 text-xs text-slate-400 font-sports tracking-wider">
+              <div className="space-y-2 text-xs md:text-sm text-slate-400 font-sports tracking-wider">
                 <div className="flex justify-between items-center">
                   <span className="flex items-center gap-1.5">
                     <Trophy className="w-4 h-4 text-wc-gold" strokeWidth={2.5} />
@@ -419,7 +419,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   <span className="text-slate-200 font-semibold font-mono">5.00 USDT</span>
                 </div>
               </div>
-              <div className="pt-2 border-t border-wc-border/50 text-xs text-wc-gold font-bold text-center flex items-center justify-center gap-1.5 font-sports tracking-wider uppercase">
+              <div className="pt-2 border-t border-wc-border/50 text-xs md:text-sm text-wc-gold font-bold text-center flex items-center justify-center gap-1.5 font-sports tracking-wider uppercase">
                 <Megaphone className="w-4 h-4 text-wc-gold shrink-0 animate-pulse-subtle" strokeWidth={2.5} />
                 <span>El 100% del pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo.</span>
               </div>
@@ -427,14 +427,14 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
 
             {/* Datos de Binance Pay Organizador */}
             <div className="p-4 rounded-xl bg-wc-dark/65 border border-wc-border space-y-2.5 text-slate-300">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5 font-sports">
+              <h4 className="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5 font-sports">
                 <span className="w-2 h-2 rounded-full bg-wc-gold animate-pulse"></span>
                 <span>Instrucciones de Pago (Binance Pay)</span>
               </h4>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-xs md:text-sm text-slate-400 leading-relaxed">
                 Realiza una transferencia de exactamente <strong className="text-wc-gold">20.00 USDT</strong> a la siguiente cuenta de Binance Pay:
               </p>
-              <div className="p-3 bg-wc-card rounded-lg border border-wc-border/60 text-xs font-mono space-y-1.5 text-slate-200">
+              <div className="p-3 bg-wc-card rounded-lg border border-wc-border/60 text-xs md:text-sm font-mono space-y-1.5 text-slate-200">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Binance Pay ID:</span>
                   <span className="font-bold select-all">139030711</span>
@@ -444,7 +444,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   <span className="font-bold">Alirio Isea</span>
                 </div>
               </div>
-              <p className="text-[10px] text-wc-red font-semibold leading-relaxed">
+              <p className="text-xs md:text-sm text-wc-red font-semibold leading-relaxed">
                 * IMPORTANTE: No incluyas palabras de apuestas en la nota. Una vez realizado el pago, no se realizarán reembolsos bajo ninguna circunstancia.
               </p>
             </div>
@@ -452,7 +452,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
             {/* Formulario */}
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <label htmlFor="displayName" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 font-sports">
+                <label htmlFor="displayName" className="block text-xs md:text-sm font-semibold uppercase tracking-wider text-slate-400 font-sports">
                   Nombre del Cupo
                 </label>
                 <input
@@ -468,7 +468,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="binancePayUser" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 font-sports">
+                <label htmlFor="binancePayUser" className="block text-xs md:text-sm font-semibold uppercase tracking-wider text-slate-400 font-sports">
                   Usuario de Binance Pay
                 </label>
                 <input
@@ -484,7 +484,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-405 font-sports">
+                <label className="block text-xs md:text-sm font-semibold uppercase tracking-wider text-slate-400 font-sports">
                   Comprobante de Pago
                 </label>
 

@@ -13,10 +13,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const fullName = formData.get('fullName') as string;
     const displayName = formData.get('displayName') as string;
     const birthDateStr = formData.get('birthDate') as string;
+    const phone = formData.get('phone') as string;
     const binancePayUser = formData.get('binancePayUser') as string;
     const receipt = formData.get('receipt') as File;
 
-    if (!email || !password || !fullName || !displayName || !birthDateStr || !binancePayUser || !receipt) {
+    if (!email || !password || !fullName || !displayName || !birthDateStr || !phone || !binancePayUser || !receipt) {
       return new Response(JSON.stringify({ error: 'Todos los campos son obligatorios' }), { status: 400 });
     }
 
@@ -59,7 +60,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response(JSON.stringify({ error: `El nombre de cupo "${displayName}" ya está en uso. Por favor elige otro.` }), { status: 400 });
     }
 
-    // 4. SignUp user in Supabase Auth (inyectar birth_date en metadata)
+    // 4. SignUp user in Supabase Auth (inyectar birth_date y phone en metadata)
     const { data: authData, error: authError } = await supabaseAdmin.auth.signUp({
       email,
       password,
@@ -67,6 +68,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         data: {
           full_name: fullName,
           birth_date: birthDateStr,
+          phone: phone.trim(),
         },
       },
     });
@@ -139,8 +141,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       const accessToken = authData.session.access_token;
       const refreshToken = authData.session.refresh_token;
 
-      cookies.set('sb-access-token', accessToken, { path: '/', httpOnly: true, secure: true, sameSite: 'lax' });
-      cookies.set('sb-refresh-token', refreshToken, { path: '/', httpOnly: true, secure: true, sameSite: 'lax' });
+      const cookieOptions = {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax' as const,
+        maxAge: 60 * 60 * 24 * 30, // 30 días
+      };
+
+      cookies.set('sb-access-token', accessToken, cookieOptions);
+      cookies.set('sb-refresh-token', refreshToken, cookieOptions);
     }
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });

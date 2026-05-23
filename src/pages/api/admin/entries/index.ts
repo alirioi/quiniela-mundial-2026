@@ -18,7 +18,8 @@ export const GET: APIRoute = async ({ request }) => {
         created_at,
         profiles (
           full_name,
-          email
+          email,
+          phone
         )
       `)
       .order('created_at', { ascending: false });

@@ -1,6 +1,6 @@
 ---
 import MainLayout from './MainLayout.astro';
-import { Shield, CreditCard, Trophy, Settings } from 'lucide-react';
+import { Shield, CreditCard, Trophy, Settings, Users } from 'lucide-react';
 
 interface Props {
   title: string;
@@ -63,6 +63,17 @@ const activePath = Astro.url.pathname;
         >
           <Settings className="w-4.5 h-4.5" strokeWidth={2.5} />
           <span>Fases</span>
+        </a>
+        <a
+          href="/admin/users"
+          class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
+            activePath === '/admin/users'
+              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Users className="w-4.5 h-4.5" strokeWidth={2.5} />
+          <span>Participantes</span>
         </a>
       </nav>
     </div>

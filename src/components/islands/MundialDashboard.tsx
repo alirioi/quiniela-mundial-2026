@@ -206,30 +206,36 @@ export default function MundialDashboard({ matches }: Props) {
                 Consulta los resultados oficiales, las tablas de posiciones actualizadas y la clasificación de los mejores terceros de la fase de grupos.
               </p>
             </div>
-            <div className="flex items-center gap-2 bg-wc-dark/60 p-1.5 rounded-xl border border-wc-border">
+            <div className="flex items-center gap-1 sm:gap-2 bg-wc-dark/60 p-1.5 rounded-xl border border-wc-border">
               <button
                 onClick={() => setActiveTab('grupos')}
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
+                title="Tabla de Grupos"
+                aria-label="Ver grupos"
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'grupos' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Trophy className="w-4 h-4" /> <span className="hidden sm:inline">Grupos</span>
+                <Trophy className="w-5 h-5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Grupos</span>
               </button>
               <button
                 onClick={() => setActiveTab('terceros')}
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
+                title="Clasificación de Terceros"
+                aria-label="Ver mejores terceros"
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'terceros' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Award className="w-4 h-4" /> <span className="hidden sm:inline">Terceros</span>
+                <Award className="w-5 h-5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Terceros</span>
               </button>
               <button
                 onClick={() => setActiveTab('calendario')}
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
+                title="Calendario de Partidos"
+                aria-label="Ver calendario de partidos"
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'calendario' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Calendar className="w-4 h-4" /> <span className="hidden sm:inline">Partidos</span>
+                <Calendar className="w-5 h-5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Partidos</span>
               </button>
             </div>
           </div>
@@ -323,8 +329,8 @@ export default function MundialDashboard({ matches }: Props) {
         <div className="animate-fade-in space-y-6">
           <div className="bg-wc-card border border-wc-border rounded-2xl p-4 sm:p-6 shadow-lg flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="flex w-full md:w-auto flex-col sm:flex-row gap-4 flex-grow">
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <div className="relative w-full sm:w-64 flex items-center">
+                <Search className="absolute left-3 w-4 h-4 text-slate-500 pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Buscar equipo..."
@@ -333,8 +339,8 @@ export default function MundialDashboard({ matches }: Props) {
                   className="w-full bg-wc-dark border border-wc-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-wc-gold focus:ring-1 focus:ring-wc-gold transition-all"
                 />
               </div>
-              <div className="relative w-full sm:w-48">
-                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <div className="relative w-full sm:w-48 flex items-center">
+                <Filter className="absolute left-3 w-4 h-4 text-slate-500 pointer-events-none" />
                 <select
                   value={filterGroup}
                   onChange={(e) => setFilterGroup(e.target.value)}
@@ -351,19 +357,19 @@ export default function MundialDashboard({ matches }: Props) {
             <div className="flex bg-wc-dark border border-wc-border rounded-xl p-1 w-full md:w-auto">
               <button 
                 onClick={() => setFilterStatus('todos')}
-                className={`flex-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === 'todos' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
+                className={`flex-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === 'todos' ? 'bg-wc-gold text-slate-950 shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
               >
                 Todos
               </button>
               <button 
                 onClick={() => setFilterStatus('finalizados')}
-                className={`flex-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === 'finalizados' ? 'bg-green-600/30 text-green-400' : 'text-slate-400 hover:text-green-400'}`}
+                className={`flex-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === 'finalizados' ? 'bg-green-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-green-400 hover:bg-green-500/10'}`}
               >
                 Jugados
               </button>
               <button 
                 onClick={() => setFilterStatus('por_jugar')}
-                className={`flex-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === 'por_jugar' ? 'bg-amber-600/30 text-amber-400' : 'text-slate-400 hover:text-amber-400'}`}
+                className={`flex-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === 'por_jugar' ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/10'}`}
               >
                 Por Jugar
               </button>

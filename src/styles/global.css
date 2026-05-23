@@ -78,3 +78,13 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #fbbf24;
 }
+
+/* Soporte de modo oscuro para input de fecha */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}

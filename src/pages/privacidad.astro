@@ -1,0 +1,120 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { Shield, Eye, Lock, Globe, Phone, Calendar } from 'lucide-react';
+const profile = Astro.locals.profile;
+---
+
+<MainLayout title="Política de Privacidad y Cookies" userProfile={profile}>
+  <div class="relative bg-slate-950 text-slate-100 overflow-hidden py-12 min-h-[calc(100vh-4rem)]">
+    
+    <!-- Background gradients -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-wc-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-wc-blue/5 rounded-full blur-3xl pointer-events-none"></div>
+
+    <main class="relative z-10 flex-grow max-w-3xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <div class="space-y-10">
+        
+        <!-- Header -->
+        <div class="text-center space-y-4">
+          <h1 class="text-3xl sm:text-5xl font-bold text-white uppercase tracking-wider font-sports flex items-center justify-center gap-3">
+            <Shield className="w-8 h-8 sm:w-12 sm:h-12 text-wc-gold shrink-0" strokeWidth={2.5} />
+            <span>Política de <span class="text-transparent bg-clip-text bg-gradient-to-r from-wc-gold to-amber-500">Privacidad</span></span>
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto uppercase tracking-widest font-sports border-b border-wc-border pb-4">
+            Tratamiento de datos personales y consentimiento de cookies
+          </p>
+        </div>
+
+        <div class="space-y-6">
+          
+          <!-- Introducción -->
+          <div class="p-6 rounded-2xl bg-wc-card border border-wc-border space-y-3">
+            <h2 class="text-base sm:text-lg font-bold uppercase text-white font-sports tracking-wider flex items-center gap-2">
+              <Eye className="w-5 h-5 text-wc-gold" />
+              1. Introducción y Transparencia
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              En la <strong>Quiniela Mundial 2026</strong> nos tomamos muy en serio la seguridad y privacidad de tu información. Al registrarte y participar en nuestro torneo de pronósticos deportivos, procesamos ciertos datos indispensables para garantizar el correcto funcionamiento técnico de la plataforma, el cumplimiento normativo legal, la verificación de transacciones y la comunicación directa de premios.
+            </p>
+          </div>
+
+          <!-- Información Recolectada -->
+          <div class="p-6 rounded-2xl bg-wc-card border border-wc-border space-y-4">
+            <h2 class="text-base sm:text-lg font-bold uppercase text-white font-sports tracking-wider flex items-center gap-2 border-b border-wc-border/30 pb-2.5">
+              <Lock className="w-5 h-5 text-wc-gold" />
+              2. Datos Personales que Recopilamos
+            </h2>
+            
+            <div class="space-y-3.5 text-xs sm:text-sm">
+              <div class="flex gap-3">
+                <Shield className="w-5 h-5 text-wc-blue shrink-0 mt-0.5" />
+                <div>
+                  <strong class="text-slate-200">Nombre completo y correo electrónico:</strong>
+                  <p class="text-slate-400 text-xs mt-0.5">Utilizados para crear tu cuenta única de usuario, verificar tu acceso y enviarte notificaciones automáticas relevantes de tu cuenta, avisos de cierre de fases y alertas de pronósticos pendientes.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-3">
+                <Phone className="w-5 h-5 text-wc-green shrink-0 mt-0.5" />
+                <div>
+                  <strong class="text-slate-200">Teléfono celular (WhatsApp):</strong>
+                  <p class="text-slate-400 text-xs mt-0.5">Capturado de forma obligatoria durante el registro para que los organizadores del torneo puedan establecer contacto directo e inmediato contigo en caso de resultar ganador de algún premio o si existen problemas para verificar tu comprobante de pago.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-3">
+                <Calendar className="w-5 h-5 text-wc-gold shrink-0 mt-0.5" />
+                <div>
+                  <strong class="text-slate-200">Fecha de nacimiento:</strong>
+                  <p class="text-slate-400 text-xs mt-0.5">Requerida exclusivamente para validar que todos los participantes tengan al menos 18 años al momento del registro, cumpliendo así con las regulaciones y normativas legales vigentes.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Uso de Cookies -->
+          <div class="p-6 rounded-2xl bg-wc-card border border-wc-border space-y-4">
+            <h2 class="text-base sm:text-lg font-bold uppercase text-white font-sports tracking-wider flex items-center gap-2 border-b border-wc-border/30 pb-2.5">
+              <Globe className="w-5 h-5 text-wc-gold" />
+              3. Política de Cookies
+            </h2>
+            
+            <p class="text-xs sm:text-sm text-slate-350 leading-relaxed">
+              Este sitio web utiliza cookies para ofrecerte la mejor experiencia posible. Las cookies se dividen en dos categorías según su finalidad:
+            </p>
+
+            <div class="space-y-3.5 text-xs sm:text-sm pl-2">
+              <div>
+                <strong class="text-slate-250 block uppercase tracking-wider text-xs font-sports">A) Cookies Técnicas y Esenciales (Exentas de Consentimiento)</strong>
+                <p class="text-slate-400 text-xs mt-1 leading-relaxed">
+                  Son indispensables para que puedas iniciar sesión y navegar de forma segura por el Dashboard. Utilizamos las cookies <code class="text-wc-gold">sb-access-token</code> y <code class="text-wc-refresh">sb-refresh-token</code> de Supabase para mantener tu inicio de sesión activo durante 30 días, evitando que tengas que ingresar tu contraseña en cada visita.
+                </p>
+              </div>
+
+              <div>
+                <strong class="text-slate-250 block uppercase tracking-wider text-xs font-sports">B) Cookies de Análisis y Rendimiento (Requieren Consentimiento)</strong>
+                <p class="text-slate-400 text-xs mt-1 leading-relaxed">
+                  Utilizamos <strong>Google Analytics</strong> para recopilar estadísticas globales y anónimas sobre el comportamiento de las visitas (cantidad de visitas, páginas más vistas, duración de las sesiones). Estas cookies se cargan únicamente si las aceptas en el banner flotante de consentimiento de la página. Puedes retirar o cambiar tu consentimiento borrando las cookies de tu navegador.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Derechos de los usuarios -->
+          <div class="p-6 rounded-2xl bg-wc-card border border-wc-border space-y-3">
+            <h2 class="text-base sm:text-lg font-bold uppercase text-white font-sports tracking-wider flex items-center gap-2">
+              <Shield className="w-5 h-5 text-wc-gold" />
+              4. Tus Derechos
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Como usuario, puedes solicitar la rectificación o eliminación de tus datos de contacto (tales como tu número de teléfono o correo) comunicándote directamente con el administrador de la quiniela a través de los canales de soporte (WhatsApp o Instagram) disponibles en el pie de página.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+</MainLayout>

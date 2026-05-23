@@ -1,0 +1,90 @@
+---
+interface Props {
+  mode?: 'icon' | 'horizontal' | 'vertical';
+  size?: 'small' | 'medium' | 'large' | 'xl';
+  className?: string;
+}
+
+const { mode = 'horizontal', size = 'medium', className = '' } = Astro.props;
+
+const sizeClasses = {
+  small:  { icon: 'w-10 h-10',  iconPx: 40,  textPx: 18 },
+  medium: { icon: 'w-14 h-14',  iconPx: 56,  textPx: 22 },
+  large:  { icon: 'w-20 h-20',  iconPx: 80,  textPx: 32 },
+  xl:     { icon: 'w-28 h-28',  iconPx: 112, textPx: 48 },
+};
+
+const s = sizeClasses[size];
+---
+
+<div class={`flex ${mode === 'vertical' ? 'flex-col items-center text-center' : 'items-center gap-3'} ${className}`}>
+  
+  <!-- Icon SVG -->
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none"
+       class={`${s.icon} shrink-0 drop-shadow-lg`}>
+    <defs>
+      <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"   stop-color="#E61D25" />
+        <stop offset="50%"  stop-color="#2A398D" />
+        <stop offset="100%" stop-color="#3CAC3B" />
+      </linearGradient>
+      <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"   stop-color="#FFE57F" />
+        <stop offset="40%"  stop-color="#F3C623" />
+        <stop offset="100%" stop-color="#AA7C11" />
+      </linearGradient>
+    </defs>
+
+    <!-- Shield Background -->
+    <path d="M 64,12 L 108,34 L 108,94 L 64,116 L 20,94 L 20,34 Z"
+          fill="none" stroke="url(#shieldGrad)" stroke-width="2" opacity="0.5" />
+
+    <!-- Trophy Base & Stem -->
+    <rect x="44" y="100" width="40" height="4" rx="2" fill="url(#goldGrad)" />
+    <rect x="58" y="74"  width="12" height="26" fill="url(#goldGrad)" />
+
+    <!-- Trophy Cup Body -->
+    <path d="M 34,36 L 40,70 Q 64,86 88,70 L 94,36 Z" fill="url(#goldGrad)" />
+
+    <!-- Trophy Cup Cutout (lighter inner) -->
+    <path d="M 42,40 L 46,66 Q 64,78 82,66 L 86,40 Z" fill="#AA7C11" opacity="0.4" />
+
+    <!-- Trophy Handles -->
+    <path d="M 34,36 Q 18,36 18,52 Q 18,62 34,62" fill="none" stroke="url(#goldGrad)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M 94,36 Q 110,36 110,52 Q 110,62 94,62" fill="none" stroke="url(#goldGrad)" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- Soccer Ball Colors -->
+    <path d="M 64,44 L 46.68,34 A 20,20 0 0,1 81.32,34 Z" fill="#E61D25" />
+    <path d="M 64,44 L 81.32,34 A 20,20 0 0,1 64,64 Z"    fill="#2A398D" />
+    <path d="M 64,44 L 64,64 A 20,20 0 0,1 46.68,34 Z"    fill="#3CAC3B" />
+
+    <!-- Soccer Ball Seams -->
+    <polygon points="64,38 71.6,43.5 68.7,51.5 59.3,51.5 56.4,43.5"
+             fill="none" stroke="url(#goldGrad)" stroke-width="2" stroke-linejoin="round" />
+    <line x1="64"   y1="38"   x2="64"    y2="24"    stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" />
+    <line x1="71.6" y1="43.5" x2="81.32" y2="34"    stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" />
+    <line x1="68.7" y1="51.5" x2="76"    y2="62.5"  stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" />
+    <line x1="59.3" y1="51.5" x2="52"    y2="62.5"  stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" />
+    <line x1="56.4" y1="43.5" x2="46.68" y2="34"    stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" />
+  </svg>
+
+  <!-- Text Block -->
+  {mode !== 'icon' && (
+    <div
+      class="font-sports font-black leading-none flex flex-col items-start"
+      style={`font-size: ${s.textPx}px;`}
+    >
+      <!-- Line 1: QUINIELA — stretched via letter-spacing to match line 2 width -->
+      <span
+        class="text-white block w-full"
+        style="letter-spacing: 0.25em; text-transform: uppercase;"
+      >Quiniela</span>
+
+      <!-- Line 2: MUNDIAL 2026 — tighter spacing, tricolor gradient -->
+      <span
+        class="text-transparent bg-clip-text bg-gradient-to-r from-wc-red via-wc-gold to-wc-green block w-full"
+        style="letter-spacing: 0.04em; text-transform: uppercase;"
+      >Mundial 2026</span>
+    </div>
+  )}
+</div>

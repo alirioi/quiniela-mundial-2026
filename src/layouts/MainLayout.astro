@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { Trophy, Shield } from 'lucide-react';
+import Logo from '../components/Logo.astro';
 
 interface Props {
   title: string;
@@ -21,7 +22,6 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <title>{title} | Quiniela Mundial 2026</title>
@@ -63,12 +63,9 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
   <body class="bg-wc-dark text-slate-100 min-h-screen flex flex-col selection:bg-wc-gold selection:text-slate-950 bg-radial-gradient">
     <!-- Premium Header -->
     <header class="border-b border-wc-border/80 bg-wc-card/40 backdrop-blur-md sticky top-0 z-40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <a href={userProfile ? "/dashboard" : "/"} class="flex items-center space-x-2 group">
-          <Trophy className="w-5.5 h-5.5 text-wc-gold transition-transform group-hover:scale-110 duration-200" strokeWidth={2.5} />
-          <span class="font-sports font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-wc-red via-wc-gold to-wc-green text-2xl group-hover:opacity-90 transition-opacity">
-            Quiniela 2026
-          </span>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <a href={userProfile ? "/dashboard" : "/"} class="flex items-center group hover:opacity-90 transition-opacity">
+          <Logo mode="horizontal" size="small" />
         </a>
 
         <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
@@ -187,8 +184,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="flex flex-col items-center md:items-start gap-1">
           <p class="flex items-center gap-2 font-medium text-slate-200 text-base">
-            <Trophy className="w-5 h-5 text-wc-gold" strokeWidth={2.5} />
-            <span class="font-sports tracking-wider uppercase">Quiniela Mundial 2026</span>
+            <Logo mode="horizontal" size="small" />
           </p>
           <p class="text-xs text-slate-500">
             Para uso de amigos y organizadores. Desarrollado por <span class="text-slate-400 font-medium">Alirio Isea</span>.

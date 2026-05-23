@@ -162,8 +162,8 @@ export default function MundialDashboard({ matches }: Props) {
     }
 
     const flagUrl = getTeamFlagUrl(team.team);
-    const paddingClass = isThirdPlaceTable ? "p-4" : "px-1 py-2 sm:px-2 sm:py-2.5";
-    const teamCellPadding = isThirdPlaceTable ? "p-4 min-w-0" : "px-1 py-2 sm:px-2 sm:py-2.5 min-w-0";
+    const paddingClass = isThirdPlaceTable ? "p-4" : "px-0.5 py-2 sm:px-1 sm:py-2.5";
+    const teamCellPadding = isThirdPlaceTable ? "p-4 min-w-0" : "px-1 py-2 sm:px-1.5 sm:py-2.5 min-w-0";
 
     return (
       <tr key={team.team} className={`border-b border-wc-border/30 hover:bg-white/5 transition-colors ${rowClass}`}>
@@ -181,7 +181,7 @@ export default function MundialDashboard({ matches }: Props) {
               className={`font-bold text-slate-200 text-xs sm:text-sm truncate block ${
                 isThirdPlaceTable 
                   ? "max-w-[150px] sm:max-w-none" 
-                  : "max-w-[90px] sm:max-w-[130px] md:max-w-[180px] lg:max-w-[110px] xl:max-w-[150px] 2xl:max-w-[110px] [@media(min-width:1700px)]:max-w-[165px]"
+                  : "max-w-[85px] sm:max-w-[120px] md:max-w-[160px] lg:max-w-[95px] xl:max-w-[135px] 2xl:max-w-[95px] [@media(min-width:1700px)]:max-w-[150px]"
               }`}
               title={team.team}
             >
@@ -265,16 +265,16 @@ export default function MundialDashboard({ matches }: Props) {
                 <table className="w-full text-left border-collapse min-w-full">
                   <thead>
                     <tr className="bg-wc-dark/30 text-[10px] sm:text-xs uppercase font-sports tracking-wider text-slate-500">
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center w-8">#</th>
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5">Equipo</th>
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center" title="Partidos Jugados">PJ</th>
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden sm:table-cell" title="Ganados">G</th>
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden sm:table-cell" title="Empatados">E</th>
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden sm:table-cell" title="Perdidos">P</th>
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden md:table-cell" title="Goles a Favor">GF</th>
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center hidden md:table-cell" title="Goles en Contra">GC</th>
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center" title="Diferencia de Goles">DG</th>
-                      <th className="px-1 py-2 sm:px-2 sm:py-2.5 text-center text-wc-gold" title="Puntos">PTS</th>
+                      <th className="px-0.5 py-2 sm:px-1 sm:py-2.5 text-center w-8">#</th>
+                      <th className="px-1 py-2 sm:px-1.5 sm:py-2.5">Equipo</th>
+                      <th className="px-0.5 py-2 sm:px-1 sm:py-2.5 text-center" title="Partidos Jugados">PJ</th>
+                      <th className="px-0.5 py-2 sm:px-1 sm:py-2.5 text-center hidden sm:table-cell" title="Ganados">G</th>
+                      <th className="px-0.5 py-2 sm:px-1 sm:py-2.5 text-center hidden sm:table-cell" title="Empatados">E</th>
+                      <th className="px-0.5 py-2 sm:px-1 sm:py-2.5 text-center hidden sm:table-cell" title="Perdidos">P</th>
+                      <th className="px-0.5 py-2 sm:px-1 sm:py-2.5 text-center hidden md:table-cell" title="Goles a Favor">GF</th>
+                      <th className="px-0.5 py-2 sm:px-1 sm:py-2.5 text-center hidden md:table-cell" title="Goles en Contra">GC</th>
+                      <th className="px-0.5 py-2 sm:px-1 sm:py-2.5 text-center" title="Diferencia de Goles">DG</th>
+                      <th className="px-0.5 py-2 sm:px-1 sm:py-2.5 text-center text-wc-gold" title="Puntos">PTS</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -13,14 +13,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const formData = await request.formData();
     const displayName = formData.get('displayName') as string;
-    const binancePayUser = formData.get('binancePayUser') as string;
+    const paymentMethod = formData.get('paymentMethod') as string;
+    const paymentReference = formData.get('paymentReference') as string;
     const receipt = formData.get('receipt') as File;
 
-    if (!displayName || !binancePayUser || !receipt) {
-      return new Response(JSON.stringify({ error: 'El nombre del cupo, el usuario de Binance Pay y el comprobante son obligatorios' }), { status: 400 });
+    if (!displayName || !paymentMethod || !paymentReference || !receipt) {
+      return new Response(JSON.stringify({ error: 'Todos los campos son obligatorios' }), { status: 400 });
     }
 
-    // 1. Validar fecha límite de registros/compras (2 días antes del mundial)
+    // 2. Validar fecha límite de registros (2 días antes del mundial)
     const { data: firstMatch } = await supabaseAdmin
       .from('matches')
       .select('match_time')
@@ -32,11 +33,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const firstMatchTime = new Date(firstMatch.match_time).getTime();
       const limitTime = firstMatchTime - 2 * 24 * 60 * 60 * 1000; // 2 días en ms
       if (Date.now() >= limitTime) {
-        return new Response(JSON.stringify({ error: 'El registro de nuevos usuarios y la compra de cupos finalizó 2 días antes del inicio del mundial.' }), { status: 400 });
+        return new Response(JSON.stringify({ error: 'La compra de cupos finalizó 2 días antes del inicio del mundial.' }), { status: 400 });
       }
     }
 
-    // 2. Validar unicidad del nombre de cupo (display_name)
+    // 3. Validar unicidad del nombre del cupo
     const { data: existingEntry } = await supabaseAdmin
       .from('entries')
       .select('id')
@@ -47,35 +48,34 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: `El nombre de cupo "${displayName}" ya está en uso. Por favor elige otro.` }), { status: 400 });
     }
 
-    // 3. Obtener los cupos existentes para calcular el siguiente número de cupo
-    const { data: existingEntries, error: fetchError } = await supabaseAdmin
+    // 4. Obtener el siguiente número de cupo para el usuario
+    const { data: userEntries, error: countError } = await supabaseAdmin
       .from('entries')
       .select('entry_number')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .order('entry_number', { ascending: false })
+      .limit(1);
 
-    if (fetchError) {
-      return new Response(JSON.stringify({ error: 'Error al consultar tus cupos existentes' }), { status: 500 });
-    }
+    if (countError) throw countError;
 
-    const nextEntryNumber = existingEntries && existingEntries.length > 0
-      ? Math.max(...existingEntries.map((e) => e.entry_number)) + 1
-      : 1;
+    const nextEntryNumber = userEntries && userEntries.length > 0 ? userEntries[0].entry_number + 1 : 1;
 
-    // 2. Insertar el nuevo cupo con estado 'pending'
-    const { data: entryData, error: insertError } = await supabaseAdmin
+    // 5. Crear el nuevo cupo
+    const { data: entryData, error: entryError } = await supabaseAdmin
       .from('entries')
       .insert({
         user_id: user.id,
         entry_number: nextEntryNumber,
-        display_name: displayName,
-        binance_pay_user: binancePayUser.trim(),
+        display_name: displayName.trim(),
+        payment_method: paymentMethod.trim(),
+        payment_reference: paymentReference.trim(),
         status: 'pending',
       })
       .select()
       .single();
 
-    if (insertError || !entryData) {
-      return new Response(JSON.stringify({ error: insertError?.message || 'Error al crear el cupo' }), { status: 400 });
+    if (entryError || !entryData) {
+      return new Response(JSON.stringify({ error: entryError?.message || 'Error al crear el cupo' }), { status: 400 });
     }
 
     createdEntryId = entryData.id;

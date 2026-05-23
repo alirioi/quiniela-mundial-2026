@@ -99,12 +99,20 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
               </button>
             </div>
           ) : (
-            <a
-              href="/login"
-              class="hidden sm:inline-block px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 shadow-lg shadow-wc-gold/10 hover:shadow-wc-gold/25 transition-all duration-200"
-            >
-              Iniciar Sesión
-            </a>
+            <div class="hidden sm:flex items-center gap-2">
+              <a
+                href="/login"
+                class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                Ingresar
+              </a>
+              <a
+                href="/register"
+                class="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 shadow-lg shadow-wc-gold/10 hover:shadow-wc-gold/25 transition-all duration-200"
+              >
+                Registrar
+              </a>
+            </div>
           )}
 
           <!-- Hamburger Button -->
@@ -163,12 +171,20 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
               Cerrar Sesión
             </button>
           ) : (
-            <a
-              href="/login"
-              class="w-full text-center py-2.5 px-4 rounded-xl text-xs font-bold bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 shadow-md shadow-wc-gold/5 transition-all text-center"
-            >
-              Iniciar Sesión
-            </a>
+            <>
+              <a
+                href="/login"
+                class="w-full text-center py-2.5 px-4 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors"
+              >
+                Ingresar
+              </a>
+              <a
+                href="/register"
+                class="w-full text-center py-2.5 px-4 rounded-xl text-xs font-bold bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 shadow-md shadow-wc-gold/5 transition-all"
+              >
+                Registrar
+              </a>
+            </>
           )}
         </div>
       </div>

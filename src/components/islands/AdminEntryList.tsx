@@ -19,7 +19,8 @@ interface Entry {
   user_id: string;
   entry_number: number;
   display_name: string;
-  binance_pay_user: string | null;
+  payment_method: string;
+  payment_reference: string | null;
   status: 'pending' | 'approved' | 'rejected';
   payment_receipt_url: string | null;
   signedUrl: string | null;
@@ -181,7 +182,7 @@ export default function AdminEntryList() {
             <thead>
               <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
                 <th className="p-4 sm:p-5">Usuario / Apodo</th>
-                <th className="p-4 sm:p-5">Binance Pay</th>
+                <th className="p-4 sm:p-5">Pago y Ref.</th>
                 <th className="p-4 sm:p-5">Cupo #</th>
                 <th className="p-4 sm:p-5">Fecha Reg.</th>
                 <th className="p-4 sm:p-5 text-center">Comprobante</th>
@@ -200,8 +201,15 @@ export default function AdminEntryList() {
                       <div className="font-bold text-white text-sm">{entry.display_name}</div>
                       <div className="text-xs text-slate-455 mt-0.5">{profileName} • {profileEmail}</div>
                     </td>
-                    <td className="p-4 sm:p-5 text-slate-300 text-xs font-mono font-medium truncate max-w-[150px]" title={entry.binance_pay_user || 'N/A'}>
-                      {entry.binance_pay_user || <span className="text-slate-550 italic font-sans">N/A</span>}
+                    <td className="p-4 sm:p-5 text-slate-300 text-xs font-mono font-medium max-w-[180px]">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="uppercase text-[10px] text-slate-400 font-bold tracking-wider">
+                          {entry.payment_method === 'binance_pay' ? 'Binance Pay' : entry.payment_method === 'pago_movil' ? 'Pago Móvil' : entry.payment_method === 'transferencia_bs' ? 'Transferencia Bs' : entry.payment_method}
+                        </span>
+                        <span className="truncate" title={entry.payment_reference || 'N/A'}>
+                          {entry.payment_reference || <span className="text-slate-550 italic font-sans">N/A</span>}
+                        </span>
+                      </div>
                     </td>
                     <td className="p-4 sm:p-5 font-mono text-xs text-wc-gold font-bold">
                       #{entry.entry_number}

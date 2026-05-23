@@ -1,7 +1,7 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
 import PaymentBreakdown from '../components/ui/PaymentBreakdown.astro';
-import PaymentUpload from '../components/islands/PaymentUpload';
+import RegisterPaymentSection from '../components/islands/RegisterPaymentSection';
 import { UserPlus, Lock } from 'lucide-react';
 import Logo from '../components/Logo.astro';
 
@@ -160,47 +160,8 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
             <!-- Componente de desglose -->
             <PaymentBreakdown />
 
-            <!-- Datos de Binance Pay Organizador -->
-            <div class="p-4 rounded-xl bg-wc-dark/60 border border-wc-border space-y-2.5">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5 font-sports">
-                <span class="w-2 h-2 rounded-full bg-wc-gold animate-pulse"></span>
-                Instrucciones de Pago (Binance Pay)
-              </h4>
-              <p class="text-xs text-slate-400 leading-relaxed">
-                Realiza una transferencia de exactamente <strong class="text-wc-gold">20.00 USDT</strong> a la siguiente cuenta de Binance Pay:
-              </p>
-              <div class="p-3 bg-wc-card rounded-lg border border-wc-border/60 text-xs font-mono space-y-1.5">
-                <div class="flex justify-between">
-                  <span class="text-slate-400">Binance Pay ID:</span>
-                  <span class="text-slate-200 font-bold select-all">139030711</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-400">Nombre de la Cuenta:</span>
-                  <span class="text-slate-200 font-bold">Alirio Isea</span>
-                </div>
-              </div>
-              <p class="text-[10px] text-wc-red font-semibold leading-relaxed">
-                * IMPORTANTE: No incluyas palabras como "apuesta", "quiniela", "sorteo" ni referencias a juegos de azar en la nota de transferencia para evitar el bloqueo de las cuentas.
-              </p>
-            </div>
-            
-            <!-- Isla Reactiva de carga de archivos -->
-            <PaymentUpload client:load initialLabel="Sube tu comprobante de 20 USDT" />
-
-            <div>
-              <label for="binancePayUser" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 font-sports">
-                Usuario de Binance Pay
-              </label>
-              <input
-                id="binancePayUser"
-                name="binancePayUser"
-                type="text"
-                required
-                class="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
-                placeholder="Ej: alias.pay@gmail.com o ID 12345678"
-              />
-              <p class="text-xs text-slate-500 mt-1.5">El correo, apodo o ID de Binance con el que realizaste el pago de 20 USDT.</p>
-            </div>
+            <!-- Sección Reactiva de Método de Pago y Comprobante -->
+            <RegisterPaymentSection client:load />
           </div>
 
           <!-- Checkbox de aceptación de reglamento -->

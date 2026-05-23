@@ -74,6 +74,9 @@ export default function PrizePoolDisplay() {
           <p className="text-xs text-slate-400 mt-1 leading-relaxed max-w-md">
             El 100% de este pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo. ({count} {count === 1 ? 'cupo aprobado' : 'cupos aprobados'})
           </p>
+          <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed max-w-md italic">
+            * El monto del pozo acumulado se actualiza automáticamente en tiempo real a medida que ingresan más personas y se aprueban nuevos cupos.
+          </p>
         </div>
       </div>
 

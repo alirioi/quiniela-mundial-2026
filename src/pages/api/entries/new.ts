@@ -60,27 +60,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const nextEntryNumber = userEntries && userEntries.length > 0 ? userEntries[0].entry_number + 1 : 1;
 
-    // 5. Crear el nuevo cupo
-    const { data: entryData, error: entryError } = await supabaseAdmin
-      .from('entries')
-      .insert({
-        user_id: user.id,
-        entry_number: nextEntryNumber,
-        display_name: displayName.trim(),
-        payment_method: paymentMethod.trim(),
-        payment_reference: paymentReference.trim(),
-        status: 'pending',
-      })
-      .select()
-      .single();
-
-    if (entryError || !entryData) {
-      return new Response(JSON.stringify({ error: entryError?.message || 'Error al crear el cupo' }), { status: 400 });
-    }
-
-    createdEntryId = entryData.id;
-
-    // 3. Subir el comprobante de pago al almacenamiento privado
+    // 5. Subir el comprobante de pago al almacenamiento privado (ya conocemos el ID de usuario y número de cupo)
     const fileExt = receipt.name.split('.').pop() || 'png';
     const filePath = `${user.id}/${nextEntryNumber}/receipt.${fileExt}`;
     uploadedFilePath = filePath;
@@ -96,23 +76,31 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
 
     if (storageError) {
-      // Rollback: borrar entrada
-      await supabaseAdmin.from('entries').delete().eq('id', createdEntryId);
       return new Response(JSON.stringify({ error: 'Error al subir el comprobante de pago' }), { status: 500 });
     }
 
-    // 4. Actualizar la entrada con la ruta del comprobante
-    const { error: updateError } = await supabaseAdmin
+    // 6. Crear el nuevo cupo con la URL del comprobante de pago directamente
+    const { data: entryData, error: entryError } = await supabaseAdmin
       .from('entries')
-      .update({ payment_receipt_url: filePath })
-      .eq('id', createdEntryId);
+      .insert({
+        user_id: user.id,
+        entry_number: nextEntryNumber,
+        display_name: displayName.trim(),
+        payment_method: paymentMethod.trim(),
+        payment_reference: paymentReference.trim(),
+        status: 'pending',
+        payment_receipt_url: filePath,
+      })
+      .select()
+      .single();
 
-    if (updateError) {
-      // Rollback: borrar archivo y entrada
+    if (entryError || !entryData) {
+      // Rollback: borrar archivo de storage
       await supabaseAdmin.storage.from('payment-receipts').remove([filePath]);
-      await supabaseAdmin.from('entries').delete().eq('id', createdEntryId);
-      return new Response(JSON.stringify({ error: 'Error al vincular el comprobante con el cupo' }), { status: 500 });
+      return new Response(JSON.stringify({ error: entryError?.message || 'Error al crear el cupo' }), { status: 400 });
     }
+
+    createdEntryId = entryData.id;
 
     return new Response(JSON.stringify({ success: true, entry: entryData }), { status: 200 });
   } catch (e) {

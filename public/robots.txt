@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /pending
+Disallow: /my-entries
+Disallow: /predictions/
+Disallow: /reset-password
+Disallow: /forgot-password
+
+Sitemap: https://quiniela.alirioi.dev/sitemap-index.xml

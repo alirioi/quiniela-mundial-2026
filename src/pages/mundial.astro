@@ -29,7 +29,11 @@ if (error) {
 const matchData = matches || [];
 ---
 
-<MainLayout title="El Mundial" userProfile={profile}>
+<MainLayout 
+  title="El Mundial" 
+  description="Sigue el calendario completo, grupos y resultados en tiempo real del Mundial 2026. La información más actualizada para tus pronósticos de la quiniela."
+  userProfile={profile}
+>
   <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <MundialDashboard client:load matches={matchData} />
   </div>

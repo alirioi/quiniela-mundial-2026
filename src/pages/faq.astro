@@ -19,7 +19,11 @@ import {
 const profile = Astro.locals.profile;
 ---
 
-<MainLayout title="Reglas y FAQ" userProfile={profile}>
+<MainLayout 
+  title="Reglas y FAQ" 
+  description="Consulta las reglas de juego, sistema de puntuación, premios y preguntas frecuentes de la Quiniela Mundial 2026. Todo lo que necesitas saber para participar."
+  userProfile={profile}
+>
   <div class="relative bg-slate-950 text-slate-100 overflow-hidden py-12 min-h-[calc(100vh-4rem)]">
     
     <!-- Background gradients -->

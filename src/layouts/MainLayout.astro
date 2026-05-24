@@ -64,7 +64,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
     <!-- Premium Header -->
     <header class="border-b border-wc-border/80 bg-wc-card/40 backdrop-blur-md sticky top-0 z-40">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        <a href={userProfile ? "/dashboard" : "/"} class="flex items-center group hover:opacity-90 transition-opacity">
+        <a href={userProfile ? "/dashboard" : "/"} class="flex items-center group hover:opacity-90 transition-opacity" aria-label="Volver al inicio">
           <Logo mode="horizontal" size="small" />
         </a>
 

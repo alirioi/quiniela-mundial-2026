@@ -21,7 +21,11 @@ const s = sizeClasses[size];
   
   <!-- Icon SVG -->
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none"
-       class={`${s.icon} shrink-0 drop-shadow-lg`}>
+       class={`${s.icon} shrink-0 drop-shadow-lg`}
+       role="img"
+       aria-labelledby="logoTitle logoDesc">
+    <title id="logoTitle">Logo de Quiniela Mundial 2026</title>
+    <desc id="logoDesc">Escudo y trofeo dorado representando la Quiniela del Mundial 2026</desc>
     <defs>
       <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%"   stop-color="#E61D25" />

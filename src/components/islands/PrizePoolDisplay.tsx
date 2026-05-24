@@ -68,13 +68,13 @@ export default function PrizePoolDisplay() {
           <Trophy className="w-7 h-7 text-wc-gold" strokeWidth={2.5} />
         </div>
         <div className="text-center sm:text-left">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-wc-gold font-sports">
+          <h3 className="text-base sm:text-lg font-bold uppercase tracking-wider text-wc-gold font-sports">
             Pote Acumulado Oficial
           </h3>
-          <p className="text-xs text-slate-400 mt-1 leading-relaxed max-w-md">
+          <p className="text-sm sm:text-base text-slate-300 mt-1 leading-relaxed max-w-md sm:max-w-xl">
             El 100% de este pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo. ({count} {count === 1 ? 'cupo aprobado' : 'cupos aprobados'})
           </p>
-          <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed max-w-md italic">
+          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed max-w-md sm:max-w-xl italic">
             * El monto del pozo acumulado se actualiza automáticamente en tiempo real a medida que ingresan más personas y se aprueban nuevos cupos.
           </p>
         </div>

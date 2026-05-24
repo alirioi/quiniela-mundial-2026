@@ -167,8 +167,8 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
           </div>
 
           {formattedDate && (
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider font-sports">
-              El torneo inicia el: <span className="capitalize text-white">{formattedDate}</span>
+            <p className="text-sm sm:text-base text-slate-300 font-bold uppercase tracking-wider font-sports">
+              El torneo inicia el: <span className="capitalize text-white text-base sm:text-lg">{formattedDate}</span>
             </p>
           )}
         </div>

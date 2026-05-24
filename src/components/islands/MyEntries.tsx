@@ -279,11 +279,11 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-wc-card/50 border border-wc-border p-6 rounded-2xl backdrop-blur-md relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
         <div>
-          <h2 className="text-xl font-extrabold text-white flex items-center gap-2 font-sports tracking-wider uppercase">
-            <Ticket className="w-5.5 h-5.5 text-wc-gold" strokeWidth={2.5} />
+          <h2 className="text-2xl font-extrabold text-white flex items-center gap-2 font-sports tracking-wider uppercase">
+            <Ticket className="w-6 h-6 text-wc-gold" strokeWidth={2.5} />
             <span>Gestión de Cupos</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+          <p className="text-sm text-slate-300 mt-1.5 max-w-xl leading-relaxed">
             Aquí puedes ver el estado de tus cupos registrados, consultar sus
             puntuaciones y comprar cupos adicionales para multiplicar tus
             oportunidades de ganar.
@@ -653,17 +653,38 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   </div>
 
                   {euroRate && vesAmount ? (
-                    <p className="text-xs md:text-sm text-slate-400 leading-relaxed">
-                      Tasa Euro BCV actual:{" "}
-                      <strong className="text-slate-200">
-                        {formatCurrency(euroRate)} Bs
-                      </strong>
-                      <br />
-                      Monto total a transferir:{" "}
-                      <strong className="text-wc-gold text-base">
-                        {formatCurrency(vesAmount)} Bs
-                      </strong>
-                    </p>
+                    <div className="text-sm md:text-base text-slate-300 leading-relaxed flex flex-col gap-1.5">
+                      <div>
+                        Tasa Euro BCV actual:{" "}
+                        <strong className="text-slate-100 text-base">
+                          {formatCurrency(euroRate)} Bs
+                        </strong>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span>Monto total a transferir:</span>
+                        <strong className="text-wc-gold text-lg md:text-xl font-bold">
+                          {formatCurrency(vesAmount)} Bs
+                        </strong>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            copyToClipboard(
+                              vesAmount.toFixed(2).replace(".", ","),
+                              "ves_amount",
+                            )
+                          }
+                          className="p-1.5 bg-wc-card hover:bg-slate-700 rounded-lg text-slate-400 hover:text-wc-gold transition-colors inline-flex items-center gap-1 border border-wc-border"
+                          title="Copiar solo números"
+                        >
+                          {copiedId === "ves_amount" ? (
+                            <Check className="w-4 h-4 text-wc-green" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                          <span className="text-[10px] font-sans font-normal">Copiar</span>
+                        </button>
+                      </div>
+                    </div>
                   ) : (
                     <p className="text-xs text-slate-500 animate-pulse">
                       Consultando tasa del Euro BCV actual...

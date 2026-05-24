@@ -1,7 +1,12 @@
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
+  // Explicit admin check for defense in depth (middleware already handles this)
+  if (locals.profile?.role !== 'admin') {
+    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403 });
+  }
+
   try {
     // 1. Obtener total de partidos programados
     const { count: totalMatches, error: matchesError } = await supabaseAdmin

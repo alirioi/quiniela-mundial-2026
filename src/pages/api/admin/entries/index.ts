@@ -1,7 +1,12 @@
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../../lib/supabase-server';
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
+  // Explicit admin check
+  if (locals.profile?.role !== 'admin') {
+    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403 });
+  }
+
   try {
     // 1. Obtener todos los cupos y la información del perfil asociada
     const { data: entries, error } = await supabaseAdmin

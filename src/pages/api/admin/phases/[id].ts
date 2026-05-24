@@ -1,7 +1,12 @@
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../../lib/supabase-server';
 
-export const PATCH: APIRoute = async ({ params, request }) => {
+export const PATCH: APIRoute = async ({ params, request, locals }) => {
+  // Explicit admin check
+  if (locals.profile?.role !== 'admin') {
+    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403 });
+  }
+
   const { id } = params;
 
   if (!id) {

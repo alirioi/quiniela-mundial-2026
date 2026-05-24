@@ -31,31 +31,24 @@ export default function Layout({ children, previewText }: LayoutProps) {
         }}
       >
         <Body className="bg-[#f6f9fc] my-auto mx-auto font-sans">
-          <Container className="bg-white border border-gray-200 rounded-xl my-[40px] mx-auto p-[20px] max-w-[600px] shadow-sm">
-            {/* Header Logo Area */}
-            <div className="text-center mb-8 mt-4">
-              <div className="inline-block align-middle mr-3 text-[48px] leading-none">
-                🏆
-              </div>
-              <div className="inline-block align-middle text-left">
-                <div className="text-[28px] font-black tracking-[0.2em] text-gray-900 leading-none">
-                  QUINIELA
-                </div>
-                <div className="text-[16px] font-extrabold tracking-wider mt-1">
-                  <span className="text-wc-red">MUN</span>
-                  <span className="text-wc-gold">DIAL </span>
-                  <span className="text-wc-green">2026</span>
-                </div>
-              </div>
+          <Container className="bg-white border border-gray-200 rounded-xl my-[40px] mx-auto max-w-[600px] shadow-sm overflow-hidden">
+            {/* Header Banner Area */}
+            <div className="w-full bg-[#111111]">
+              <img 
+                src="https://quiniela.alirioi.dev/banner-correo.jpg" 
+                alt="Quiniela Mundial 2026" 
+                width="600"
+                style={{ width: '100%', maxWidth: '100%', display: 'block', border: 'none' }}
+              />
             </div>
 
             {/* Email Content */}
-            <div className="text-gray-800">
+            <div className="text-gray-800 p-[20px]">
               {children}
             </div>
 
             {/* Footer Area */}
-            <div className="text-center mt-8 pt-6 border-t border-gray-200">
+            <div className="text-center pb-[20px] pt-[10px] border-t border-gray-100 mx-[20px]">
               <p className="text-sm text-gray-500 m-0">
                 &copy; {new Date().getFullYear()} Quiniela Mundial 2026. Todos los derechos reservados.
               </p>

@@ -128,8 +128,10 @@ export default function MundialDashboard({ matches }: Props) {
       if (filterStatus === 'por_jugar') matchStatus = m.status === 'scheduled';
       if (filterStatus === 'en_vivo') matchStatus = m.status === 'live';
 
-      const searchLower = searchQuery.toLowerCase();
-      const matchSearch = m.home_team.toLowerCase().includes(searchLower) || m.away_team.toLowerCase().includes(searchLower);
+      const removeAccents = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const searchLower = removeAccents(searchQuery.toLowerCase());
+      const matchSearch = removeAccents(m.home_team.toLowerCase()).includes(searchLower) || 
+                          removeAccents(m.away_team.toLowerCase()).includes(searchLower);
 
       return matchGroup && matchStatus && matchSearch;
     });
@@ -217,36 +219,36 @@ export default function MundialDashboard({ matches }: Props) {
                 Consulta los resultados oficiales, las tablas de posiciones actualizadas y la clasificación de los mejores terceros de la fase de grupos.
               </p>
             </div>
-            <div className="flex items-center gap-1 sm:gap-2 bg-wc-dark/60 p-1.5 rounded-xl border border-wc-border">
+            <div className="flex w-full md:w-auto items-center gap-1 sm:gap-2 bg-wc-dark/60 p-1.5 rounded-xl border border-wc-border">
               <button
                 onClick={() => setActiveTab('grupos')}
                 title="Tabla de Grupos"
                 aria-label="Ver grupos"
-                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
                   activeTab === 'grupos' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Trophy className="w-5 h-5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Grupos</span>
+                <Trophy className="w-5 h-5 sm:w-4 sm:h-4" /> <span>Grupos</span>
               </button>
               <button
                 onClick={() => setActiveTab('terceros')}
                 title="Clasificación de Terceros"
                 aria-label="Ver mejores terceros"
-                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
                   activeTab === 'terceros' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Award className="w-5 h-5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Terceros</span>
+                <Award className="w-5 h-5 sm:w-4 sm:h-4" /> <span>Terceros</span>
               </button>
               <button
                 onClick={() => setActiveTab('calendario')}
                 title="Calendario de Partidos"
                 aria-label="Ver calendario de partidos"
-                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
                   activeTab === 'calendario' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Calendar className="w-5 h-5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Partidos</span>
+                <Calendar className="w-5 h-5 sm:w-4 sm:h-4" /> <span>Partidos</span>
               </button>
             </div>
           </div>

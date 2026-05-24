@@ -33,6 +33,7 @@ export async function sendEmail({
       to,
       subject,
       html: finalHtml || '',
+      reply_to: 'isealirio@gmail.com',
     });
 
     if (error) {

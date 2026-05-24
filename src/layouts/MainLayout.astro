@@ -48,13 +48,13 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
         if (consent === 'accepted') {
           const script = document.createElement('script');
           script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-GA_PLACEHOLDER_ID';
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-J1JCNSPG92';
           document.head.appendChild(script);
 
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-GA_PLACEHOLDER_ID');
+          gtag('config', 'G-J1JCNSPG92');
           window.gtag = gtag;
         }
       })();
@@ -319,7 +319,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
         const script = document.createElement('script');
         script.id = 'ga-gtag-script';
         script.async = true;
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-GA_PLACEHOLDER_ID';
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-J1JCNSPG92';
         document.head.appendChild(script);
 
         const inlineScript = document.createElement('script');
@@ -328,7 +328,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-GA_PLACEHOLDER_ID');
+          gtag('config', 'G-J1JCNSPG92');
           window.gtag = gtag;
         `;
         document.head.appendChild(inlineScript);

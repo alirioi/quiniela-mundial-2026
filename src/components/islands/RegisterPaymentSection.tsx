@@ -40,7 +40,7 @@ export default function RegisterPaymentSection() {
   return (
     <div className="space-y-4 pt-2">
       {/* Selector de Método de Pago */}
-      <div className="space-y-3 mt-6">
+      <div className="space-y-3 pt-6 border-t border-wc-border/40">
         <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 font-sports">
           Método de Pago
         </h4>

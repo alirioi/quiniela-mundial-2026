@@ -459,7 +459,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
             </div>
 
             {/* Selector de Método de Pago */}
-            <div className="space-y-3 mt-6">
+            <div className="space-y-3 pt-6 border-t border-wc-border/40">
               <h4 className="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-200 font-sports">
                 Método de Pago
               </h4>

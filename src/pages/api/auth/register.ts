@@ -1,5 +1,8 @@
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
+import { sendEmail } from '../../../lib/resend';
+import WelcomeEmail from '../../../emails/WelcomeEmail';
+import * as React from 'react';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   let createdUserId: string | null = null;
@@ -154,6 +157,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       cookies.set('sb-access-token', accessToken, cookieOptions);
       cookies.set('sb-refresh-token', refreshToken, cookieOptions);
     }
+
+    // Enviar correo de bienvenida (registro exitoso, pago en revisión)
+    sendEmail({
+      to: email,
+      subject: '¡Bienvenido a la Quiniela Mundial 2026! 🏆',
+      react: React.createElement(WelcomeEmail, { userName: fullName, isPaymentApproved: false }),
+    }).catch(err => console.error('Error asíncrono en sendEmail (registro):', err));
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (e) {

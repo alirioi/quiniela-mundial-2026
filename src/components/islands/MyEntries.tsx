@@ -401,9 +401,9 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
 
       {/* MODAL PARA NUEVO CUPO */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 py-8 sm:py-12 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
           <div 
-            className="w-full max-w-lg bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-y-auto overflow-x-hidden custom-scrollbar max-h-[calc(100vh-2rem)] flex flex-col gap-6"
+            className="w-full max-w-lg bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-y-auto overflow-x-hidden custom-scrollbar max-h-full flex flex-col gap-6"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Gradients */}

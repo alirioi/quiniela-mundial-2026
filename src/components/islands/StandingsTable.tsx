@@ -139,30 +139,30 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
           </div>
 
           {/* Countdown Container */}
-          <div className="grid grid-cols-4 gap-3 max-w-sm w-full pt-2">
-            <div className="bg-wc-dark border border-wc-border rounded-xl p-3 flex flex-col items-center">
-              <span className="text-3xl font-bold text-wc-gold tracking-wider font-sports">
+          <div className="grid grid-cols-4 gap-2 sm:gap-3 max-w-sm w-full pt-2">
+            <div className="bg-wc-dark border border-wc-border rounded-xl p-2 sm:p-3 flex flex-col items-center">
+              <span className="text-2xl sm:text-3xl font-bold text-wc-gold tracking-wider font-sports">
                 {timeLeft.days.toString().padStart(2, '0')}
               </span>
-              <span className="text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Días</span>
+              <span className="text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Días</span>
             </div>
-            <div className="bg-wc-dark border border-wc-border rounded-xl p-3 flex flex-col items-center">
-              <span className="text-3xl font-bold text-wc-blue tracking-wider font-sports">
+            <div className="bg-wc-dark border border-wc-border rounded-xl p-2 sm:p-3 flex flex-col items-center">
+              <span className="text-2xl sm:text-3xl font-bold text-wc-blue tracking-wider font-sports">
                 {timeLeft.hours.toString().padStart(2, '0')}
               </span>
-              <span className="text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Horas</span>
+              <span className="text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Horas</span>
             </div>
-            <div className="bg-wc-dark border border-wc-border rounded-xl p-3 flex flex-col items-center">
-              <span className="text-3xl font-bold text-white tracking-wider font-sports">
+            <div className="bg-wc-dark border border-wc-border rounded-xl p-2 sm:p-3 flex flex-col items-center">
+              <span className="text-2xl sm:text-3xl font-bold text-white tracking-wider font-sports">
                 {timeLeft.minutes.toString().padStart(2, '0')}
               </span>
-              <span className="text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Minutos</span>
+              <span className="text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Minutos</span>
             </div>
-            <div className="bg-wc-dark border border-wc-border rounded-xl p-3 flex flex-col items-center">
-              <span className="text-3xl font-bold text-wc-red tracking-wider font-sports">
+            <div className="bg-wc-dark border border-wc-border rounded-xl p-2 sm:p-3 flex flex-col items-center">
+              <span className="text-2xl sm:text-3xl font-bold text-wc-red tracking-wider font-sports">
                 {timeLeft.seconds.toString().padStart(2, '0')}
               </span>
-              <span className="text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Segundos</span>
+              <span className="text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Segundos</span>
             </div>
           </div>
 

@@ -64,7 +64,7 @@ export default function PrizePoolDisplay() {
       <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-wc-blue/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="flex items-center space-x-4">
-        <div className="w-14 h-14 rounded-full bg-wc-gold/10 border border-wc-gold/30 flex items-center justify-center shadow-inner shadow-wc-gold/5 select-none animate-pulse-subtle">
+        <div className="w-14 h-14 shrink-0 rounded-full bg-wc-gold/10 border border-wc-gold/30 flex items-center justify-center shadow-inner shadow-wc-gold/5 select-none animate-pulse-subtle">
           <Trophy className="w-7 h-7 text-wc-gold" strokeWidth={2.5} />
         </div>
         <div className="text-center sm:text-left">

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Trophy, Calendar, Filter, Search, Award } from 'lucide-react';
+import { Trophy, Calendar, Filter, Search, Award, GitBranch } from 'lucide-react';
 import { getTeamFlagUrl } from '../../utils/flags';
+import KnockoutBracket from './KnockoutBracket';
 
 export interface Match {
   id: number;
@@ -33,7 +34,7 @@ interface Props {
 }
 
 export default function MundialDashboard({ matches }: Props) {
-  const [activeTab, setActiveTab] = useState<'grupos' | 'terceros' | 'calendario'>('grupos');
+  const [activeTab, setActiveTab] = useState<'grupos' | 'terceros' | 'calendario' | 'llave'>('grupos');
   const [filterGroup, setFilterGroup] = useState<string>('todos');
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
@@ -250,6 +251,16 @@ export default function MundialDashboard({ matches }: Props) {
               >
                 <Calendar className="w-5 h-5 sm:w-4 sm:h-4" /> <span>Partidos</span>
               </button>
+              <button
+                onClick={() => setActiveTab('llave')}
+                title="Fase Eliminatoria"
+                aria-label="Ver llave de fase eliminatoria"
+                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
+                  activeTab === 'llave' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <GitBranch className="w-5 h-5 sm:w-4 sm:h-4" /> <span>Llave</span>
+              </button>
             </div>
           </div>
         </div>
@@ -460,6 +471,12 @@ export default function MundialDashboard({ matches }: Props) {
               })
             )}
           </div>
+        </div>
+      )}
+
+      {activeTab === 'llave' && (
+        <div className="animate-fade-in">
+          <KnockoutBracket groupStandings={groupStandings} thirdPlaces={thirdPlaces} />
         </div>
       )}
     </div>

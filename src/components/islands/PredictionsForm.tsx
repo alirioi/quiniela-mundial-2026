@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { showAlert } from '../../utils/alerts';
 import { getTeamFlagUrl } from '../../utils/flags';
-import { Lock, Clock, AlertTriangle, Loader2, Award, CheckCircle2, Trophy } from 'lucide-react';
+import { Lock, Clock, AlertTriangle, Loader2, Award, CheckCircle2, Trophy, GitBranch } from 'lucide-react';
+import KnockoutBracket from './KnockoutBracket';
 
 interface Prediction {
   id?: number;
@@ -62,7 +63,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeSubTab, setActiveSubTab] = useState<'pronosticos' | 'tabla'>('pronosticos');
+  const [activeSubTab, setActiveSubTab] = useState<'pronosticos' | 'tabla' | 'llave'>('pronosticos');
   
   // Estado local para los inputs: record de matchId -> { home, away }
   const [inputs, setInputs] = useState<Record<number, { home: string; away: string }>>({});
@@ -515,6 +516,16 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
             >
               Tabla Simulada
             </button>
+            <button
+              onClick={() => setActiveSubTab('llave')}
+              className={`flex-1 px-4 py-2 rounded-lg text-xs font-bold transition-all font-sports uppercase tracking-wider cursor-pointer ${
+                activeSubTab === 'llave'
+                  ? 'bg-wc-gold text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Llave Simulada
+            </button>
           </div>
         </div>
       )}
@@ -733,7 +744,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                 </div>
               ))}
             </div>
-          ) : (
+          ) : activeSubTab === 'tabla' ? (
             // Simulated standings tab
             <div className="space-y-8 animate-fade-in">
               <div className="bg-wc-card/90 border border-wc-border p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
@@ -822,6 +833,10 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                   </div>
                 </div>
               </div>
+            </div>
+          ) : (
+            <div className="animate-fade-in">
+              <KnockoutBracket groupStandings={groupStandings} thirdPlaces={thirdPlaces} isSimulation={true} />
             </div>
           )}
         </>

@@ -1,6 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { supabaseAdmin } from '../../../../lib/supabase-server';
+import { supabaseAdmin } from '../../../../../lib/supabase-server';
 
 export const PATCH: APIRoute = async ({ params, request, locals }) => {
   // Explicit admin check

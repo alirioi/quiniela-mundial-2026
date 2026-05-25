@@ -1,8 +1,8 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { supabaseAdmin } from '../../../../../../lib/supabase-server';
-import { resend } from '../../../../../../lib/resend';
-import PhaseReminderEmail from '../../../../../../emails/PhaseReminderEmail';
+import { supabaseAdmin } from '../../../../../lib/supabase-server';
+import { resend } from '../../../../../lib/resend';
+import PhaseReminderEmail from '../../../../../emails/PhaseReminderEmail';
 import { render } from '@react-email/components';
 
 export const POST: APIRoute = async ({ params, locals }) => {

@@ -87,13 +87,13 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
 
         <div class="flex items-center space-x-2 sm:space-x-4">
           {userProfile ? (
-            <div class="flex items-center space-x-3 sm:space-x-4">
-              <span class="hidden lg:inline text-sm text-slate-300 font-semibold">
+            <div class="flex items-center space-x-2 sm:space-x-4">
+              <span class="hidden lg:inline text-sm text-slate-350 font-semibold">
                 Hola, <span class="text-slate-100">{userProfile.full_name}</span>
               </span>
               <button
                 id="logout-btn"
-                class="hidden sm:inline-block px-4 py-2 rounded-xl text-sm font-bold bg-slate-800 hover:bg-red-950/40 hover:text-red-400 border border-slate-700 hover:border-red-900/50 transition-all duration-200"
+                class="hidden sm:inline-block px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-red-950/40 hover:text-red-400 border border-slate-700 hover:border-red-900/50 transition-all duration-200"
               >
                 Cerrar Sesión
               </button>
@@ -140,8 +140,8 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
       <div class="px-4 py-4 space-y-3 font-medium text-sm">
         {userProfile && (
           <div class="pb-3 border-b border-wc-border/50">
-            <span class="text-xs text-slate-400 block mb-1">Sesión iniciada como:</span>
-            <span class="text-slate-200 font-bold block">{userProfile.full_name}</span>
+            <span class="text-sm text-slate-400 block mb-1">Sesión iniciada como:</span>
+            <span class="text-base text-slate-200 font-bold block">{userProfile.full_name}</span>
             <span class="text-xs text-slate-500 block">{userProfile.email}</span>
           </div>
         )}
@@ -166,7 +166,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
           {userProfile ? (
             <button
               id="logout-btn-mobile"
-              class="w-full text-center py-2 px-4 rounded-xl text-xs font-bold bg-slate-800 hover:bg-red-950/40 hover:text-red-400 border border-slate-700 hover:border-red-900/50 transition-all duration-200"
+              class="w-full text-center py-3 px-4 rounded-xl text-sm font-bold bg-slate-800 hover:bg-red-950/40 hover:text-red-400 border border-slate-700 hover:border-red-900/50 transition-all duration-200"
             >
               Cerrar Sesión
             </button>

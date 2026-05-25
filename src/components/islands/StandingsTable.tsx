@@ -117,11 +117,11 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 font-sports">
+          <h3 className="text-base sm:text-lg font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 font-sports">
             <BarChart3 className="w-5 h-5 text-wc-gold" strokeWidth={2.5} />
             <span>Clasificación General</span>
           </h3>
-          <span className="text-xs text-slate-400 font-sports uppercase tracking-wider">Privacidad Activa</span>
+          <span className="text-xs sm:text-sm text-slate-400 font-sports uppercase tracking-wider">Privacidad Activa</span>
         </div>
 
         <div className="p-8 text-center bg-wc-card border border-wc-border shadow-2xl relative overflow-hidden flex flex-col items-center justify-center gap-6 rounded-2xl">
@@ -132,8 +132,8 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
           </div>
 
           <div className="max-w-md space-y-2">
-            <h4 className="text-lg font-bold text-white font-sports uppercase tracking-wider">Clasificación Privada</h4>
-            <p className="text-sm text-slate-350 leading-relaxed">
+            <h4 className="text-xl font-bold text-white font-sports uppercase tracking-wider">Clasificación Privada</h4>
+            <p className="text-sm sm:text-base text-slate-350 leading-relaxed">
               Para garantizar una competencia justa, los nombres de los participantes y la clasificación general se revelarán públicamente al comenzar el primer partido del mundial.
             </p>
           </div>
@@ -141,25 +141,25 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
           {/* Countdown Container */}
           <div className="grid grid-cols-4 gap-2 sm:gap-3 max-w-sm w-full pt-2">
             <div className="bg-wc-dark border border-wc-border rounded-xl p-2 sm:p-3 flex flex-col items-center">
-              <span className="text-2xl sm:text-3xl font-bold text-wc-gold tracking-wider font-sports">
+              <span className="text-3xl sm:text-4xl font-bold text-wc-gold tracking-wider font-sports">
                 {timeLeft.days.toString().padStart(2, '0')}
               </span>
               <span className="text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Días</span>
             </div>
             <div className="bg-wc-dark border border-wc-border rounded-xl p-2 sm:p-3 flex flex-col items-center">
-              <span className="text-2xl sm:text-3xl font-bold text-wc-blue tracking-wider font-sports">
+              <span className="text-3xl sm:text-4xl font-bold text-wc-blue tracking-wider font-sports">
                 {timeLeft.hours.toString().padStart(2, '0')}
               </span>
               <span className="text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Horas</span>
             </div>
             <div className="bg-wc-dark border border-wc-border rounded-xl p-2 sm:p-3 flex flex-col items-center">
-              <span className="text-2xl sm:text-3xl font-bold text-white tracking-wider font-sports">
+              <span className="text-3xl sm:text-4xl font-bold text-white tracking-wider font-sports">
                 {timeLeft.minutes.toString().padStart(2, '0')}
               </span>
               <span className="text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Minutos</span>
             </div>
             <div className="bg-wc-dark border border-wc-border rounded-xl p-2 sm:p-3 flex flex-col items-center">
-              <span className="text-2xl sm:text-3xl font-bold text-wc-red tracking-wider font-sports">
+              <span className="text-3xl sm:text-4xl font-bold text-wc-red tracking-wider font-sports">
                 {timeLeft.seconds.toString().padStart(2, '0')}
               </span>
               <span className="text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-sports mt-1">Segundos</span>
@@ -167,8 +167,8 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
           </div>
 
           {formattedDate && (
-            <p className="text-sm sm:text-base text-slate-300 font-bold uppercase tracking-wider font-sports">
-              El torneo inicia el: <span className="capitalize text-white text-base sm:text-lg">{formattedDate}</span>
+            <p className="text-sm sm:text-base text-slate-350 font-bold uppercase tracking-wider font-sports">
+              El torneo inicia el: <span className="capitalize text-white">{formattedDate}</span>
             </p>
           )}
         </div>

@@ -280,10 +280,10 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
         <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
         <div>
           <h2 className="text-2xl font-extrabold text-white flex items-center gap-2 font-sports tracking-wider uppercase">
-            <Ticket className="w-6 h-6 text-wc-gold" strokeWidth={2.5} />
+            <Ticket className="w-6.5 h-6.5 text-wc-gold" strokeWidth={2.5} />
             <span>Gestión de Cupos</span>
           </h2>
-          <p className="text-sm text-slate-300 mt-1.5 max-w-xl leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-350 mt-1.5 max-w-xl leading-relaxed">
             Aquí puedes ver el estado de tus cupos registrados, consultar sus
             puntuaciones y comprar cupos adicionales para multiplicar tus
             oportunidades de ganar.
@@ -653,36 +653,35 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                   </div>
 
                   {euroRate && vesAmount ? (
-                    <div className="text-sm md:text-base text-slate-300 leading-relaxed flex flex-col gap-1.5">
-                      <div>
+                    <div className="space-y-2 mt-2">
+                      <p className="text-sm md:text-base text-slate-350 leading-relaxed">
                         Tasa Euro BCV actual:{" "}
-                        <strong className="text-slate-100 text-base">
+                        <strong className="text-slate-100 text-base md:text-lg">
                           {formatCurrency(euroRate)} Bs
                         </strong>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span>Monto total a transferir:</span>
-                        <strong className="text-wc-gold text-lg md:text-xl font-bold">
-                          {formatCurrency(vesAmount)} Bs
-                        </strong>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            copyToClipboard(
-                              vesAmount.toFixed(2).replace(".", ","),
-                              "ves_amount",
-                            )
-                          }
-                          className="p-1.5 bg-wc-card hover:bg-slate-700 rounded-lg text-slate-400 hover:text-wc-gold transition-colors inline-flex items-center gap-1 border border-wc-border"
-                          title="Copiar solo números"
-                        >
-                          {copiedId === "ves_amount" ? (
-                            <Check className="w-4 h-4 text-wc-green" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                          <span className="text-[10px] font-sans font-normal">Copiar</span>
-                        </button>
+                      </p>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 bg-wc-gold/5 border border-wc-gold/15 rounded-xl">
+                        <span className="text-sm md:text-base text-slate-300 font-medium">Monto total a transferir:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-wc-gold text-lg md:text-xl font-extrabold font-mono select-all">
+                            {formatCurrency(vesAmount)} Bs
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const onlyNumbers = formatCurrency(vesAmount).replace(/\./g, "").trim();
+                              copyToClipboard(onlyNumbers, "ves_amount");
+                            }}
+                            className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-wc-gold transition-colors flex items-center justify-center shrink-0"
+                            title="Copiar solo números"
+                          >
+                            {copiedId === "ves_amount" ? (
+                              <Check className="w-4.5 h-4.5 text-wc-green" />
+                            ) : (
+                              <Copy className="w-4.5 h-4.5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ) : (

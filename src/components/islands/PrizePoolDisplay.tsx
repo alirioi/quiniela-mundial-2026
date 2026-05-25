@@ -71,17 +71,17 @@ export default function PrizePoolDisplay() {
           <h3 className="text-base sm:text-lg font-bold uppercase tracking-wider text-wc-gold font-sports">
             Pote Acumulado Oficial
           </h3>
-          <p className="text-sm sm:text-base text-slate-300 mt-1 leading-relaxed max-w-md sm:max-w-xl">
+          <p className="text-sm sm:text-base text-slate-350 mt-1.5 leading-relaxed max-w-xl">
             El 100% de este pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo. ({count} {count === 1 ? 'cupo aprobado' : 'cupos aprobados'})
           </p>
-          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed max-w-md sm:max-w-xl italic">
+          <p className="text-xs text-slate-500 mt-2 leading-relaxed max-w-xl italic">
             * El monto del pozo acumulado se actualiza automáticamente en tiempo real a medida que ingresan más personas y se aprueban nuevos cupos.
           </p>
         </div>
       </div>
 
       <div className="text-center sm:text-right flex-shrink-0">
-        <div className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-wc-gold via-amber-400 to-yellow-300 tracking-wider font-sports select-none">
+        <div className="text-5xl sm:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-wc-gold via-amber-400 to-yellow-300 tracking-wider font-sports select-none">
           {pool.toLocaleString('es-ES', { minimumFractionDigits: 0 })} USDT
         </div>
       </div>

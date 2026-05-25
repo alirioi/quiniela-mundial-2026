@@ -11,7 +11,8 @@ import {
   Eye,
   Check,
   X,
-  ExternalLink
+  ExternalLink,
+  Trash
 } from 'lucide-react';
 
 interface Entry {
@@ -37,7 +38,7 @@ export default function AdminEntryList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
-  const [selectedReceipt, setSelectedReceipt] = useState<{ url: string; name: string } | null>(null);
+  const [selectedReceipt, setSelectedReceipt] = useState<{ id: number; url: string; name: string } | null>(null);
   const [rejectingId, setRejectingId] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
@@ -91,6 +92,29 @@ export default function AdminEntryList() {
       showAlert.error('Error', err.message);
     } finally {
       setActionLoadingId(null);
+    }
+  };
+
+  const handleDeleteReceipt = async (id: number) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta captura de la base de datos? Esto liberará espacio de almacenamiento.')) return;
+    try {
+      const response = await fetch(`/api/admin/entries/${id}/receipt`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Error al eliminar');
+      }
+      showAlert.success('Éxito', 'Captura eliminada correctamente');
+      setSelectedReceipt(null);
+      // Actualizar localmente
+      setEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === id ? { ...entry, signedUrl: null, payment_receipt_url: null } : entry
+        )
+      );
+    } catch (e: any) {
+      showAlert.error('Error', e.message);
     }
   };
 
@@ -225,7 +249,7 @@ export default function AdminEntryList() {
                     <td className="p-4 sm:p-5 text-center">
                       {entry.signedUrl ? (
                         <button
-                          onClick={() => setSelectedReceipt({ url: entry.signedUrl!, name: entry.display_name })}
+                          onClick={() => setSelectedReceipt({ id: entry.id, url: entry.signedUrl!, name: entry.display_name })}
                           className="px-3 py-1.5 rounded-lg bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white border border-wc-border transition-colors text-xs font-bold font-sports tracking-wider uppercase inline-flex items-center gap-1.5"
                         >
                           <Eye className="w-4 h-4 text-slate-300" strokeWidth={2.5} /> Ver Archivo
@@ -312,14 +336,22 @@ export default function AdminEntryList() {
             </div>
 
             <div className="p-4 border-t border-wc-border bg-wc-dark/60 flex justify-between items-center">
-              <a
-                href={selectedReceipt.url}
-                target="_blank"
-                rel="noreferrer"
-                className="px-4 py-2 bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white rounded-xl text-xs font-bold font-sports tracking-wider uppercase border border-wc-border transition-colors flex items-center gap-1.5"
-              >
-                <ExternalLink className="w-4 h-4 text-slate-300" strokeWidth={2.5} /> Abrir en nueva pestaña
-              </a>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleDeleteReceipt(selectedReceipt.id)}
+                  className="px-4 py-2 bg-wc-red/10 hover:bg-wc-red/20 text-wc-red rounded-xl text-xs font-bold font-sports tracking-wider uppercase border border-wc-red/30 transition-colors flex items-center gap-1.5"
+                >
+                  <Trash className="w-4 h-4" strokeWidth={2.5} /> Eliminar Captura
+                </button>
+                <a
+                  href={selectedReceipt.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-4 py-2 bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white rounded-xl text-xs font-bold font-sports tracking-wider uppercase border border-wc-border transition-colors flex items-center gap-1.5 hidden sm:flex"
+                >
+                  <ExternalLink className="w-4 h-4 text-slate-300" strokeWidth={2.5} /> Abrir Pestaña
+                </a>
+              </div>
               <button
                 onClick={() => setSelectedReceipt(null)}
                 className="px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-955 shadow-md shadow-wc-gold/15 transition-colors font-sports tracking-wider uppercase"

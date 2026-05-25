@@ -30,6 +30,7 @@ interface Participant {
   full_name: string;
   email: string;
   phone: string;
+  role: string;
   entries: Entry[];
   total_entries_count: number;
 }
@@ -161,8 +162,13 @@ export default function AdminUserList() {
                   className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer select-none"
                 >
                   <div className="space-y-1">
-                    <h3 className="text-sm sm:text-base font-bold text-white tracking-wide">
+                    <h3 className="text-sm sm:text-base font-bold text-white tracking-wide flex items-center gap-2">
                       {user.full_name}
+                      {user.role === 'admin' && (
+                        <span className="px-1.5 py-0.5 rounded-md bg-wc-red/15 text-wc-red text-[9px] font-sports font-bold tracking-wider uppercase border border-wc-red/20">
+                          Admin
+                        </span>
+                      )}
                     </h3>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-450">
                       <span className="flex items-center gap-1">

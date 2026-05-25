@@ -25,6 +25,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
         full_name,
         email,
         phone,
+        role,
         entries (
           id,
           entry_number,
@@ -105,6 +106,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
           full_name: profile.full_name,
           email: profile.email,
           phone: profile.phone || 'N/A',
+          role: profile.role,
           entries,
           total_entries_count: entries.length
         };

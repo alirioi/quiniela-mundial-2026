@@ -1,3 +1,4 @@
+export const prerender = false;
 import { sendEmail } from '../../lib/resend';
 import WelcomeEmail from '../../emails/WelcomeEmail';
 import * as React from 'react';

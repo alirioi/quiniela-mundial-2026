@@ -1,5 +1,9 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
+import { sendEmail } from '../../../lib/resend';
+import AdminNewEntryEmail from '../../../emails/AdminNewEntryEmail';
+import * as React from 'react';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const user = locals.user;
@@ -101,6 +105,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     createdEntryId = entryData.id;
+
+    // Notificar al admin sobre el nuevo cupo
+    const adminNotificationPromise = sendEmail({
+      to: 'alirioi@proton.me',
+      subject: '🚨 ¡Nuevo Cupo Registrado!',
+      react: React.createElement(AdminNewEntryEmail, {
+        displayName: displayName.trim(),
+        paymentMethod: paymentMethod.trim(),
+        paymentReference: paymentReference.trim()
+      }),
+    }).catch(err => console.error('Error asíncrono notificando al admin (new entry):', err));
+
+    const runtime = (locals as any).runtime;
+    if (runtime?.context?.waitUntil) {
+      runtime.context.waitUntil(adminNotificationPromise);
+    } else {
+      await adminNotificationPromise;
+    }
 
     return new Response(JSON.stringify({ success: true, entry: entryData }), { status: 200 });
   } catch (e) {

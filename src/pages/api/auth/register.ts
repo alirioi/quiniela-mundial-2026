@@ -1,7 +1,9 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
 import { sendEmail } from '../../../lib/resend';
 import WelcomeEmail from '../../../emails/WelcomeEmail';
+import AdminNewEntryEmail from '../../../emails/AdminNewEntryEmail';
 import * as React from 'react';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
@@ -152,13 +154,25 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       react: React.createElement(WelcomeEmail, { userName: fullName, isPaymentApproved: false }),
     }).catch(err => console.error('Error asíncrono en sendEmail (registro):', err));
 
+    // Notificar al admin sobre el nuevo registro
+    const adminNotificationPromise = sendEmail({
+      to: 'alirioi@proton.me',
+      subject: '🚨 ¡Nuevo Cupo Registrado!',
+      react: React.createElement(AdminNewEntryEmail, {
+        displayName: displayName.trim(),
+        paymentMethod: paymentMethod.trim(),
+        paymentReference: paymentReference.trim()
+      }),
+    }).catch(err => console.error('Error asíncrono notificando al admin:', err));
+
     // Intentar usar waitUntil si está disponible (Netlify/Cloudflare) para no bloquear la respuesta
     const runtime = (locals as any).runtime;
     if (runtime?.context?.waitUntil) {
       runtime.context.waitUntil(emailPromise);
+      runtime.context.waitUntil(adminNotificationPromise);
     } else {
       // En otros entornos, esperamos el envío para evitar que la función se detenga prematuramente
-      await emailPromise;
+      await Promise.all([emailPromise, adminNotificationPromise]);
     }
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });

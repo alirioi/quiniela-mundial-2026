@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { showAlert } from '../../utils/alerts';
-import { Settings, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Settings, RefreshCw, AlertTriangle, Bell } from 'lucide-react';
 
 interface Phase {
   id: number;
@@ -10,11 +10,19 @@ interface Phase {
   is_active: boolean;
 }
 
+interface PhaseStats {
+  phase_id: number;
+  total_matches: number;
+  completed_count: number;
+  total_approved: number;
+}
+
 export default function AdminPhaseManager() {
   const [phases, setPhases] = useState<Phase[]>([]);
+  const [stats, setStats] = useState<PhaseStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [notifyingId, setNotifyingId] = useState<number | null>(null);
 
   const fetchPhases = async () => {
     setLoading(true);
@@ -26,6 +34,7 @@ export default function AdminPhaseManager() {
       }
       const data = await response.json();
       setPhases(data.phases);
+      setStats(data.phasesStats || []);
     } catch (err: any) {
       setError(err.message || 'Error de conexión');
     } finally {
@@ -37,28 +46,28 @@ export default function AdminPhaseManager() {
     fetchPhases();
   }, []);
 
-  const handleTogglePhase = async (phaseId: number, currentStatus: boolean) => {
-    setTogglingId(phaseId);
+  const handleNotifyLaggards = async (phaseId: number, phaseName: string) => {
+    const result = await showAlert.confirm(
+      '¿Enviar recordatorios?',
+      `Se enviará un correo masivo a todos los participantes que no han completado sus pronósticos para la ${phaseName}.`
+    );
+    if (!result.isConfirmed) return;
+
+    setNotifyingId(phaseId);
     try {
-      const newStatus = !currentStatus;
-      const response = await fetch(`/api/admin/phases/${phaseId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: newStatus }),
+      const response = await fetch(`/api/admin/phases/${phaseId}/remind`, {
+        method: 'POST'
       });
-
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al cambiar el estado de la fase');
+        const data = await response.json();
+        throw new Error(data.error || 'Error al enviar recordatorios');
       }
-
-      setPhases((prev) =>
-        prev.map((p) => (p.id === phaseId ? { ...p, is_active: newStatus } : p))
-      );
+      const data = await response.json();
+      showAlert.success('Éxito', `Se enviaron ${data.sentCount} correos exitosamente.`);
     } catch (err: any) {
       showAlert.error('Error', err.message);
     } finally {
-      setTogglingId(null);
+      setNotifyingId(null);
     }
   };
   return (
@@ -98,7 +107,7 @@ export default function AdminPhaseManager() {
           {phases.map((phase) => (
             <div
               key={phase.id}
-              className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between h-44 relative overflow-hidden ${
+              className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
                 phase.is_active
                   ? 'border-wc-green/30 bg-wc-card shadow-lg shadow-wc-green/5'
                   : 'border-wc-border bg-wc-card/40'
@@ -110,7 +119,7 @@ export default function AdminPhaseManager() {
               )}
 
               {/* Info de la fase */}
-              <div className="relative z-10">
+              <div className="relative z-10 flex-grow">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-sports">
                     Orden #{phase.order}
@@ -126,26 +135,48 @@ export default function AdminPhaseManager() {
                   </span>
                 </div>
                 
-                <h4 className="text-xl font-bold text-white mt-2 font-sports tracking-wide uppercase">
+                <h4 className="text-xl font-bold text-white mt-4 font-sports tracking-wide uppercase">
                   {phase.name}
                 </h4>
+
+                {(() => {
+                  const phaseStat = stats.find(s => s.phase_id === phase.id);
+                  if (!phaseStat) return null;
+                  
+                  const { completed_count, total_approved, total_matches } = phaseStat;
+                  const percentage = total_approved > 0 ? Math.round((completed_count / total_approved) * 100) : 0;
+                  
+                  return (
+                    <div className="mt-4">
+                      <div className="flex justify-between items-center text-xs text-slate-400 mb-1 font-medium">
+                        <span>Progreso de llenado</span>
+                        <span className="font-bold text-slate-300">{completed_count} / {total_approved} cupos</span>
+                      </div>
+                      <div className="w-full bg-slate-800 rounded-full h-1.5 mb-1 overflow-hidden">
+                        <div className="bg-wc-gold h-1.5 rounded-full" style={{ width: `${percentage}%` }}></div>
+                      </div>
+                      <p className="text-[10px] text-slate-500">{total_matches} partidos en total</p>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Botón de control */}
               <div className="flex items-center justify-between border-t border-wc-border pt-3 mt-auto relative z-10">
-                <span className="text-xs text-slate-400 font-medium">
-                  {phase.is_active ? 'Acepta predicciones' : 'Pronósticos bloqueados'}
-                </span>
-
                 <button
                   type="button"
-                  onClick={() => handleTogglePhase(phase.id, phase.is_active)}
-                  disabled={togglingId === phase.id}
-                  className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none flex items-center ${
-                    phase.is_active ? 'bg-wc-green justify-end' : 'bg-slate-600 justify-start'
-                  } ${togglingId === phase.id ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
+                  onClick={() => handleNotifyLaggards(phase.id, phase.name)}
+                  disabled={notifyingId === phase.id || stats.find(s => s.phase_id === phase.id)?.total_approved === stats.find(s => s.phase_id === phase.id)?.completed_count}
+                  className={`w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold font-sports tracking-wider uppercase transition-colors ${
+                    stats.find(s => s.phase_id === phase.id)?.total_approved === stats.find(s => s.phase_id === phase.id)?.completed_count
+                      ? 'bg-wc-dark text-slate-500 cursor-not-allowed border border-slate-800'
+                      : notifyingId === phase.id 
+                      ? 'bg-wc-gold/20 text-wc-gold border border-wc-gold/30 cursor-wait'
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                  }`}
                 >
-                  <span className="bg-white w-4 h-4 rounded-full shadow-md transition-transform duration-200"></span>
+                  <Bell className={`w-4 h-4 ${notifyingId === phase.id ? 'animate-pulse' : ''}`} strokeWidth={2.5} /> 
+                  {notifyingId === phase.id ? 'Enviando...' : 'Notificar Rezagados'}
                 </button>
               </div>
             </div>

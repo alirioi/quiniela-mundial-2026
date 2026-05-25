@@ -8,7 +8,7 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://quiniela.alirioi.dev',
-  output: 'hybrid',
+  output: 'static',
   adapter: netlify(),
   integrations: [
     react(), 

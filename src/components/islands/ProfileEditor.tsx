@@ -199,7 +199,7 @@ export default function ProfileEditor({ userProfile, userEmail }: ProfileEditorP
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-6 mt-6">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Contraseña Actual</label>
               <div className="relative">

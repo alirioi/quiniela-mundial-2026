@@ -96,7 +96,11 @@ export default function AdminEntryList() {
   };
 
   const handleDeleteReceipt = async (id: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta captura de la base de datos? Esto liberará espacio de almacenamiento.')) return;
+    const result = await showAlert.confirm(
+      '¿Eliminar captura?',
+      '¿Estás seguro de que quieres eliminar esta captura de la base de datos? Esto liberará espacio de almacenamiento.'
+    );
+    if (!result.isConfirmed) return;
     try {
       const response = await fetch(`/api/admin/entries/${id}/receipt`, {
         method: 'DELETE'

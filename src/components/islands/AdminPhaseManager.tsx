@@ -142,10 +142,10 @@ export default function AdminPhaseManager() {
                   onClick={() => handleTogglePhase(phase.id, phase.is_active)}
                   disabled={togglingId === phase.id}
                   className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none flex items-center ${
-                    phase.is_active ? 'bg-wc-green justify-end' : 'bg-slate-800 justify-start'
+                    phase.is_active ? 'bg-wc-green justify-end' : 'bg-slate-600 justify-start'
                   } ${togglingId === phase.id ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
                 >
-                  <span className="bg-slate-955 w-4 h-4 rounded-full shadow-md transition-transform duration-200"></span>
+                  <span className="bg-white w-4 h-4 rounded-full shadow-md transition-transform duration-200"></span>
                 </button>
               </div>
             </div>

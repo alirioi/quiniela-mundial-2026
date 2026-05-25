@@ -48,5 +48,26 @@ export const showAlert = {
         htmlContainer: 'text-slate-300 text-sm font-sans'
       }
     });
+  },
+  confirm: (title: string, text: string) => {
+    return Swal.fire({
+      icon: 'warning',
+      title: title.toUpperCase(),
+      text,
+      background: '#141923',
+      color: '#f8fafc',
+      showCancelButton: true,
+      confirmButtonColor: '#FF002E', // wc-red
+      cancelButtonColor: '#334155', // slate-700
+      confirmButtonText: 'SÍ, CONFIRMAR',
+      cancelButtonText: 'CANCELAR',
+      customClass: {
+        popup: 'border border-slate-800 rounded-2xl',
+        title: 'font-sports text-white tracking-wider text-xl',
+        htmlContainer: 'text-slate-300 text-sm font-sans',
+        confirmButton: 'font-sports tracking-wider uppercase text-xs',
+        cancelButton: 'font-sports tracking-wider uppercase text-xs'
+      }
+    });
   }
 };

@@ -73,6 +73,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
             <>
               <a href="/dashboard" class="text-slate-300 hover:text-wc-gold transition-colors">Dashboard</a>
               <a href="/my-entries" class="text-slate-300 hover:text-wc-gold transition-colors">Mis Cupos</a>
+              <a href="/profile" class="text-slate-300 hover:text-wc-gold transition-colors">Mi Perfil</a>
             </>
           )}
           <a href="/faq" class="text-slate-300 hover:text-wc-gold transition-colors">Reglas y FAQ</a>
@@ -140,8 +141,8 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
       <div class="px-4 py-4 space-y-3 font-medium text-sm">
         {userProfile && (
           <div class="pb-3 border-b border-wc-border/50">
-            <span class="text-sm text-slate-400 block mb-1">Sesión iniciada como:</span>
-            <span class="text-base text-slate-200 font-bold block">{userProfile.full_name}</span>
+            <span class="text-xs text-slate-400 block mb-1">Sesión iniciada como:</span>
+            <span class="text-slate-200 font-bold block">{userProfile.full_name}</span>
             <span class="text-xs text-slate-500 block">{userProfile.email}</span>
           </div>
         )}
@@ -150,6 +151,7 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
           <>
             <a href="/dashboard" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">Dashboard</a>
             <a href="/my-entries" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">Mis Cupos</a>
+            <a href="/profile" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">Mi Perfil</a>
           </>
         )}
         <a href="/faq" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">Reglas y FAQ</a>

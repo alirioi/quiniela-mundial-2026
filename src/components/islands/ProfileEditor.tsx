@@ -164,7 +164,9 @@ export default function ProfileEditor({ userProfile, userEmail }: ProfileEditorP
                   name="birth_date"
                   value={formData.birth_date}
                   onChange={handleChange}
-                  className="w-full bg-slate-900/50 border border-slate-700/50 text-white rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-wc-gold focus:ring-1 focus:ring-wc-gold transition-colors text-sm [color-scheme:dark]"
+                  className="w-full bg-slate-900/50 border border-slate-700/50 text-slate-500 rounded-xl pl-10 pr-4 py-2.5 cursor-not-allowed text-sm [color-scheme:dark]"
+                  disabled
+                  readOnly
                 />
               </div>
             </div>
@@ -193,7 +195,7 @@ export default function ProfileEditor({ userProfile, userEmail }: ProfileEditorP
                   required
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1">Si cambias el correo, deberás confirmar la nueva dirección.</p>
+              <p className="text-xs text-slate-400 mt-1.5">Si cambias el correo, deberás confirmar la nueva dirección.</p>
             </div>
           </div>
 

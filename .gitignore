@@ -29,3 +29,6 @@ pnpm-debug.log*
 # Temporary test scripts
 test_*.js
 check_data.js
+
+# Temporary scratch files
+scratch/

@@ -8,11 +8,24 @@ export const GET: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    // Contar las entradas aprobadas
-    const { count, error } = await supabaseAdmin
+    // Obtener IDs de administradores para excluirlos
+    const { data: adminProfiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('role', 'admin');
+    const adminIds = adminProfiles?.map(p => p.id) || [];
+
+    // Contar las entradas aprobadas excluyendo admins
+    let query = supabaseAdmin
       .from('entries')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'approved');
+
+    if (adminIds.length > 0) {
+      query = query.not('user_id', 'in', `(${adminIds.join(',')})`);
+    }
+
+    const { count, error } = await query;
 
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), { status: 400 });

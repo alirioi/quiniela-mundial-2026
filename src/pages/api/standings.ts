@@ -37,12 +37,25 @@ export const GET: APIRoute = async ({ request, locals }) => {
     }
 
     // 3. Si el torneo ya comenzó, obtener standings
-    const { data: standings, error } = await supabaseAdmin
+    // Obtener IDs de administradores para excluirlos
+    const { data: adminProfiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('role', 'admin');
+    const adminIds = adminProfiles?.map(p => p.id) || [];
+
+    let query = supabaseAdmin
       .from('entries')
       .select('id, display_name, total_points, created_at')
       .eq('status', 'approved')
       .order('total_points', { ascending: false })
       .order('display_name', { ascending: true });
+
+    if (adminIds.length > 0) {
+      query = query.not('user_id', 'in', `(${adminIds.join(',')})`);
+    }
+
+    const { data: standings, error } = await query;
 
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), { status: 400 });

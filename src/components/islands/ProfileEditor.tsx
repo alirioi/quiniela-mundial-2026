@@ -174,8 +174,8 @@ export default function ProfileEditor({ userProfile, userEmail }: ProfileEditorP
         </div>
 
         {/* Credenciales */}
-        <div className="space-y-5">
-          <h3 className="text-lg font-sports font-bold text-wc-gold tracking-wider uppercase border-b border-wc-border/50 pb-2">
+        <div className="space-y-5 pt-6 mt-6 border-t border-wc-border/50">
+          <h3 className="text-lg font-sports font-bold text-wc-gold tracking-wider uppercase pb-2">
             Credenciales de Acceso
           </h3>
           

@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import MainLayout from '../layouts/MainLayout.astro';
 import PredictionWarningBanner from '../components/islands/PredictionWarningBanner';
 import PrizePoolDisplay from '../components/islands/PrizePoolDisplay';
@@ -91,7 +92,7 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
       
       <!-- Tabla Principal (2 columnas de ancho en desktop) -->
       <div class="lg:col-span-2 space-y-6">
-        <StandingsTable client:load myEntryIds={approvedEntryIds} />
+        <StandingsTable client:visible myEntryIds={approvedEntryIds} />
       </div>
 
       <!-- Sidebar Informativo (1 columna de ancho) -->

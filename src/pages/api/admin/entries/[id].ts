@@ -58,19 +58,23 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     }
 
     // 3. Enviar correo transaccional según el nuevo estado utilizando plantillas React Email
-    if (status === 'approved' && userEmail) {
-      sendEmail({
+    if ((status === 'approved' || status === 'rejected') && userEmail) {
+      const emailPromise = sendEmail({
         to: userEmail,
-        subject: `Cupo Aprobado: ${entry.display_name} - Quiniela Mundial 2026`,
-        react: React.createElement(WelcomeEmail, { userName: userFullName || 'Usuario', isPaymentApproved: true }),
-      }).catch(err => console.error('Error asíncrono en sendEmail (aprobación):', err));
+        subject: status === 'approved' 
+          ? `Cupo Aprobado: ${entry.display_name} - Quiniela Mundial 2026`
+          : `Problema con tu cupo: ${entry.display_name} - Quiniela Mundial 2026`,
+        react: status === 'approved'
+          ? React.createElement(WelcomeEmail, { userName: userFullName || 'Usuario', isPaymentApproved: true })
+          : React.createElement(PaymentRejectedEmail, { userName: userFullName || 'Usuario', reason: rejectionReason }),
+      }).catch(err => console.error(`Error asíncrono en sendEmail (${status}):`, err));
 
-    } else if (status === 'rejected' && userEmail) {
-      sendEmail({
-        to: userEmail,
-        subject: `Problema con tu cupo: ${entry.display_name} - Quiniela Mundial 2026`,
-        react: React.createElement(PaymentRejectedEmail, { userName: userFullName || 'Usuario', reason: rejectionReason }),
-      }).catch(err => console.error('Error asíncrono en sendEmail (rechazo):', err));
+      const runtime = (locals as any).runtime;
+      if (runtime?.context?.waitUntil) {
+        runtime.context.waitUntil(emailPromise);
+      } else {
+        await emailPromise;
+      }
     }
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });

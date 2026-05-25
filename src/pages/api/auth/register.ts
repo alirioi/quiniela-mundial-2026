@@ -146,11 +146,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Enviar correo de bienvenida (registro exitoso, pago en revisión)
-    sendEmail({
+    const emailPromise = sendEmail({
       to: email,
       subject: '¡Bienvenido a la Quiniela Mundial 2026! 🏆',
       react: React.createElement(WelcomeEmail, { userName: fullName, isPaymentApproved: false }),
     }).catch(err => console.error('Error asíncrono en sendEmail (registro):', err));
+
+    // Intentar usar waitUntil si está disponible (Netlify/Cloudflare) para no bloquear la respuesta
+    const runtime = (locals as any).runtime;
+    if (runtime?.context?.waitUntil) {
+      runtime.context.waitUntil(emailPromise);
+    } else {
+      // En otros entornos, esperamos el envío para evitar que la función se detenga prematuramente
+      await emailPromise;
+    }
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (e) {

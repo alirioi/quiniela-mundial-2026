@@ -8,19 +8,22 @@ export const GET: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    // 1. Obtener la fecha del primer partido
-    const { data: firstMatch, error: matchError } = await supabaseAdmin
-      .from('matches')
-      .select('match_time')
-      .order('match_time', { ascending: true })
-      .limit(1)
-      .single();
+    // 1. Obtener la fecha del primer partido y verificar si hay partidos activos en paralelo
+    const [firstMatchRes, activeMatchesRes] = await Promise.all([
+      supabaseAdmin
+        .from('matches')
+        .select('match_time')
+        .order('match_time', { ascending: true })
+        .limit(1)
+        .single(),
+      supabaseAdmin
+        .from('matches')
+        .select('*', { count: 'exact', head: true })
+        .neq('status', 'scheduled')
+    ]);
 
-    // 2. Verificar si hay algún partido que haya salido del estado 'scheduled'
-    const { count: activeMatchesCount, error: activeMatchesError } = await supabaseAdmin
-      .from('matches')
-      .select('*', { count: 'exact', head: true })
-      .neq('status', 'scheduled');
+    const firstMatch = firstMatchRes.data;
+    const activeMatchesCount = activeMatchesRes.count;
 
     const firstMatchTimeStr = firstMatch?.match_time || '2026-06-11T22:30:00Z';
     const firstMatchTime = new Date(firstMatchTimeStr);

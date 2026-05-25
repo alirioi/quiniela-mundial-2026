@@ -21,7 +21,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     '/api/auth/register',
     '/api/auth/login',
     '/api/auth/reset-password',
-    '/api/auth/logout'
+    '/api/auth/logout',
+    '/api/prize-pool'
   ];
 
   const isPublicRoute = publicRoutes.includes(path) || (isApiRoute && publicRoutes.some(r => path.startsWith(r)));
@@ -71,20 +72,25 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Fetch profile and entries if authenticated
   if (user) {
-    const { data: profileData, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-    
-    const { data: entriesData, error: entriesError } = await supabaseAdmin
-      .from('entries')
-      .select('*')
-      .eq('user_id', user.id);
+    // Definimos qué necesitamos buscar según la ruta
+    // isApproved solo es crítico para rutas protegidas o para redirigir login/register
+    const needsEntries = !isPublicRoute || path === '/login' || path === '/register' || path === '/pending';
 
-    profile = profileData;
-    entries = entriesData || [];
-    isApproved = entries.some(e => e.status === 'approved');
+    if (needsEntries) {
+      // Fetch en paralelo para ahorrar tiempo de ejecución
+      const [profileRes, entriesRes] = await Promise.all([
+        supabaseAdmin.from('profiles').select('*').eq('id', user.id).single(),
+        supabaseAdmin.from('entries').select('*').eq('user_id', user.id)
+      ]);
+
+      profile = profileRes.data;
+      entries = entriesRes.data || [];
+      isApproved = entries.some(e => e.status === 'approved');
+    } else {
+      // En rutas públicas simples solo necesitamos el perfil para el header
+      const { data } = await supabaseAdmin.from('profiles').select('*').eq('id', user.id).single();
+      profile = data;
+    }
 
     // Store in locals for pages and endpoints
     locals.user = user;

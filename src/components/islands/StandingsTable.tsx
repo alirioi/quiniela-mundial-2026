@@ -42,19 +42,26 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
   useEffect(() => {
     fetchStandings();
 
+    let timeoutId: NodeJS.Timeout;
+    const debouncedFetch = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(fetchStandings, 2000);
+    };
+
     const channel = supabase
       .channel('public:entries-standings')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'entries' },
         () => {
-          fetchStandings();
+          debouncedFetch();
         }
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
+      clearTimeout(timeoutId);
     };
   }, []);
 

@@ -2,11 +2,6 @@ import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../lib/supabase-server';
 
 export const GET: APIRoute = async ({ request, locals }) => {
-  const user = locals.user;
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
-  }
-
   try {
     // Obtener IDs de administradores para excluirlos
     const { data: adminProfiles } = await supabaseAdmin
@@ -34,6 +29,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
     const approvedCount = count || 0;
     const prizePoolUsdt = approvedCount * 15; // 15 USDT al pote por cupo de 20 USDT
 
+    const headers = {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+    };
+
     return new Response(
       JSON.stringify({
         totalPool: prizePoolUsdt,
@@ -43,7 +43,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
           orgFeePerEntry: 5,
         },
       }),
-      { status: 200 }
+      { status: 200, headers }
     );
   } catch (e) {
     return new Response(JSON.stringify({ error: 'Error interno del servidor' }), { status: 500 });

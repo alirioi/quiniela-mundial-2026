@@ -238,12 +238,7 @@ export default function AdminMatchResults() {
                     )}
                   </div>
                   <div className="font-bold font-sports tracking-wider uppercase text-slate-450">
-                    {matchTime.toLocaleDateString('es-ES', {
-                      day: 'numeric',
-                      month: 'short',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+                    {`${matchTime.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} • ${matchTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
                   </div>
                 </div>
  

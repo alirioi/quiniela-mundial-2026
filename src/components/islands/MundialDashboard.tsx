@@ -412,7 +412,7 @@ export default function MundialDashboard({ matches }: Props) {
                 const awayFlag = getTeamFlagUrl(match.away_team);
                 const dateObj = new Date(match.match_time);
                 const dateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
-                const timeStr = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
                 return (
                   <div key={match.id} className="bg-wc-card border border-wc-border hover:border-wc-gold/40 transition-all rounded-xl p-4 flex flex-col justify-center">

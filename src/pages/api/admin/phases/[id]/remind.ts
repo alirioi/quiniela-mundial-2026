@@ -49,7 +49,8 @@ export const POST: APIRoute = async ({ params, locals }) => {
         status,
         profiles:user_id (
           full_name,
-          email
+          email,
+          role
         ),
         predictions (
           match_id
@@ -65,7 +66,7 @@ export const POST: APIRoute = async ({ params, locals }) => {
     const usersToRemind = new Map<string, { email: string, name: string }>();
 
     entries.forEach((entry: any) => {
-      if (!entry.profiles) return;
+      if (!entry.profiles || entry.profiles.role === 'admin') return;
       
       const email = entry.profiles.email;
       const name = entry.profiles.full_name;

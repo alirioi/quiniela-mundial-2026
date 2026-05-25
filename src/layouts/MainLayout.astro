@@ -14,6 +14,11 @@ interface Props {
 }
 
 const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.props;
+const currentPath = Astro.url.pathname;
+const isActive = (path: string) => {
+  if (path === '/') return currentPath === '/';
+  return currentPath === path || currentPath.startsWith(path + '/');
+};
 ---
 
 <!DOCTYPE html>
@@ -71,15 +76,15 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
         <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
           {userProfile && (
             <>
-              <a href="/dashboard" class="text-slate-300 hover:text-wc-gold transition-colors">Dashboard</a>
-              <a href="/my-entries" class="text-slate-300 hover:text-wc-gold transition-colors">Mis Cupos</a>
-              <a href="/profile" class="text-slate-300 hover:text-wc-gold transition-colors">Mi Perfil</a>
+              <a href="/dashboard" class={`transition-colors ${isActive('/dashboard') ? 'text-wc-gold font-bold' : 'text-slate-300 hover:text-wc-gold'}`}>Dashboard</a>
+              <a href="/my-entries" class={`transition-colors ${isActive('/my-entries') ? 'text-wc-gold font-bold' : 'text-slate-300 hover:text-wc-gold'}`}>Mis Cupos</a>
+              <a href="/profile" class={`transition-colors ${isActive('/profile') ? 'text-wc-gold font-bold' : 'text-slate-300 hover:text-wc-gold'}`}>Mi Perfil</a>
             </>
           )}
-          <a href="/faq" class="text-slate-300 hover:text-wc-gold transition-colors">Reglas y FAQ</a>
-          <a href="/mundial" class="text-slate-300 hover:text-wc-gold transition-colors">El Mundial</a>
+          <a href="/faq" class={`transition-colors ${isActive('/faq') ? 'text-wc-gold font-bold' : 'text-slate-300 hover:text-wc-gold'}`}>Reglas y FAQ</a>
+          <a href="/mundial" class={`transition-colors ${isActive('/mundial') ? 'text-wc-gold font-bold' : 'text-slate-300 hover:text-wc-gold'}`}>El Mundial</a>
           {userProfile?.role === 'admin' && (
-            <a href="/admin" class="text-wc-gold hover:text-yellow-400 font-semibold transition-colors flex items-center gap-1.5">
+            <a href="/admin" class={`font-semibold transition-colors flex items-center gap-1.5 ${isActive('/admin') ? 'text-yellow-400 font-bold' : 'text-wc-gold hover:text-yellow-400'}`}>
               <Shield className="w-4.5 h-4.5 text-wc-gold animate-pulse-subtle" strokeWidth={2.5} />
               Admin
             </a>
@@ -149,16 +154,16 @@ const { title, description = 'Quiniela del Mundial 2026', userProfile } = Astro.
 
         {userProfile && (
           <>
-            <a href="/dashboard" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">Dashboard</a>
-            <a href="/my-entries" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">Mis Cupos</a>
-            <a href="/profile" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">Mi Perfil</a>
+            <a href="/dashboard" class={`block py-2 transition-colors ${isActive('/dashboard') ? 'text-wc-gold font-bold border-l-2 border-wc-gold pl-2' : 'text-slate-350 hover:text-wc-gold'}`}>Dashboard</a>
+            <a href="/my-entries" class={`block py-2 transition-colors ${isActive('/my-entries') ? 'text-wc-gold font-bold border-l-2 border-wc-gold pl-2' : 'text-slate-350 hover:text-wc-gold'}`}>Mis Cupos</a>
+            <a href="/profile" class={`block py-2 transition-colors ${isActive('/profile') ? 'text-wc-gold font-bold border-l-2 border-wc-gold pl-2' : 'text-slate-350 hover:text-wc-gold'}`}>Mi Perfil</a>
           </>
         )}
-        <a href="/faq" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">Reglas y FAQ</a>
-        <a href="/mundial" class="block py-2 text-slate-350 hover:text-wc-gold transition-colors">El Mundial</a>
+        <a href="/faq" class={`block py-2 transition-colors ${isActive('/faq') ? 'text-wc-gold font-bold border-l-2 border-wc-gold pl-2' : 'text-slate-350 hover:text-wc-gold'}`}>Reglas y FAQ</a>
+        <a href="/mundial" class={`block py-2 transition-colors ${isActive('/mundial') ? 'text-wc-gold font-bold border-l-2 border-wc-gold pl-2' : 'text-slate-350 hover:text-wc-gold'}`}>El Mundial</a>
         
         {userProfile?.role === 'admin' && (
-          <a href="/admin" class="py-2 text-wc-gold hover:text-yellow-400 font-semibold transition-colors flex items-center gap-1.5">
+          <a href="/admin" class={`py-2 font-semibold transition-colors flex items-center gap-1.5 ${isActive('/admin') ? 'text-yellow-400 font-bold border-l-2 border-yellow-450 pl-2' : 'text-wc-gold hover:text-yellow-400'}`}>
             <Shield className="w-4.5 h-4.5 text-wc-gold animate-pulse-subtle" strokeWidth={2.5} />
             Administrador
           </a>

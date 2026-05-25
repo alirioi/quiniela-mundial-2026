@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import MainLayout from '../layouts/MainLayout.astro';
 import { 
   Ticket, 
@@ -46,32 +47,32 @@ const profile = Astro.locals.profile;
         </div>
 
         <!-- Pestañas Interactivas (Tabs Header) -->
-        <div class="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-wc-card border border-wc-border rounded-2xl w-full max-w-3xl mx-auto font-sports text-xs tracking-wider uppercase select-none">
+        <div class="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-wc-card border border-wc-border rounded-2xl w-full max-w-3xl mx-auto font-sports text-xs sm:text-sm md:text-base tracking-wider uppercase select-none">
           <button
             type="button"
             data-tab="instructions"
-            class="tab-btn px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
+            class="tab-btn px-2.5 sm:px-5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
           >
             Instrucciones
           </button>
           <button
             type="button"
             data-tab="rules"
-            class="tab-btn px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
+            class="tab-btn px-2.5 sm:px-5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
           >
             Reglamento
           </button>
           <button
             type="button"
             data-tab="faq"
-            class="tab-btn px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
+            class="tab-btn px-2.5 sm:px-5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
           >
             Preguntas Frecuentes
           </button>
           <button
             type="button"
             data-tab="disclaimers"
-            class="tab-btn px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
+            class="tab-btn px-2.5 sm:px-5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer font-bold w-[calc(50%-0.5rem)] sm:w-auto text-slate-400 hover:text-slate-200"
           >
             Avisos Legales
           </button>
@@ -193,7 +194,7 @@ const profile = Astro.locals.profile;
               </button>
               <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
                 <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                  <p>Las predicciones de cada partido se bloquean de manera automática e inalterable **2 horas antes** de la hora programada de inicio oficial del partido (UTC).</p>
+                  <p>Las predicciones de cada partido se bloquean de manera automática e inalterable <strong>2 horas antes</strong> de la hora programada de inicio oficial del partido (UTC).</p>
                   <p>Antes de ese límite de 2 horas previas, puedes ingresar al formulario de pronósticos en el Dashboard y modificar tus marcadores cuantas veces quieras. Cruzado ese límite de tiempo, la casilla de ese encuentro quedará bloqueada en gris y no se permitirán excepciones manuales de ningún tipo.</p>
                 </div>
               </div>
@@ -212,8 +213,8 @@ const profile = Astro.locals.profile;
                 <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                   <p>Para mantener un sistema simplificado y transparente:</p>
                   <ul class="list-disc pl-5 space-y-2">
-                    <li>El resultado oficial considerado para la quiniela es el marcador final obtenido **al concluir los 90 minutos reglamentarios y los 30 minutos de tiempo extra (120 minutos de juego totales)**, excluyendo por completo la tanda de penales final.</li>
-                    <li>Si un encuentro finaliza empatado tras los 120 minutos, el marcador oficial de la quiniela se registrará como **Empate** (ej. 1-1 o 2-2), sin importar cuál selección resulte ganadora o clasificada mediante los penales.</li>
+                    <li>El resultado oficial considerado para la quiniela es el marcador final obtenido <strong>al concluir los 90 minutos reglamentarios y los 30 minutos de tiempo extra (120 minutos de juego totales)</strong>, excluyendo por completo la tanda de penales final.</li>
+                    <li>Si un encuentro finaliza empatado tras los 120 minutos, el marcador oficial de la quiniela se registrará como <strong>Empate</strong> (ej. 1-1 o 2-2), sin importar cuál selección resulte ganadora o clasificada mediante los penales.</li>
                     <li>Esto te permite pronosticar empates válidos en todas las fases eliminatorias. No necesitas adivinar quién pasa en penales.</li>
                   </ul>
                 </div>
@@ -231,7 +232,7 @@ const profile = Astro.locals.profile;
               </button>
               <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
                 <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                  <p>El **100% del pote acumulado de premios** (los 15.00 USDT de cada cupo registrado y aprobado) se entregará al primer lugar de la tabla de posiciones general.</p>
+                  <p>El <strong>100% del pote acumulado de premios</strong> (los 15.00 USDT de cada cupo registrado y aprobado) se entregará al primer lugar de la tabla de posiciones general.</p>
                   <p><strong>Regla de Empate en Posiciones:</strong> Si dos o más cupos comparten la primera posición en puntaje al finalizar el último partido del mundial, el dinero total del pote acumulado se repartirá en partes exactamente iguales y equitativas entre todos los empatados. No se aplicarán criterios de desempate artificiales como el orden de registro.</p>
                 </div>
               </div>
@@ -253,7 +254,7 @@ const profile = Astro.locals.profile;
               </button>
               <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
                 <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                  <p>Cada cupo tiene un costo de **20.00 USDT**. La distribución es la siguiente:</p>
+                  <p>Cada cupo tiene un costo de <strong>20.00 USDT</strong>. La distribución es la siguiente:</p>
                   <ul class="list-disc pl-5 space-y-1.5">
                     <li><strong>15.00 USDT</strong> van íntegros al pote de premios oficial a ser repartido.</li>
                     <li><strong>5.00 USDT</strong> se destinan a gastos de hosting, desarrollo técnico y soporte operativo del sistema.</li>
@@ -274,7 +275,7 @@ const profile = Astro.locals.profile;
               <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
                 <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
                   <p>La validación de los comprobantes de pago subidos se realiza de manera manual por el administrador de la plataforma por razones de seguridad.</p>
-                  <p>Este proceso toma en promedio entre **12 y 24 horas**. Recibirás un correo electrónico de confirmación una vez tu cupo haya sido aprobado y puedas acceder a cargar tus predicciones.</p>
+                  <p>Este proceso toma en promedio entre <strong>12 y 24 horas</strong>. Recibirás un correo electrónico de confirmación una vez tu cupo haya sido aprobado y puedas acceder a cargar tus predicciones.</p>
                 </div>
               </div>
             </div>
@@ -290,8 +291,8 @@ const profile = Astro.locals.profile;
               </button>
               <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
                 <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                  <p>El registro de nuevos usuarios y la compra de cupos adicionales cierran estrictamente **2 días (48 horas) antes** de que inicie el primer partido oficial del mundial.</p>
-                  <p>El cierre está programado para el **9 de Junio de 2026 a las 22:30 UTC**. Este plazo es inamovible para garantizar que el administrador pueda conciliar todos los pagos pendientes antes del inicio de la jornada inaugural.</p>
+                  <p>El registro de nuevos usuarios y la compra de cupos adicionales cierran estrictamente <strong>2 días (48 horas) antes</strong> de que inicie el primer partido oficial del mundial.</p>
+                  <p>El cierre está programado para el <strong>9 de Junio de 2026 a las 22:30 UTC</strong>. Este plazo es inamovible para garantizar que el administrador pueda conciliar todos los pagos pendientes antes del inicio de la jornada inaugural.</p>
                 </div>
               </div>
             </div>
@@ -349,8 +350,8 @@ const profile = Astro.locals.profile;
               </button>
               <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
                 <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-3 border-t border-wc-border pt-4">
-                  <p>Por razones legales de regulaciones locales, la participación está restringida única y exclusivamente a personas **mayores de 18 años**.</p>
-                  <p>Al registrarte, debes proveer tu fecha de nacimiento real. El sistema validará tu edad automáticamente. Si la organización comprueba que un participante falsificó sus datos de edad para evadir el control de minoridad, **su cuenta y cupos serán bloqueados y eliminados permanentemente sin derecho a reembolso del monto transferido**.</p>
+                  <p>Por razones legales de regulaciones locales, la participación está restringida única y exclusivamente a personas <strong>mayores de 18 años</strong>.</p>
+                  <p>Al registrarte, debes proveer tu fecha de nacimiento real. El sistema validará tu edad automáticamente. Si la organización comprueba que un participante falsificó sus datos de edad para evadir el control de minoridad, <strong>su cuenta y cupos serán bloqueados y eliminados permanentemente sin derecho a reembolso del monto transferido</strong>.</p>
                 </div>
               </div>
             </div>

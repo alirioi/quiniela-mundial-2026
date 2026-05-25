@@ -750,7 +750,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
               <div className="bg-wc-card/90 border border-wc-border p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="text-center md:text-left">
                   <h4 className="text-wc-gold font-bold uppercase font-sports tracking-wider text-lg">Simulador de Posiciones</h4>
-                  <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                  <p className="text-sm sm:text-base text-slate-400 mt-1.5 leading-relaxed">
                     Esta tabla simula las posiciones en tiempo real en base a tus pronósticos actuales (guardados o modificados temporalmente arriba) combinados con los marcadores oficiales de los partidos jugados.
                   </p>
                 </div>

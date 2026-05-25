@@ -110,16 +110,22 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
   }
 
   if (!tournamentStarted) {
-    const formattedDate = firstMatchTime
-      ? new Date(firstMatchTime).toLocaleDateString('es-ES', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      : '';
+    let formattedDate = '';
+    if (firstMatchTime) {
+      const firstDate = new Date(firstMatchTime);
+      const dateStr = firstDate.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      const timeStr = firstDate.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      const capitalizedDateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+      formattedDate = `${capitalizedDateStr} a las ${timeStr}`;
+    }
 
     return (
       <div className="space-y-4">

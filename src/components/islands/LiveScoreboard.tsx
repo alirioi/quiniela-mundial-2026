@@ -127,7 +127,7 @@ export default function LiveScoreboard() {
                   </span>
                 ) : (
                   <span className="font-semibold text-slate-400 font-sports tracking-wider">
-                    {matchTime.toLocaleTimeString('es-ES', {
+                    {matchTime.toLocaleTimeString('en-US', {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}

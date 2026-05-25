@@ -40,17 +40,19 @@ export const GET: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: matchesError.message }), { status: 400 });
     }
 
-    // Fetch entries and predictions for stats
-    const { data: entries } = await supabaseAdmin
+    // Fetch entries and predictions for stats (excluding admin accounts)
+    const { data: rawEntries } = await supabaseAdmin
       .from('entries')
-      .select('id')
+      .select('id, profiles(role)')
       .eq('status', 'approved');
+
+    const entries = rawEntries?.filter((entry: any) => entry.profiles?.role !== 'admin') || [];
 
     const { data: predictions } = await supabaseAdmin
       .from('predictions')
       .select('entry_id, match_id');
 
-    const approvedCount = entries?.length || 0;
+    const approvedCount = entries.length;
     
     // Calculate stats per phase
     const phasesStats = phases.map(phase => {

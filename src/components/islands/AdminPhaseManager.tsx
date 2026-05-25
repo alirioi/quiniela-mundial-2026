@@ -155,7 +155,7 @@ export default function AdminPhaseManager() {
                       <div className="w-full bg-slate-800 rounded-full h-1.5 mb-1 overflow-hidden">
                         <div className="bg-wc-gold h-1.5 rounded-full" style={{ width: `${percentage}%` }}></div>
                       </div>
-                      <p className="text-[10px] text-slate-500">{total_matches} partidos en total</p>
+                      <p className="text-xs text-slate-450">{total_matches} partidos en total</p>
                     </div>
                   );
                 })()}

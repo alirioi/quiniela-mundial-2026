@@ -78,7 +78,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (authError || !authData.user) {
-      return new Response(JSON.stringify({ error: authError?.message || 'Error al registrar usuario' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'Ocurrió un error inesperado al procesar tu cuenta. Por favor vuelve a intentarlo y si el problema persiste, comunícate con la organización.' }), { status: 400 });
     }
 
     createdUserId = authData.user.id;
@@ -101,7 +101,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (storageError) {
       // Cleanup user
       await supabaseAdmin.auth.admin.deleteUser(createdUserId);
-      return new Response(JSON.stringify({ error: 'Error al subir el comprobante de pago' }), { status: 500 });
+      return new Response(JSON.stringify({ error: 'Ocurrió un error inesperado al subir el comprobante. Por favor vuelve a intentarlo y si el problema persiste, comunícate con la organización.' }), { status: 500 });
     }
 
     // 6. Create entry #1 in entries table (including receipt URL directly)
@@ -123,7 +123,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       // Cleanup storage and user
       await supabaseAdmin.storage.from('payment-receipts').remove([filePath]);
       await supabaseAdmin.auth.admin.deleteUser(createdUserId);
-      return new Response(JSON.stringify({ error: entryError?.message || 'Error al crear el cupo' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'Ocurrió un error inesperado al crear tu cupo. Por favor vuelve a intentarlo y si el problema persiste, comunícate con la organización.' }), { status: 400 });
     }
 
     createdEntryId = entryData.id;
@@ -170,6 +170,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         await supabaseAdmin.auth.admin.deleteUser(createdUserId);
       } catch {}
     }
-    return new Response(JSON.stringify({ error: 'Error interno del servidor' }), { status: 500 });
+    return new Response(JSON.stringify({ error: 'Ocurrió un error inesperado en el servidor. Por favor vuelve a intentarlo y si el problema persiste, comunícate con la organización.' }), { status: 500 });
   }
 };

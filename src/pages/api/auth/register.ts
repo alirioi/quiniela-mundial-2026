@@ -6,7 +6,7 @@ import WelcomeEmail from '../../../emails/WelcomeEmail';
 import AdminNewEntryEmail from '../../../emails/AdminNewEntryEmail';
 import * as React from 'react';
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, locals }) => {
   let createdUserId: string | null = null;
   let createdEntryId: number | null = null;
   let uploadedFilePath: string | null = null;

@@ -36,7 +36,7 @@ export default function ReminderEmail({ userName = 'Usuario', type = 'empty_pred
       <Section className="text-center mt-6 mb-6">
         <Button
           className="bg-wc-green text-white font-bold px-6 py-3 rounded-lg no-underline"
-          href="https://quiniela.alirioi.dev/pronosticos"
+          href="https://quiniela.alirioi.dev/dashboard"
         >
           Llenar mis pronósticos ahora
         </Button>

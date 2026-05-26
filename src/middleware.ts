@@ -99,6 +99,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
     locals.isApproved = isApproved;
   }
 
+  // Función auxiliar para redirecciones sin caché
+  const redirectNoCache = (path: string) => {
+    const res = redirect(path);
+    res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.headers.set('Pragma', 'no-cache');
+    res.headers.set('Expires', '0');
+    return res;
+  };
+
   // REDIRECTION LOGIC
   
   // 1. If not authenticated
@@ -107,7 +116,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       if (isApiRoute) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
       }
-      return redirect('/login');
+      return redirectNoCache('/login');
     }
   } else {
     // Authenticated user
@@ -117,7 +126,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       if (isApiRoute) {
         return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
       }
-      return redirect('/dashboard');
+      return redirectNoCache('/dashboard');
     }
 
     // 3. User is pending (no approved entries)
@@ -126,14 +135,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
       if (isApiRoute) {
         return new Response(JSON.stringify({ error: 'Account pending approval' }), { status: 403 });
       }
-      return redirect('/pending');
+      return redirectNoCache('/pending');
     }
 
     // 4. Approved user trying to access public auth pages (login, register)
     if (isApproved && (path === '/login' || path === '/register')) {
-      return redirect('/dashboard');
+      return redirectNoCache('/dashboard');
     }
   }
 
-  return next();
+  const response = await next();
+  // Prevent aggressive caching on protected HTML pages
+  if (!isPublicRoute && !isApiRoute && response instanceof Response) {
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+  }
+  return response;
 });

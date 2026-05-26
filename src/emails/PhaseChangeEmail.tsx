@@ -28,7 +28,7 @@ export default function PhaseChangeEmail({ userName = 'Usuario' }: PhaseChangeEm
       <Section className="text-center mt-6 mb-6">
         <Button
           className="bg-wc-blue text-white font-bold px-6 py-3 rounded-lg no-underline"
-          href="https://quiniela.alirioi.dev/pronosticos/eliminatorias"
+          href="https://quiniela.alirioi.dev/predictions/eliminatorias"
         >
           Llenar pronósticos de Octavos
         </Button>

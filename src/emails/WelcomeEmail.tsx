@@ -33,7 +33,7 @@ export default function WelcomeEmail({ userName = 'Usuario', isPaymentApproved =
           <Section className="text-center mt-6 mb-6">
             <Button
               className="bg-wc-blue text-white font-bold px-6 py-3 rounded-lg no-underline"
-              href="https://quiniela.alirioi.dev/pronosticos"
+              href="https://quiniela.alirioi.dev/dashboard"
             >
               Llenar mis pronósticos
             </Button>
@@ -50,7 +50,7 @@ export default function WelcomeEmail({ userName = 'Usuario', isPaymentApproved =
           <Section className="text-center mt-6 mb-6">
             <Button
               className="bg-gray-800 text-white font-bold px-6 py-3 rounded-lg no-underline"
-              href="https://quiniela.alirioi.dev/perfil"
+              href="https://quiniela.alirioi.dev/profile"
             >
               Ver estado de mi cuenta
             </Button>

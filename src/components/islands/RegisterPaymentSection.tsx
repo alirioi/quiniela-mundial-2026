@@ -224,7 +224,7 @@ export default function RegisterPaymentSection() {
 
       <div className="mt-6">
         <label htmlFor="paymentReference" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 font-sports">
-          Referencia del Pago
+          {paymentMethod === 'binance_pay' ? "Usuario / Correo de Binance Pay" : "Referencia del Pago"} <span className="text-red-500">*</span>
         </label>
         <input
           id="paymentReference"
@@ -236,17 +236,17 @@ export default function RegisterPaymentSection() {
           className="w-full px-4 py-3 rounded-xl bg-wc-dark border border-wc-border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold transition-all duration-200 text-sm font-medium"
           placeholder={paymentMethod === 'binance_pay' ? "Ej: alias.pay@gmail.com o ID 12345678" : "Ej: Ref: 123456 o Teléfono asociado"}
         />
-        <p className="text-xs text-slate-500 mt-1.5">El comprobante de la transacción de pago.</p>
+        <p className="text-xs text-slate-500 mt-1.5">{paymentMethod === 'binance_pay' ? "Tu usuario o ID de Binance para verificar el pago." : "El comprobante de la transacción de pago."}</p>
       </div>
 
       <div className="mt-6">
         <PaymentUpload 
           initialLabel={
             paymentMethod === 'binance_pay' 
-              ? "Sube tu comprobante de 20 USDT" 
+              ? "Sube tu comprobante de 20 USDT *" 
               : vesAmount 
-                ? `Sube tu comprobante de ${formatCurrency(vesAmount)} VES` 
-                : "Sube tu comprobante de pago"
+                ? `Sube tu comprobante de ${formatCurrency(vesAmount)} VES *` 
+                : "Sube tu comprobante de pago *"
           } 
         />
       </div>

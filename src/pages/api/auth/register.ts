@@ -23,8 +23,8 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     const paymentReference = formData.get('paymentReference') as string;
     const receipt = formData.get('receipt') as File;
 
-    if (!email || !password || !fullName || !displayName || !birthDateStr || !phone || !paymentMethod || !paymentReference || !receipt) {
-      return new Response(JSON.stringify({ error: 'Todos los campos son obligatorios' }), { status: 400 });
+    if (!email || !password || !fullName || !displayName || !birthDateStr || !paymentMethod || !paymentReference || !receipt) {
+      return new Response(JSON.stringify({ error: 'Todos los campos marcados con * son obligatorios' }), { status: 400 });
     }
 
     // 1. Validar fecha límite de registros (2 días antes del mundial)

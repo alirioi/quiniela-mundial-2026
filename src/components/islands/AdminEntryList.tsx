@@ -122,6 +122,32 @@ export default function AdminEntryList() {
     }
   };
 
+  const handleDeleteEntry = async (id: number) => {
+    const result = await showAlert.confirm(
+      '¿Eliminar cupo por completo?',
+      '¿Estás seguro de que quieres eliminar este cupo de la base de datos? Esta acción es irreversible y borrará el cupo, su comprobante y todas sus predicciones.'
+    );
+    if (!result.isConfirmed) return;
+    
+    setActionLoadingId(id);
+    try {
+      const response = await fetch(`/api/admin/entries/${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Error al eliminar el cupo');
+      }
+      showAlert.success('Éxito', 'Cupo eliminado correctamente');
+      // Actualizar localmente removiendo el cupo
+      setEntries((prev) => prev.filter((entry) => entry.id !== id));
+    } catch (e: any) {
+      showAlert.error('Error', e.message);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
   const filteredEntries = entries.filter((entry) => {
     if (filter === 'all') return true;
     return entry.status === filter;
@@ -298,6 +324,13 @@ export default function AdminEntryList() {
                               <X className="w-4 h-4" strokeWidth={2.5} /> Rechazar
                             </button>
                           )}
+                          <button
+                            onClick={() => handleDeleteEntry(entry.id)}
+                            className="px-2.5 py-1.5 rounded-lg bg-wc-red/10 hover:bg-wc-red text-wc-red hover:text-white border border-wc-red/20 hover:border-wc-red transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1"
+                            title="Eliminar Cupo por Completo"
+                          >
+                            <Trash className="w-4 h-4" strokeWidth={2.5} /> Eliminar
+                          </button>
                         </div>
                       )}
                     </td>

@@ -83,3 +83,54 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ error: 'Error interno del servidor' }), { status: 500 });
   }
 };
+
+export const DELETE: APIRoute = async ({ params, locals }) => {
+  // Explicit admin check
+  if (locals.profile?.role !== 'admin') {
+    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403 });
+  }
+
+  const { id } = params;
+
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'ID de cupo no especificado' }), { status: 400 });
+  }
+
+  try {
+    // 1. Obtener los datos del cupo para ver si tiene un comprobante asociado
+    const { data: entry, error: fetchError } = await supabaseAdmin
+      .from('entries')
+      .select('payment_receipt_url')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !entry) {
+      return new Response(JSON.stringify({ error: 'Cupo no encontrado' }), { status: 404 });
+    }
+
+    // 2. Si tiene comprobante, eliminarlo de Storage
+    if (entry.payment_receipt_url) {
+      const { error: storageError } = await supabaseAdmin.storage
+        .from('payment-receipts')
+        .remove([entry.payment_receipt_url]);
+      
+      if (storageError) {
+        console.error('Error al eliminar comprobante de Storage:', storageError);
+      }
+    }
+
+    // 3. Eliminar el cupo de la base de datos (las predicciones se borrarán en cascada)
+    const { error: deleteError } = await supabaseAdmin
+      .from('entries')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      return new Response(JSON.stringify({ error: deleteError.message }), { status: 400 });
+    }
+
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: 'Error interno del servidor' }), { status: 500 });
+  }
+};

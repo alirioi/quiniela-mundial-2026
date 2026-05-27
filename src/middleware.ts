@@ -86,10 +86,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
       profile = profileRes.data;
       entries = entriesRes.data || [];
       isApproved = entries.some(e => e.status === 'approved');
+      
+      if (profileRes.error) {
+        console.error('Error al consultar perfil en middleware:', profileRes.error);
+      }
+      if (entriesRes.error) {
+        console.error('Error al consultar entries en middleware:', entriesRes.error);
+      }
     } else {
       // En rutas públicas simples solo necesitamos el perfil para el header
-      const { data } = await supabaseAdmin.from('profiles').select('*').eq('id', user.id).single();
+      const { data, error } = await supabaseAdmin.from('profiles').select('*').eq('id', user.id).single();
       profile = data;
+      if (error) {
+        console.error('Error al consultar perfil en middleware (public):', error);
+      }
     }
 
     // Store in locals for pages and endpoints
@@ -145,11 +155,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   const response = await next();
-  // Prevent aggressive caching on protected HTML pages
-  if (!isPublicRoute && !isApiRoute && response instanceof Response) {
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
+  // Prevent aggressive caching on redirects and protected HTML pages
+  if (response instanceof Response) {
+    const isRedirect = [301, 302, 307, 308].includes(response.status);
+    if (isRedirect || (!isPublicRoute && !isApiRoute)) {
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+    }
   }
   return response;
 });

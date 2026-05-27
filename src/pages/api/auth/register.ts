@@ -1,6 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { supabaseAdmin } from '../../../lib/supabase-server';
+import { supabaseAdmin, createSupabaseServerClient } from '../../../lib/supabase-server';
 import { sendEmail } from '../../../lib/resend';
 import WelcomeEmail from '../../../emails/WelcomeEmail';
 import AdminNewEntryEmail from '../../../emails/AdminNewEntryEmail';
@@ -66,8 +66,9 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       return new Response(JSON.stringify({ error: `El nombre de cupo "${displayName}" ya está en uso. Por favor elige otro.` }), { status: 400 });
     }
 
-    // 4. SignUp user in Supabase Auth (inyectar birth_date y phone en metadata)
-    const { data: authData, error: authError } = await supabaseAdmin.auth.signUp({
+    // 4. SignUp user in Supabase Auth (inyectar birth_date y phone en metadata) usando un cliente fresco
+    const supabase = createSupabaseServerClient();
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -80,7 +81,8 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     });
 
     if (authError || !authData.user) {
-      return new Response(JSON.stringify({ error: 'Ocurrió un error inesperado al procesar tu cuenta. Por favor vuelve a intentarlo y si el problema persiste, comunícate con la organización.' }), { status: 400 });
+      console.error('Error detallado en auth.signUp:', authError);
+      return new Response(JSON.stringify({ error: authError?.message || 'Ocurrió un error inesperado al procesar tu cuenta. Por favor vuelve a intentarlo y si el problema persiste, comunícate con la organización.' }), { status: 400 });
     }
 
     createdUserId = authData.user.id;

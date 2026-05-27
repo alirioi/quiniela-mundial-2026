@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Users, Phone, Mail, FileText, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
+import { Search, Users, Phone, Mail, FileText, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, Trophy, Trash2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 interface Prediction {
   match_id: number;
@@ -43,6 +44,7 @@ export default function AdminUserList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [expandedEntry, setExpandedEntry] = useState<number | null>(null);
+  const [isDeletingUserId, setIsDeletingUserId] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -76,6 +78,64 @@ export default function AdminUserList() {
 
   const toggleEntry = (entryId: number) => {
     setExpandedEntry(expandedEntry === entryId ? null : entryId);
+  };
+
+  const handleDeleteUser = async (e: React.MouseEvent, userId: string, userName: string) => {
+    e.stopPropagation(); // Evitar expandir/colapsar al hacer clic en borrar
+
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar permanentemente a ${userName}? Esta acción borrará su cuenta, todos sus cupos, predicciones y comprobantes de pago. NO se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444', // wc-red
+      cancelButtonColor: '#334155', // slate-700
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      background: '#0f172a', // wc-dark
+      color: '#f8fafc' // text-slate-50
+    });
+
+    if (result.isConfirmed) {
+      setIsDeletingUserId(userId);
+      try {
+        const response = await fetch(`/api/admin/participants/${userId}`, {
+          method: 'DELETE',
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Error al eliminar el participante');
+        }
+
+        // Remover el usuario de la lista local
+        setParticipants(prev => prev.filter(p => p.id !== userId));
+        if (expandedUser === userId) {
+          setExpandedUser(null);
+        }
+        
+        Swal.fire({
+          title: '¡Eliminado!',
+          text: 'Participante eliminado correctamente.',
+          icon: 'success',
+          background: '#0f172a',
+          color: '#f8fafc',
+          confirmButtonColor: '#d4af37' // wc-gold
+        });
+      } catch (err: any) {
+        Swal.fire({
+          title: 'Error',
+          text: err.message || 'Ocurrió un error al intentar eliminar el participante.',
+          icon: 'error',
+          background: '#0f172a',
+          color: '#f8fafc',
+          confirmButtonColor: '#ef4444' // wc-red
+        });
+      } finally {
+        setIsDeletingUserId(null);
+      }
+    }
   };
 
   // Filtrar participantes según la búsqueda
@@ -195,6 +255,19 @@ export default function AdminUserList() {
                         {allApproved ? 'Aprobado' : anyPending ? 'Pendiente' : 'Incompleto'}
                       </span>
                     )}
+                    <button
+                      type="button"
+                      onClick={(e) => handleDeleteUser(e, user.id, user.full_name)}
+                      disabled={isDeletingUserId === user.id}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-wc-red hover:bg-wc-red/10 transition-all focus:outline-none"
+                      title="Eliminar participante"
+                    >
+                      {isDeletingUserId === user.id ? (
+                        <div className="w-4 h-4 border-2 border-wc-red border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </button>
                     {isUserExpanded ? <ChevronUp className="w-4 h-4 text-slate-450" /> : <ChevronDown className="w-4 h-4 text-slate-450" />}
                   </div>
                 </div>

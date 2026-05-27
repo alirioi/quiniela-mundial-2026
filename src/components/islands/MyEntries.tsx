@@ -871,7 +871,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                 </div>
               )}
 
-              <p className="text-xs md:text-sm text-wc-red font-semibold leading-relaxed mt-2 p-2.5 bg-wc-red/10 border border-wc-red/20 rounded-lg">
+              <p className="text-xs md:text-sm font-semibold leading-relaxed mt-2 p-2.5 rounded-lg disclaimer-box">
                 * IMPORTANTE: No incluyas palabras como "apuesta", "quiniela",
                 "sorteo" ni referencias a juegos de azar en la nota de
                 transferencia para evitar el bloqueo de las cuentas.

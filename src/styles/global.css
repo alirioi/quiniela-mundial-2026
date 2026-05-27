@@ -2,12 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Default Theme: Dark Mode (Space-separated RGB triplets for Tailwind opacity compatibility) */
+  --color-white: 255 255 255;
+  --color-wc-red: 255 77 82;      /* Accessible red in dark mode */
+  --color-wc-green: 60 172 59;
+  --color-wc-blue: 42 57 141;
+  --color-wc-gold: 243 198 35;
+  --color-wc-dark: 8 8 10;
+  --color-wc-card: 18 18 23;
+  --color-wc-border: 31 31 39;
+
+  --color-slate-50: 248 250 252;
+  --color-slate-100: 241 245 249;
+  --color-slate-200: 226 232 240;
+  --color-slate-300: 203 213 225;
+  --color-slate-350: 148 163 184;
+  --color-slate-400: 148 163 184;
+  --color-slate-450: 100 116 139;
+  --color-slate-500: 100 116 139;
+  --color-slate-600: 71 85 105;
+  --color-slate-700: 51 65 85;
+  --color-slate-800: 30 41 59;
+  --color-slate-900: 15 23 42;
+  --color-slate-950: 2 6 23;
+
+  /* Red accessibility background / borders */
+  --color-wc-red-bg: rgba(255, 77, 82, 0.1);
+  --color-wc-red-border: rgba(255, 77, 82, 0.2);
+}
+
+.light {
+  /* Light Mode Theme */
+  --color-white: 15 23 42;       /* Inverted text-white */
+  --color-wc-red: 208 28 36;      /* Accessible dark red for light mode */
+  --color-wc-green: 46 139 44;
+  --color-wc-blue: 29 42 112;
+  --color-wc-gold: 212 163 0;     /* Darker gold for better contrast on white background */
+  --color-wc-dark: 248 250 252;     /* Light base */
+  --color-wc-card: 255 255 255;     /* Card background */
+  --color-wc-border: 203 213 225;   /* Darker light border for better contrast */
+
+  /* Inverted Slate colors for typography and backgrounds with high contrast */
+  --color-slate-50: 2 6 23;
+  --color-slate-100: 15 23 42;   /* Primary text color */
+  --color-slate-200: 15 23 42;
+  --color-slate-300: 30 41 59;
+  --color-slate-350: 51 65 85;
+  --color-slate-400: 71 85 105;   /* Secondary text color */
+  --color-slate-450: 71 85 105;
+  --color-slate-500: 51 65 85;   /* Meta text / labels */
+  --color-slate-600: 148 163 184;   /* Borders / muted lines */
+  --color-slate-700: 203 213 225;   /* Input borders */
+  --color-slate-800: 241 245 249;   /* Light background panels */
+  --color-slate-900: 248 250 252;
+  --color-slate-950: 2 6 23;   /* Keep slate-950 dark for elements like gold buttons */
+
+  --color-wc-red-bg: rgba(208, 28, 36, 0.08);
+  --color-wc-red-border: rgba(208, 28, 36, 0.15);
+}
+
+/* Smooth transitions for theme switching */
+body, header, footer, main, .bg-wc-card, .border-wc-border, input, select, textarea, button, a {
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 @layer utilities {
   .bg-radial-gradient {
     background-image: radial-gradient(circle at top right, rgba(60, 172, 59, 0.07), transparent 45%),
                       radial-gradient(circle at bottom left, rgba(42, 57, 141, 0.08), transparent 45%),
                       radial-gradient(circle at top center, rgba(230, 29, 37, 0.06), transparent 50%),
-                      linear-gradient(to bottom, #08080a, #121217);
+                      linear-gradient(to bottom, var(--color-wc-dark), var(--color-wc-card));
   }
 }
 
@@ -57,7 +122,7 @@
 /* Scrollbar personalizado */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #F3C623 #121217;
+  scrollbar-color: var(--color-wc-gold) var(--color-wc-card);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -66,25 +131,144 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #121217;
+  background: var(--color-wc-card);
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #F3C623;
+  background: var(--color-wc-gold);
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #fbbf24;
+  background: var(--color-wc-gold);
+  filter: brightness(1.1);
 }
 
-/* Soporte de modo oscuro para input de fecha */
+/* Soporte de modo oscuro y claro para input de fecha */
 input[type="date"] {
-  color-scheme: dark;
+  color-scheme: dark light;
+}
+
+.light input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0);
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
+}
+
+/* Disclaimer box for dynamic high contrast alerts */
+.disclaimer-box {
+  background-color: var(--color-wc-red-bg);
+  border: 1px solid var(--color-wc-red-border);
+  color: var(--color-wc-red);
+}
+
+/* Success notification box */
+.success-box {
+  background-color: rgba(60, 172, 59, 0.1);
+  border: 1px solid rgba(60, 172, 59, 0.2);
+  color: var(--color-wc-green);
+}
+
+.light .success-box {
+  background-color: rgba(46, 139, 44, 0.08);
+  border: 1px solid rgba(46, 139, 44, 0.15);
+  color: var(--color-wc-green);
+}
+
+/* Warning box (amber/gold style with high contrast accessibility) */
+.warning-box {
+  background-color: rgb(var(--color-wc-gold) / 0.15);
+  border: 1px solid rgb(var(--color-wc-gold) / 0.25);
+  color: rgb(var(--color-wc-gold));
+}
+
+.light .warning-box {
+  background-color: rgb(var(--color-wc-gold) / 0.08);
+  border: 1px solid rgb(var(--color-wc-gold) / 0.4);
+  color: rgb(180, 120, 0); /* Dark gold for high text contrast in light mode */
+}
+
+.warning-box svg {
+  color: currentColor;
+}
+
+/* Standings Table Rows */
+.row-qualifier {
+  background-color: rgb(var(--color-wc-green) / 0.05);
+  border-left: 4px solid rgb(var(--color-wc-green));
+}
+.light .row-qualifier {
+  background-color: rgb(var(--color-wc-green) / 0.12);
+  border-left: 4px solid rgb(var(--color-wc-green));
+}
+
+.row-possible-third {
+  background-color: rgb(var(--color-wc-gold) / 0.05);
+  border-left: 4px solid rgb(var(--color-wc-gold));
+}
+.light .row-possible-third {
+  background-color: rgb(var(--color-wc-gold) / 0.12);
+  border-left: 4px solid rgb(var(--color-wc-gold));
+}
+
+.row-eliminated {
+  background-color: rgb(var(--color-wc-red) / 0.05);
+  border-left: 4px solid rgb(var(--color-wc-red));
+}
+.light .row-eliminated {
+  background-color: rgb(var(--color-wc-red) / 0.12);
+  border-left: 4px solid rgb(var(--color-wc-red));
+}
+
+/* Info and Gold Banners */
+.info-banner {
+  background-color: rgb(var(--color-wc-blue) / 0.15);
+  border: 1px solid rgb(var(--color-wc-blue) / 0.25);
+}
+.info-banner h4 {
+  color: rgb(56, 189, 248); /* sky-400 equivalent in dark mode */
+}
+.light .info-banner {
+  background-color: rgb(var(--color-wc-blue) / 0.08);
+  border: 1px solid rgb(var(--color-wc-blue) / 0.35);
+}
+.light .info-banner h4 {
+  color: rgb(var(--color-wc-blue)); /* High contrast dark blue */
+}
+.info-banner svg {
+  color: rgb(56, 189, 248);
+}
+.light .info-banner svg {
+  color: rgb(var(--color-wc-blue));
+}
+
+.gold-banner {
+  background-color: rgb(var(--color-wc-gold) / 0.15);
+  border: 1px solid rgb(var(--color-wc-gold) / 0.25);
+}
+.gold-banner h4 {
+  color: rgb(var(--color-wc-gold));
+}
+.gold-banner p {
+  color: rgb(var(--color-slate-300));
+}
+.light .gold-banner {
+  background-color: rgb(var(--color-wc-gold) / 0.08);
+  border: 1px solid rgb(var(--color-wc-gold) / 0.4);
+}
+.light .gold-banner h4 {
+  color: rgb(180, 120, 0); /* Darker gold for AAA text in light mode */
+}
+.light .gold-banner p {
+  color: rgb(var(--color-slate-100)); /* High contrast dark text */
+}
+.gold-banner svg {
+  color: rgb(var(--color-wc-gold));
+}
+.light .gold-banner svg {
+  color: rgb(180, 120, 0);
 }

@@ -181,22 +181,22 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
     
     if (!isThirdPlaceTable) {
       if (index === 0 || index === 1) {
-        rowClass = "bg-green-500/5 border-l-4 border-green-500";
-        indicatorClass = "text-green-500 font-bold";
+        rowClass = "row-qualifier";
+        indicatorClass = "text-wc-green font-bold";
       } else if (index === 2) {
-        rowClass = "bg-amber-500/5 border-l-4 border-amber-500";
-        indicatorClass = "text-amber-500 font-bold";
+        rowClass = "row-possible-third";
+        indicatorClass = "text-wc-gold font-bold";
       } else {
         rowClass = "border-l-4 border-transparent opacity-60";
         indicatorClass = "text-slate-500";
       }
     } else {
       if (index < 8) {
-        rowClass = "bg-green-500/5 border-l-4 border-green-500";
-        indicatorClass = "text-green-500 font-bold";
+        rowClass = "row-qualifier";
+        indicatorClass = "text-wc-green font-bold";
       } else {
-        rowClass = "bg-red-500/5 border-l-4 border-red-500 opacity-70";
-        indicatorClass = "text-red-500";
+        rowClass = "row-eliminated opacity-70";
+        indicatorClass = "text-wc-red";
       }
     }
 
@@ -785,8 +785,8 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                       </table>
                     </div>
                     <div className="p-3 bg-wc-dark/30 border-t border-wc-border flex gap-4 text-[10px] sm:text-xs font-sports uppercase tracking-wider text-slate-400">
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> Clasifica</span>
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span> Posible 3ro</span>
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-wc-green"></span> Clasifica</span>
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-wc-gold"></span> Posible 3ro</span>
                     </div>
                   </div>
                 ))}
@@ -794,11 +794,11 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
 
               {/* Third Places Comparison */}
               <div className="space-y-4">
-                <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl flex items-start gap-3">
-                  <Award className="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" />
+                <div className="gold-banner p-4 rounded-xl flex items-start gap-3">
+                  <Award className="w-6 h-6 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-amber-500 font-bold uppercase font-sports tracking-wider">Clasificación Simulada de Terceros</h4>
-                    <p className="text-sm text-amber-500/80 leading-relaxed mt-1">
+                    <h4 className="font-bold uppercase font-sports tracking-wider">Clasificación Simulada de Terceros</h4>
+                    <p className="text-sm leading-relaxed mt-1">
                       En base a tus pronósticos actuales, se compara a las selecciones en el 3er lugar de cada grupo. Los <strong>8 mejores terceros</strong> avanzan a la siguiente ronda (Dieciseisavos).
                     </p>
                   </div>

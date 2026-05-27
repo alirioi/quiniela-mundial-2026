@@ -25,7 +25,7 @@ const profile = Astro.locals.profile;
   description="Consulta las reglas de juego, sistema de puntuación, premios y preguntas frecuentes de la Quiniela Mundial 2026. Todo lo que necesitas saber para participar."
   userProfile={profile}
 >
-  <div class="relative bg-slate-950 text-slate-100 overflow-hidden py-12 min-h-[calc(100vh-4rem)]">
+  <div class="relative bg-wc-dark text-slate-100 overflow-hidden py-12 min-h-[calc(100vh-4rem)]">
     
     <!-- Background gradients -->
     <div class="absolute top-0 left-1/4 w-96 h-96 bg-wc-gold/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -367,8 +367,8 @@ const profile = Astro.locals.profile;
               </button>
               <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
                 <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
-                  <div class="text-xs text-amber-500 font-semibold flex items-start gap-2 bg-amber-500/10 p-3.5 rounded-lg border border-amber-500/20">
-                    <AlertTriangle className="w-5.5 h-5.5 text-amber-500 shrink-0 mt-0.5" strokeWidth={2.5} />
+                  <div class="text-xs font-semibold flex items-start gap-2 p-3.5 rounded-lg warning-box">
+                    <AlertTriangle className="w-5.5 h-5.5 shrink-0 mt-0.5" strokeWidth={2.5} />
                     <span><strong>Prohibición en Binance Pay:</strong> Al realizar el pago, no escribas palabras como "apuesta", "quiniela", "sorteo", "azar" ni términos de juego en la nota de transferencia de Binance.</span>
                   </div>
                   <p>Binance prohíbe el uso de sus servicios para transferencias relacionadas con apuestas de juego y podría congelar o bloquear de forma irreversible las cuentas asociadas. Cualquier bloqueo de fondos por esta causa es responsabilidad exclusiva del participante y no exime del pago para participar.</p>

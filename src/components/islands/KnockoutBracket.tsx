@@ -142,11 +142,11 @@ export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulat
   return (
     <div className="space-y-6">
       {/* Notice Banner */}
-      <div className="bg-wc-blue/20 border border-wc-blue/30 p-4 rounded-2xl flex items-start gap-3 shadow-lg backdrop-blur-sm relative overflow-hidden">
+      <div className="info-banner p-4 rounded-2xl flex items-start gap-3 shadow-lg backdrop-blur-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-wc-blue/5 rounded-full blur-2xl pointer-events-none"></div>
-        <AlertCircle className="w-5 h-5 text-sky-400 flex-shrink-0 mt-0.5" />
+        <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
         <div>
-          <h4 className="text-sky-400 font-bold uppercase font-sports tracking-wider text-xs sm:text-sm">
+          <h4 className="font-bold uppercase font-sports tracking-wider text-xs sm:text-sm">
             {isSimulation ? 'Llave de Clasificación Simulada' : 'Llave de Clasificación Oficial (Provisional)'}
           </h4>
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mt-1">

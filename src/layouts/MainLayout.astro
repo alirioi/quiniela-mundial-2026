@@ -28,6 +28,26 @@ const isActive = (path: string) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    
+    <!-- Theme Initialization (prevents FOUC) -->
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'dark'; // Default to dark as it is the foundational theme
+      })();
+
+      if (theme === 'light') {
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+      }
+    </script>
+
     <meta name="description" content={description} />
     <title>{title} | Quiniela Mundial 2026</title>
     
@@ -67,7 +87,7 @@ const isActive = (path: string) => {
   </head>
   <body class="bg-wc-dark text-slate-100 min-h-screen flex flex-col selection:bg-wc-gold selection:text-slate-950 bg-radial-gradient">
     <!-- Premium Header -->
-    <header class="border-b border-wc-border/80 bg-wc-card/40 backdrop-blur-md sticky top-0 z-40">
+    <header id="main-header" class="border-b border-wc-border/80 bg-wc-card/40 backdrop-blur-md sticky top-0 z-40 transition-transform duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <a href={userProfile ? "/dashboard" : "/"} class="flex items-center group hover:opacity-90 transition-opacity" aria-label="Volver al inicio">
           <Logo mode="horizontal" size="small" />
@@ -121,6 +141,22 @@ const isActive = (path: string) => {
             </div>
           )}
 
+          <!-- Theme Toggle Button -->
+          <button
+            id="theme-toggle"
+            class="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-800/40 hover:bg-slate-800 border border-slate-700/60 transition-all focus:outline-none flex items-center justify-center"
+            aria-label="Cambiar tema"
+          >
+            <!-- Sun Icon (visible in dark mode) -->
+            <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <!-- Moon Icon (visible in light mode) -->
+            <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+
           <!-- Hamburger Button -->
           <button
             id="mobile-menu-toggle"
@@ -141,7 +177,7 @@ const isActive = (path: string) => {
     <!-- Mobile Menu (hidden by default) -->
     <div
       id="mobile-menu"
-      class="hidden md:hidden border-b border-wc-border/90 bg-wc-card/95 backdrop-blur-lg transition-all duration-300"
+      class="hidden md:hidden fixed top-20 left-0 right-0 border-b border-wc-border/90 bg-wc-card/95 backdrop-blur-lg transition-all duration-300 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto"
     >
       <div class="px-4 py-4 space-y-3 font-medium text-sm">
         {userProfile && (
@@ -282,6 +318,61 @@ const isActive = (path: string) => {
     </div>
 
     <script>
+      // Theme Toggle Logic
+      const themeToggleBtn = document.getElementById('theme-toggle');
+      const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+      const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+
+      function updateThemeIcons() {
+        const isLight = document.documentElement.classList.contains('light');
+        if (isLight) {
+          themeToggleLightIcon?.classList.add('hidden');
+          themeToggleDarkIcon?.classList.remove('hidden');
+        } else {
+          themeToggleLightIcon?.classList.remove('hidden');
+          themeToggleDarkIcon?.classList.add('hidden');
+        }
+      }
+
+      // Initial run to show correct icon
+      updateThemeIcons();
+
+      themeToggleBtn?.addEventListener('click', () => {
+        const currentlyLight = document.documentElement.classList.toggle('light');
+        localStorage.setItem('theme', currentlyLight ? 'light' : 'dark');
+        updateThemeIcons();
+      });
+
+      // Header autohide scroll behavior
+      let lastScrollY = window.scrollY;
+      const headerEl = document.getElementById('main-header');
+      const mobileMenuEl = document.getElementById('mobile-menu');
+
+      window.addEventListener('scroll', () => {
+        // Do not hide the header if the mobile menu drawer is open
+        if (mobileMenuEl && !mobileMenuEl.classList.contains('hidden')) {
+          return;
+        }
+
+        const currentScrollY = window.scrollY;
+        
+        // Always show header near the top of the page
+        if (currentScrollY < 100) {
+          headerEl?.classList.remove('-translate-y-full');
+          return;
+        }
+
+        if (currentScrollY > lastScrollY) {
+          // Scrolling down -> hide header
+          headerEl?.classList.add('-translate-y-full');
+        } else {
+          // Scrolling up -> show header
+          headerEl?.classList.remove('-translate-y-full');
+        }
+        
+        lastScrollY = currentScrollY;
+      });
+
       // Toggle de menú móvil
       const toggleBtn = document.getElementById('mobile-menu-toggle');
       const mobileMenu = document.getElementById('mobile-menu');

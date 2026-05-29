@@ -128,7 +128,7 @@ export default function AdminEntryList() {
       '¿Estás seguro de que quieres eliminar este cupo de la base de datos? Esta acción es irreversible y borrará el cupo, su comprobante y todas sus predicciones.'
     );
     if (!result.isConfirmed) return;
-    
+
     setActionLoadingId(id);
     try {
       const response = await fetch(`/api/admin/entries/${id}`, {
@@ -163,17 +163,16 @@ export default function AdminEntryList() {
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border font-sports ${
-                filter === status
-                  ? status === 'pending'
-                    ? 'bg-wc-gold/10 border-wc-gold/30 text-wc-gold shadow-md shadow-wc-gold/5'
-                    : status === 'approved'
+              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border font-sports ${filter === status
+                ? status === 'pending'
+                  ? 'bg-wc-gold/10 border-wc-gold/30 text-wc-gold shadow-md shadow-wc-gold/5'
+                  : status === 'approved'
                     ? 'bg-wc-green/10 border-wc-green/30 text-wc-green shadow-md shadow-wc-green/5'
                     : status === 'rejected'
-                    ? 'bg-wc-red/10 border-wc-red/30 text-wc-red shadow-md shadow-wc-red/5'
-                    : 'bg-slate-800 border-slate-750 text-slate-200'
-                  : 'bg-wc-dark/40 border-wc-border hover:border-slate-700 text-slate-400 hover:text-slate-200'
-              }`}
+                      ? 'bg-wc-red/10 border-wc-red/30 text-wc-red shadow-md shadow-wc-red/5'
+                      : 'bg-slate-800 border-slate-750 text-slate-200'
+                : 'bg-wc-dark/40 border-wc-border hover:border-slate-700 text-slate-400 hover:text-slate-200'
+                }`}
             >
               {status === 'pending' && (
                 <span className="flex items-center gap-1.5">
@@ -248,7 +247,7 @@ export default function AdminEntryList() {
               {filteredEntries.map((entry) => {
                 const profileName = entry.profiles?.full_name || 'Desconocido';
                 const profileEmail = entry.profiles?.email || 'N/A';
-                
+
                 return (
                   <tr key={entry.id} className="hover:bg-wc-card/85 transition-colors">
                     <td className="p-4 sm:p-5">
@@ -289,13 +288,12 @@ export default function AdminEntryList() {
                       )}
                     </td>
                     <td className="p-4 sm:p-5">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border font-sports tracking-wider uppercase ${
-                        entry.status === 'approved'
-                          ? 'bg-wc-green/10 border-wc-green/20 text-wc-green'
-                          : entry.status === 'rejected'
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border font-sports tracking-wider uppercase ${entry.status === 'approved'
+                        ? 'bg-wc-green/10 border-wc-green/20 text-wc-green'
+                        : entry.status === 'rejected'
                           ? 'bg-wc-red/10 border-wc-red/20 text-wc-red'
                           : 'bg-wc-gold/10 border-wc-gold/20 text-wc-gold'
-                      }`}>
+                        }`}>
                         {entry.status === 'approved' && 'Aprobado'}
                         {entry.status === 'rejected' && 'Rechazado'}
                         {entry.status === 'pending' && 'Pendiente'}
@@ -312,7 +310,7 @@ export default function AdminEntryList() {
                               className="px-2.5 py-1.5 rounded-lg bg-wc-green hover:bg-green-500 text-white font-bold font-sports tracking-wider uppercase text-xs transition-colors flex items-center gap-1"
                               title="Aprobar Pago"
                             >
-                              <Check className="w-4 h-4" strokeWidth={2.5} /> Aprobar
+                              <Check className="w-4 h-4" strokeWidth={2.5} />
                             </button>
                           )}
                           {entry.status !== 'rejected' && (
@@ -321,7 +319,7 @@ export default function AdminEntryList() {
                               className="px-2.5 py-1.5 rounded-lg bg-wc-dark hover:bg-wc-red/10 text-slate-450 hover:text-wc-red border border-wc-border hover:border-wc-red/30 transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1"
                               title="Rechazar Pago"
                             >
-                              <X className="w-4 h-4" strokeWidth={2.5} /> Rechazar
+                              <X className="w-4 h-4" strokeWidth={2.5} />
                             </button>
                           )}
                           <button
@@ -329,7 +327,7 @@ export default function AdminEntryList() {
                             className="px-2.5 py-1.5 rounded-lg bg-wc-red/10 hover:bg-wc-red text-wc-red hover:text-white border border-wc-red/20 hover:border-wc-red transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1"
                             title="Eliminar Cupo por Completo"
                           >
-                            <Trash className="w-4 h-4" strokeWidth={2.5} /> Eliminar
+                            <Trash className="w-4 h-4" strokeWidth={2.5} />
                           </button>
                         </div>
                       )}
@@ -355,7 +353,7 @@ export default function AdminEntryList() {
                 <X className="w-4.5 h-4.5" strokeWidth={2.5} />
               </button>
             </div>
-            
+
             <div className="flex-grow p-6 overflow-y-auto flex items-center justify-center bg-wc-dark/20 min-h-[300px]">
               {selectedReceipt.url.includes('.pdf') || selectedReceipt.url.includes('application/pdf') ? (
                 <iframe
@@ -408,7 +406,7 @@ export default function AdminEntryList() {
             <p className="text-xs text-slate-400 leading-relaxed font-medium">
               Indica el motivo por el cual rechazas este comprobante. Se enviará un correo electrónico al usuario con esta explicación.
             </p>
-            
+
             <textarea
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}

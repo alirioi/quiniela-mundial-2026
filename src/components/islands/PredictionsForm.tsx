@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { showAlert } from '../../utils/alerts';
 import { getTeamFlagUrl } from '../../utils/flags';
-import { Lock, Clock, AlertTriangle, Loader2, Award, CheckCircle2, Trophy, GitBranch } from 'lucide-react';
+import { Lock, Clock, AlertTriangle, Loader2, Award, CheckCircle2, Trophy, GitBranch, Save } from 'lucide-react';
 import KnockoutBracket from './KnockoutBracket';
 
 interface Prediction {
@@ -70,8 +70,21 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   const [savingIds, setSavingIds] = useState<Record<number, boolean>>({});
   const [bulkSaving, setBulkSaving] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<Record<number, string>>({});
+  const [showFloatingSave, setShowFloatingSave] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 200) {
+        setShowFloatingSave(true);
+      } else {
+        setShowFloatingSave(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // 1. Process simulated group standings in real-time
   const { groupStandings, thirdPlaces } = useMemo(() => {
@@ -840,6 +853,24 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
             </div>
           )}
         </>
+      )}
+
+      {showFloatingSave && unpredictedCount > 0 && !loading && (
+        <button
+          onClick={handleSaveBulk}
+          disabled={bulkSaving}
+          className="fixed bottom-6 right-6 z-50 flex items-center justify-center bg-gradient-to-r from-wc-gold to-amber-500 hover:from-amber-400 hover:to-wc-gold text-slate-950 font-bold font-sports shadow-xl shadow-wc-gold/30 rounded-full md:rounded-xl md:px-5 md:py-3 w-12 h-12 md:w-auto md:h-auto transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer animate-fade-in"
+          title="Guardar Todo"
+        >
+          {bulkSaving ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>
+              <Save className="w-5 h-5 md:mr-2" strokeWidth={2.5} />
+              <span className="hidden md:inline">Guardar Todo</span>
+            </>
+          )}
+        </button>
       )}
     </div>
   );

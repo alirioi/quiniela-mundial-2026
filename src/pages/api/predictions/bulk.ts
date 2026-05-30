@@ -56,6 +56,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       match_id: p.matchId,
       predicted_home: parseInt(p.predictedHome, 10),
       predicted_away: parseInt(p.predictedAway, 10),
+      predicted_winner: p.predictedWinner || null,
     }));
 
     const { error: upsertError } = await supabaseAdmin

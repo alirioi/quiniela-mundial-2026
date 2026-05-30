@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { showAlert } from '../../utils/alerts';
-import { Settings, RefreshCw, AlertTriangle, Bell } from 'lucide-react';
+import { Settings, RefreshCw, AlertTriangle, Bell, Power } from 'lucide-react';
 
 interface Phase {
   id: number;
@@ -23,6 +23,37 @@ export default function AdminPhaseManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notifyingId, setNotifyingId] = useState<number | null>(null);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
+
+  const handleTogglePhase = async (phaseId: number, currentActive: boolean) => {
+    const action = currentActive ? 'desactivar' : 'activar';
+    const result = await showAlert.confirm(
+      `¿${action.charAt(0).toUpperCase() + action.slice(1)} fase?`,
+      `¿Estás seguro de que deseas ${action} esta fase del torneo?`
+    );
+    if (!result.isConfirmed) return;
+
+    setTogglingId(phaseId);
+    try {
+      const response = await fetch(`/api/admin/phases/${phaseId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !currentActive })
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Error al cambiar estado de la fase');
+      }
+      
+      showAlert.success('Éxito', `Fase ${currentActive ? 'desactivada' : 'activada'} correctamente.`);
+      await fetchPhases();
+    } catch (err: any) {
+      showAlert.error('Error', err.message);
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   const fetchPhases = async () => {
     setLoading(true);
@@ -161,13 +192,27 @@ export default function AdminPhaseManager() {
                 })()}
               </div>
 
-              {/* Botón de control */}
-              <div className="flex items-center justify-between border-t border-wc-border pt-3 mt-auto relative z-10">
+              {/* Botones de control */}
+              <div className="flex flex-col gap-2 border-t border-wc-border pt-3 mt-auto relative z-10">
+                <button
+                  type="button"
+                  onClick={() => handleTogglePhase(phase.id, phase.is_active)}
+                  disabled={togglingId === phase.id}
+                  className={`w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold font-sports tracking-wider uppercase transition-colors border cursor-pointer ${
+                    phase.is_active
+                      ? 'bg-rose-500/10 hover:bg-rose-500/25 text-rose-450 border-rose-500/30'
+                      : 'bg-wc-green/10 hover:bg-wc-green/25 text-wc-green border-wc-green/30'
+                  }`}
+                >
+                  <Power className="w-4 h-4 shrink-0" strokeWidth={2.5} />
+                  {togglingId === phase.id ? 'Cambiando...' : phase.is_active ? 'Desactivar Fase' : 'Activar Fase'}
+                </button>
+
                 <button
                   type="button"
                   onClick={() => handleNotifyLaggards(phase.id, phase.name)}
                   disabled={notifyingId === phase.id || stats.find(s => s.phase_id === phase.id)?.total_approved === stats.find(s => s.phase_id === phase.id)?.completed_count}
-                  className={`w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold font-sports tracking-wider uppercase transition-colors ${
+                  className={`w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold font-sports tracking-wider uppercase transition-colors cursor-pointer ${
                     stats.find(s => s.phase_id === phase.id)?.total_approved === stats.find(s => s.phase_id === phase.id)?.completed_count
                       ? 'bg-wc-dark text-slate-500 cursor-not-allowed border border-slate-800'
                       : notifyingId === phase.id 

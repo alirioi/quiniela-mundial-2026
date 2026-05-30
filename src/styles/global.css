@@ -122,27 +122,26 @@ body, header, footer, main, .bg-wc-card, .border-wc-border, input, select, texta
 /* Scrollbar personalizado */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-wc-gold) var(--color-wc-card);
+  scrollbar-color: rgb(var(--color-wc-gold)) rgb(var(--color-wc-card));
 }
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
-  height: 6px;
+  height: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--color-wc-card);
+  background: rgb(var(--color-wc-card));
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-wc-gold);
+  background: rgb(var(--color-wc-gold));
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--color-wc-gold);
-  filter: brightness(1.1);
+  background: rgb(var(--color-wc-gold) / 0.85);
 }
 
 /* Soporte de modo oscuro y claro para input de fecha */

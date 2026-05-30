@@ -2,7 +2,10 @@
 export const prerender = false;
 import MainLayout from '../../layouts/MainLayout.astro';
 import PredictionsForm from '../../components/islands/PredictionsForm';
+import PhaseCountdownBanner from '../../components/islands/PhaseCountdownBanner';
+import KnockoutPredictionBracket from '../../components/islands/KnockoutPredictionBracket';
 import { Trophy, ArrowLeft, Award } from 'lucide-react';
+import { supabaseAdmin } from '../../lib/supabase-server';
 
 const { phase } = Astro.params;
 
@@ -29,6 +32,8 @@ if (approvedEntries.length === 0) {
 // Mapear slug a título bonito
 const phaseTitles: Record<string, string> = {
   'grupos': 'Fase de Grupos',
+  'eliminatoria': 'Fase Eliminatoria',
+  'eliminatorias': 'Fase Eliminatoria',
   'dieciseisavos': 'Dieciseisavos de Final',
   'octavos': 'Octavos de Final',
   'cuartos': 'Cuartos de Final',
@@ -37,10 +42,126 @@ const phaseTitles: Record<string, string> = {
 };
 
 const pageTitle = phaseTitles[phase] || 'Pronósticos';
+
+// Si es una fase de eliminación, cargar standings para armar la llave
+let groupStandings = {};
+let thirdPlaces = [];
+
+if (phase !== 'grupos') {
+  const { data: matches, error } = await supabaseAdmin
+    .from('matches')
+    .select(`
+      id,
+      phase_id,
+      home_team,
+      away_team,
+      match_time,
+      home_score,
+      away_score,
+      status,
+      group_name,
+      match_number
+    `)
+    .order('match_time', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching matches for knockout standings:', error);
+  }
+
+  const matchData = matches || [];
+
+  // Lógica de posiciones (standings) idéntica a la del Dashboard del Mundial
+  interface TeamStats {
+    team: string;
+    group: string;
+    pj: number;
+    g: number;
+    e: number;
+    p: number;
+    gf: number;
+    gc: number;
+    dg: number;
+    pts: number;
+  }
+
+  const statsByGroup: Record<string, Record<string, TeamStats>> = {};
+
+  matchData.forEach(match => {
+    if (!match.group_name) return; // Solo fase de grupos
+    const group = match.group_name;
+    
+    if (!statsByGroup[group]) statsByGroup[group] = {};
+    if (!statsByGroup[group][match.home_team]) {
+      statsByGroup[group][match.home_team] = { team: match.home_team, group, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
+    }
+    if (!statsByGroup[group][match.away_team]) {
+      statsByGroup[group][match.away_team] = { team: match.away_team, group, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
+    }
+
+    if ((match.status === 'finished' || match.status === 'live') && match.home_score !== null && match.away_score !== null) {
+      const home = statsByGroup[group][match.home_team];
+      const away = statsByGroup[group][match.away_team];
+      
+      home.pj++;
+      away.pj++;
+      home.gf += match.home_score;
+      home.gc += match.away_score;
+      away.gf += match.away_score;
+      away.gc += match.home_score;
+
+      if (match.home_score > match.away_score) {
+        home.g++;
+        home.pts += 3;
+        away.p++;
+      } else if (match.home_score < match.away_score) {
+        away.g++;
+        away.pts += 3;
+        home.p++;
+      } else {
+        home.e++;
+        away.e++;
+        home.pts += 1;
+        away.pts += 1;
+      }
+    }
+  });
+
+  const finalStandings: Record<string, TeamStats[]> = {};
+  const allThirds: TeamStats[] = [];
+
+  Object.keys(statsByGroup).sort().forEach(group => {
+    const teams = Object.values(statsByGroup[group]);
+    teams.forEach(t => t.dg = t.gf - t.gc);
+    
+    teams.sort((a, b) => {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      if (b.dg !== a.dg) return b.dg - a.dg;
+      if (b.gf !== a.gf) return b.gf - a.gf;
+      return a.team.localeCompare(b.team);
+    });
+    
+    finalStandings[group] = teams;
+    
+    if (teams.length >= 3) {
+      allThirds.push(teams[2]);
+    }
+  });
+
+  allThirds.sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.dg !== a.dg) return b.dg - a.dg;
+    if (b.gf !== a.gf) return b.gf - a.gf;
+    if (b.g !== a.g) return b.g - a.g;
+    return a.team.localeCompare(b.team);
+  });
+
+  groupStandings = finalStandings;
+  thirdPlaces = allThirds;
+}
 ---
 
 <MainLayout title={pageTitle} userProfile={profile}>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Cabecera de Página -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-wc-border pb-6 mb-8">
@@ -54,7 +175,9 @@ const pageTitle = phaseTitles[phase] || 'Pronósticos';
           <Trophy className="w-8 h-8 text-wc-gold" strokeWidth={2.5} /> {pageTitle}
         </h1>
         <p class="text-sm sm:text-base text-slate-400 mt-1.5 leading-relaxed">
-          Ingresa tus marcadores para cada partido. Recuerda que el pronóstico se bloquea exactamente <strong class="font-bold text-slate-200">2 horas antes</strong> del inicio de cada juego.
+          {phase === 'grupos' 
+            ? "Ingresa tus marcadores para cada partido. Recuerda que el pronóstico se bloquea exactamente 2 horas antes del inicio de cada juego."
+            : "Visualiza los emparejamientos y el camino a la gloria de la fase de eliminación directa."}
         </p>
       </div>
 
@@ -68,7 +191,16 @@ const pageTitle = phaseTitles[phase] || 'Pronósticos';
       </div>
     </div>
 
-    <!-- Formulario de predicciones (Isla Reactiva) -->
-    <PredictionsForm client:load phaseSlug={phase} userEntries={approvedEntries} />
+    {phase !== 'grupos' && (
+      <PhaseCountdownBanner client:load />
+    )}
+
+    <!-- Formulario de predicciones o Llave Eliminatoria (Islas Reactivas) -->
+    {phase === 'grupos' ? (
+      <PredictionsForm client:load phaseSlug={phase} userEntries={approvedEntries} />
+    ) : (
+      <KnockoutPredictionBracket client:load groupStandings={groupStandings} thirdPlaces={thirdPlaces} phaseSlug={phase} userEntries={approvedEntries} />
+    )}
   </div>
 </MainLayout>
+

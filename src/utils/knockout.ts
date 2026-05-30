@@ -66,9 +66,16 @@ function matchWinnersToThirds(
   return null;
 }
 
+export interface KnockoutPrediction {
+  predicted_home?: number | null;
+  predicted_away?: number | null;
+  predicted_winner?: string | null;
+}
+
 export function calculateKnockoutBracket(
   groupStandings: Record<string, TeamStats[]>,
-  thirdPlaces: TeamStats[]
+  thirdPlaces: TeamStats[],
+  predictionsMap?: Record<number, KnockoutPrediction>
 ): KnockoutBracketData {
   // 1. Get Winners and Runners-up from each group A-L
   const winners: Record<string, string> = {};
@@ -263,6 +270,16 @@ export function calculateKnockoutBracket(
 
   // Helper to dynamically get winners of R32
   const getWinnerName = (match: KnockoutMatch): string => {
+    // Check user prediction first
+    const pred = predictionsMap?.[match.matchNumber];
+    if (pred && pred.predicted_home !== undefined && pred.predicted_home !== null && pred.predicted_away !== undefined && pred.predicted_away !== null) {
+      if (pred.predicted_home > pred.predicted_away) return match.homeTeam;
+      if (pred.predicted_away > pred.predicted_home) return match.awayTeam;
+      if (pred.predicted_home === pred.predicted_away && pred.predicted_winner) {
+        return pred.predicted_winner;
+      }
+    }
+
     // If the match has a simulated or real winner, return that team name.
     // If team name starts with placeholders, return "Ganador M[number]"
     if (match.winner) return match.winner;

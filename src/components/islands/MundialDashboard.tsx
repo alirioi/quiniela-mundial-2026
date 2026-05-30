@@ -45,7 +45,7 @@ export default function MundialDashboard({ matches }: Props) {
 
     // Initialize stats and process matches
     matches.forEach(match => {
-      if (!match.group_name) return; // Only group stage matches
+      if (!match.group_name || match.phase_id !== 1) return; // Only group stage matches
       const group = match.group_name;
       
       if (!statsByGroup[group]) statsByGroup[group] = {};
@@ -479,6 +479,7 @@ export default function MundialDashboard({ matches }: Props) {
           <KnockoutBracket groupStandings={groupStandings} thirdPlaces={thirdPlaces} />
         </div>
       )}
+
     </div>
   );
 }

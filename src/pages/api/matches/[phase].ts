@@ -77,6 +77,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
                 id: prediction.id,
                 predicted_home: prediction.predicted_home,
                 predicted_away: prediction.predicted_away,
+                predicted_winner: prediction.predicted_winner,
                 points_earned: prediction.points_earned,
               }
             : null,

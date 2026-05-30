@@ -85,15 +85,15 @@ export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulat
             onMouseEnter={() => !isHomePlaceholder && setHoveredTeam(match.homeTeam)}
             onMouseLeave={() => setHoveredTeam(null)}
           >
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
               {homeFlag ? (
-                <img src={homeFlag} alt={match.homeTeam} className="w-6 h-4.5 object-cover rounded-sm shadow-sm flex-shrink-0" />
+                <img src={homeFlag} alt={match.homeTeam} className="w-6 h-4 object-cover rounded shadow-sm flex-shrink-0 border border-slate-700/30" />
               ) : (
-                <div className="w-6 h-4.5 bg-slate-800 border border-slate-700/50 rounded-sm flex-shrink-0 flex items-center justify-center text-[9px] text-slate-500 font-bold">
-                  {match.placeholderHome.split(' ')[0]}
+                <div className="w-6 h-4 bg-wc-dark/80 border border-wc-border rounded flex-shrink-0 flex items-center justify-center text-[10px] text-slate-450 font-bold font-sports select-none">
+                  ?
                 </div>
               )}
-              <span className={`text-sm font-bold truncate ${isHomePlaceholder ? 'text-slate-500 font-medium italic' : ''}`}>
+              <span className={`text-xs font-bold truncate ${isHomePlaceholder ? 'text-slate-500 font-medium italic' : ''}`}>
                 {match.homeTeam}
               </span>
             </div>
@@ -113,13 +113,13 @@ export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulat
           >
             <div className="flex items-center gap-2.5 min-w-0">
               {awayFlag ? (
-                <img src={awayFlag} alt={match.awayTeam} className="w-6 h-4.5 object-cover rounded-sm shadow-sm flex-shrink-0" />
+                <img src={awayFlag} alt={match.awayTeam} className="w-6 h-4 object-cover rounded shadow-sm flex-shrink-0 border border-slate-700/30" />
               ) : (
-                <div className="w-6 h-4.5 bg-slate-800 border border-slate-700/50 rounded-sm flex-shrink-0 flex items-center justify-center text-[9px] text-slate-500 font-bold">
-                  {match.placeholderAway.split(' ')[0]}
+                <div className="w-6 h-4 bg-wc-dark/80 border border-wc-border rounded flex-shrink-0 flex items-center justify-center text-[10px] text-slate-450 font-bold font-sports select-none">
+                  ?
                 </div>
               )}
-              <span className={`text-sm font-bold truncate ${isAwayPlaceholder ? 'text-slate-500 font-medium italic' : ''}`}>
+              <span className={`text-xs font-bold truncate ${isAwayPlaceholder ? 'text-slate-500 font-medium italic' : ''}`}>
                 {match.awayTeam}
               </span>
             </div>

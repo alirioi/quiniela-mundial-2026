@@ -97,6 +97,7 @@ const isActive = (path: string) => {
           {userProfile && (
             <>
               <a href="/dashboard" class={`transition-colors ${isActive('/dashboard') ? 'text-wc-gold font-bold' : 'text-slate-300 hover:text-wc-gold'}`}>Dashboard</a>
+              <a href="/predictions" class={`transition-colors ${isActive('/predictions') ? 'text-wc-gold font-bold' : 'text-slate-300 hover:text-wc-gold'}`}>Pronósticos</a>
               <a href="/my-entries" class={`transition-colors ${isActive('/my-entries') ? 'text-wc-gold font-bold' : 'text-slate-300 hover:text-wc-gold'}`}>Mis Cupos</a>
               <a href="/profile" class={`transition-colors ${isActive('/profile') ? 'text-wc-gold font-bold' : 'text-slate-300 hover:text-wc-gold'}`}>Mi Perfil</a>
             </>
@@ -191,6 +192,7 @@ const isActive = (path: string) => {
         {userProfile && (
           <>
             <a href="/dashboard" class={`block py-2 transition-colors ${isActive('/dashboard') ? 'text-wc-gold font-bold border-l-2 border-wc-gold pl-2' : 'text-slate-350 hover:text-wc-gold'}`}>Dashboard</a>
+            <a href="/predictions" class={`block py-2 transition-colors ${isActive('/predictions') ? 'text-wc-gold font-bold border-l-2 border-wc-gold pl-2' : 'text-slate-350 hover:text-wc-gold'}`}>Pronósticos</a>
             <a href="/my-entries" class={`block py-2 transition-colors ${isActive('/my-entries') ? 'text-wc-gold font-bold border-l-2 border-wc-gold pl-2' : 'text-slate-350 hover:text-wc-gold'}`}>Mis Cupos</a>
             <a href="/profile" class={`block py-2 transition-colors ${isActive('/profile') ? 'text-wc-gold font-bold border-l-2 border-wc-gold pl-2' : 'text-slate-350 hover:text-wc-gold'}`}>Mi Perfil</a>
           </>

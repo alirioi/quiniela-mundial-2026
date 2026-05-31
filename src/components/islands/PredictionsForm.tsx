@@ -50,6 +50,9 @@ interface Entry {
   entry_number: number;
   display_name: string;
   status: 'pending' | 'approved' | 'rejected';
+  predicted_champion?: string | null;
+  predicted_champion_goals?: number | null;
+  predicted_final_goals?: number | null;
 }
 
 interface PredictionsFormProps {
@@ -59,6 +62,18 @@ interface PredictionsFormProps {
 
 export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsFormProps) {
   const [selectedEntryId, setSelectedEntryId] = useState<number>(userEntries[0]?.id || 0);
+
+  const selectedEntry = useMemo(() => {
+    return userEntries.find(e => e.id === selectedEntryId);
+  }, [userEntries, selectedEntryId]);
+
+  const isGoldPredictionPending = useMemo(() => {
+    return selectedEntry && (
+      !selectedEntry.predicted_champion ||
+      selectedEntry.predicted_champion_goals === null ||
+      selectedEntry.predicted_final_goals === null
+    );
+  }, [selectedEntry]);
   const [phase, setPhase] = useState<Phase | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
@@ -504,6 +519,30 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
           </div>
         )}
       </div>
+
+      {/* Alerta de Pronóstico de Oro Pendiente */}
+      {isGoldPredictionPending && !loading && !error && (
+        <div className="warning-box p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-pulse-subtle">
+          <div className="flex items-start gap-3 text-xs sm:text-sm">
+            <Award className="w-6 h-6 shrink-0 mt-0.5" strokeWidth={2.5} />
+            <div>
+              <h4 className="font-bold font-sports uppercase tracking-wider text-sm">
+                ¡Pronóstico de Oro Pendiente!
+              </h4>
+              <p className="mt-1 text-slate-350 leading-relaxed normal-case">
+                Para este cupo ({selectedEntry?.display_name}) aún no has completado tu predicción de desempate.
+                Es <strong className="text-white">obligatorio</strong> hacerlo antes del inicio oficial del mundial para poder optar al premio en caso de empate de puntos. No se admitirán cambios posteriores.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/predictions/oro"
+            className="px-6 py-2.5 bg-gradient-to-r from-wc-gold to-amber-500 hover:from-amber-400 hover:to-wc-gold text-slate-950 rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-all shadow-md shadow-wc-gold/10 shrink-0 text-center hover:-translate-y-0.5"
+          >
+            Llenar Pronóstico de Oro
+          </a>
+        </div>
+      )}
 
       {/* Selector de sub-pestañas si es fase de grupos */}
       {phaseSlug === 'grupos' && !loading && !error && (

@@ -24,6 +24,9 @@ interface Entry {
   signedUrl: string | null;
   predictions_count: number;
   predictions: Prediction[];
+  predicted_champion?: string | null;
+  predicted_champion_goals?: number | null;
+  predicted_final_goals?: number | null;
 }
 
 interface Participant {
@@ -325,6 +328,25 @@ export default function AdminUserList() {
                                     <span className="text-slate-500 block uppercase tracking-wider text-[9px] font-sports">Puntaje Actual:</span>
                                     <span className="text-slate-200 font-bold font-sports text-sm">{entry.total_points} Puntos</span>
                                   </div>
+                                </div>
+
+                                <div className="h-px bg-wc-border/40"></div>
+
+                                <div className="text-xs space-y-1">
+                                  <span className="text-slate-500 block uppercase tracking-wider text-[9px] font-sports">Pronóstico de Oro:</span>
+                                  {entry.predicted_champion ? (
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-slate-300 font-medium">
+                                      <span className="text-wc-gold font-bold">{entry.predicted_champion}</span>
+                                      <span className="text-slate-500">|</span>
+                                      <span>Goles Camp: <strong className="text-white">{entry.predicted_champion_goals}</strong></span>
+                                      <span className="text-slate-500">|</span>
+                                      <span>Goles Final: <strong className="text-white">{entry.predicted_final_goals}</strong></span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-amber-500 font-sports font-bold uppercase text-[10px] tracking-wide animate-pulse-subtle">
+                                      Pendiente
+                                    </span>
+                                  )}
                                 </div>
 
                                 <div className="flex items-center justify-between text-xs pt-1">

@@ -36,6 +36,9 @@ export const GET: APIRoute = async ({ request, locals }) => {
           total_points,
           payment_receipt_url,
           created_at,
+          predicted_champion,
+          predicted_champion_goals,
+          predicted_final_goals,
           predictions (
             match_id,
             predicted_home,
@@ -97,7 +100,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
               payment_receipt_url: entry.payment_receipt_url,
               signedUrl,
               predictions_count: predictions.length,
-              predictions
+              predictions,
+              predicted_champion: entry.predicted_champion,
+              predicted_champion_goals: entry.predicted_champion_goals,
+              predicted_final_goals: entry.predicted_final_goals
             };
           })
         );

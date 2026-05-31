@@ -1,0 +1,62 @@
+---
+export const prerender = false;
+import MainLayout from '../../layouts/MainLayout.astro';
+import GoldPredictionForm from '../../components/islands/GoldPredictionForm';
+import { Award, ArrowLeft } from 'lucide-react';
+import { supabaseAdmin } from '../../lib/supabase-server';
+
+const profile = Astro.locals.profile;
+const entries = Astro.locals.entries || [];
+const approvedEntries = entries.filter(e => e.status === 'approved');
+
+// Si no hay cupos aprobados, redirigir a pending
+if (approvedEntries.length === 0 && profile?.role !== 'admin') {
+  return Astro.redirect('/pending');
+}
+
+// Validar fecha límite de modificaciones (2 horas antes del primer partido del mundial)
+const { data: firstMatch } = await supabaseAdmin
+  .from('matches')
+  .select('match_time')
+  .order('match_time', { ascending: true })
+  .limit(1)
+  .maybeSingle();
+
+let isLocked = false;
+let firstMatchTimeStr = '';
+if (firstMatch) {
+  firstMatchTimeStr = firstMatch.match_time;
+  const firstMatchTime = new Date(firstMatch.match_time).getTime();
+  const limitTime = firstMatchTime - 2 * 60 * 60 * 1000; // 2 horas antes en ms
+  isLocked = Date.now() >= limitTime;
+}
+---
+
+<MainLayout title="Pronóstico de Oro (Desempate)" userProfile={profile}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Cabecera de Página -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-wc-border pb-6 mb-8">
+      <div>
+        <div class="flex items-center gap-2">
+          <a 
+            href="/predictions" 
+            class="text-sm font-bold text-slate-400 hover:text-wc-gold transition-colors flex items-center gap-1.5 font-sports uppercase tracking-wider cursor-pointer group"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-400 group-hover:text-wc-gold" strokeWidth={2.5} /> Volver a Pronósticos
+          </a>
+        </div>
+        <h1 class="text-4xl font-bold uppercase tracking-wider text-white mt-2 flex items-center gap-2.5 font-sports">
+          <Award className="w-8 h-8 text-wc-gold animate-pulse-subtle" strokeWidth={2.5} /> Pronóstico de Oro
+        </h1>
+        <p class="text-sm sm:text-base text-slate-400 mt-1.5 leading-relaxed">
+          Configura tus predicciones de desempate. Se registran de manera individual para cada uno de tus cupos aprobados.
+        </p>
+      </div>
+    </div>
+
+    <!-- Formulario Reactivo Island -->
+    <GoldPredictionForm client:load userEntries={approvedEntries} isLocked={isLocked} firstMatchTimeStr={firstMatchTimeStr} />
+
+  </div>
+</MainLayout>

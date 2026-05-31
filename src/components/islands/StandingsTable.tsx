@@ -189,18 +189,12 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
     );
   }
 
-  // Pre-calcular posiciones globales del ranking
-  const rankedStandings: Array<StandingEntry & { rank: number }> = [];
-  let currentRank = 1;
-  for (let i = 0; i < standings.length; i++) {
-    if (i > 0 && standings[i].total_points < standings[i - 1].total_points) {
-      currentRank = i + 1;
-    }
-    rankedStandings.push({
-      ...standings[i],
-      rank: currentRank
-    });
-  }
+  // Pre-calcular posiciones globales del ranking secuencialmente
+  const rankedStandings = standings.map((entry, index) => ({
+    ...entry,
+    rank: index + 1
+  }));
+
 
   // Filtrar cupos propios
   const myRankedEntries = rankedStandings.filter(entry => myEntryIds.includes(entry.id));

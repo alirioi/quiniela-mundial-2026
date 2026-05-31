@@ -36,3 +36,7 @@ check_data.js
 
 # Temporary scratch files
 scratch/
+
+# Agent skills and lockfiles (local only)
+.agents/
+skills-lock.json

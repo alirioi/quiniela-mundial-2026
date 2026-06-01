@@ -17,7 +17,7 @@ export default function RegisterPaymentSection() {
         const data = await res.json();
         if (data && data.promedio) {
           setEuroRate(data.promedio);
-          setVesAmount(30 * data.promedio);
+          setVesAmount(26 * data.promedio);
         }
       } catch (e) {
         console.error('Error fetching euro rate:', e);
@@ -93,7 +93,7 @@ export default function RegisterPaymentSection() {
         {(paymentMethod === 'pago_movil' || paymentMethod === 'transferencia_bs') && (
           <div className="space-y-3">
             <div className="p-3 bg-wc-gold/10 border border-wc-gold/20 rounded-lg text-xs md:text-sm text-wc-gold font-medium leading-relaxed">
-              <span className="font-bold">Aviso:</span> Si el pago es en Bolívares, el costo del cupo es de <strong>30 USD</strong> calculados a la tasa del Euro oficial (BCV) del día del pago. Ese dinero luego se cambiará a USDT y se aplicará la misma distribución de 15 USDT al pote y 5 USDT a gastos operativos.
+              <span className="font-bold">Aviso:</span> Si el pago es en Bolívares, el costo del cupo es de <strong>26 USD</strong> calculados a la tasa del Euro oficial (BCV) del día del pago. Ese dinero luego se cambiará a USDT y se aplicará la misma distribución de 15 USDT al pote y 5 USDT a gastos operativos.
             </div>
             
             {euroRate && vesAmount ? (

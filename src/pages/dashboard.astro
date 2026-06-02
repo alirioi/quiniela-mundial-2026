@@ -5,7 +5,7 @@ import PredictionWarningBanner from '../components/islands/PredictionWarningBann
 import PrizePoolDisplay from '../components/islands/PrizePoolDisplay';
 import LiveScoreboard from '../components/islands/LiveScoreboard';
 import StandingsTable from '../components/islands/StandingsTable';
-import { Edit3, CreditCard, Shield, Info, MessageSquare, Sparkles } from 'lucide-react';
+import { Edit3, CreditCard, Shield, Info, MessageSquare, Sparkles, BarChart3 } from 'lucide-react';
 
 // Obtener datos del middleware
 const user = Astro.locals.user;
@@ -126,6 +126,23 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
               </div>
             </li>
           </ul>
+        </div>
+
+        <!-- Tarjeta de Estadísticas del Mundial -->
+        <div class="p-5 rounded-2xl bg-wc-card border border-wc-border backdrop-blur-sm space-y-3.5 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-20 h-20 bg-wc-gold/5 rounded-full blur-xl pointer-events-none"></div>
+          <h3 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 border-b border-wc-border pb-2.5 font-sports">
+            <BarChart3 className="w-5 h-5 text-wc-gold" strokeWidth={2.5} /> Estadísticas en Vivo
+          </h3>
+          <p class="text-xs md:text-sm text-slate-350 leading-relaxed">
+            Sigue en vivo la tabla de goleadores, goles marcados por selección y rendimiento de los equipos para monitorear tu <strong class="text-wc-gold font-bold">Pronóstico de Oro</strong>.
+          </p>
+          <a
+            href="/mundial"
+            class="w-full py-2.5 text-center bg-wc-dark hover:bg-slate-800 text-slate-200 hover:text-white rounded-xl text-xs font-bold font-sports tracking-wider uppercase border border-wc-border hover:border-wc-gold/40 transition-all flex items-center justify-center gap-1.5"
+          >
+            Ver Estadísticas
+          </a>
         </div>
 
         <!-- Tarjeta de Contacto / Soporte -->

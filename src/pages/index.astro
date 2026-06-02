@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 import MainLayout from '../layouts/MainLayout.astro';
-import { Trophy, Ticket, BookOpen } from 'lucide-react';
+import { Trophy, Ticket, BookOpen, BarChart3 } from 'lucide-react';
 
 // Obtener sesión si existe
 const user = Astro.locals.user;
@@ -92,6 +92,13 @@ const REGISTRATION_DEADLINE = new Date(FIRST_MATCH_TIME.getTime() - 2 * 24 * 60 
               <span>Registrarse y Participar</span>
             </a>
           </div>
+          <a
+            href="/mundial"
+            class="w-full sm:w-auto px-8 py-4 bg-wc-card hover:bg-wc-card/85 text-slate-200 rounded-2xl text-sm font-bold border border-wc-border hover:border-wc-gold/40 transition-all flex items-center justify-center gap-2"
+          >
+            <BarChart3 className="w-4 h-4 text-wc-gold" />
+            <span>Calendario y Estadísticas</span>
+          </a>
           <a
             href="/faq"
             class="w-full sm:w-auto px-8 py-4 bg-wc-card hover:bg-wc-card/85 text-slate-200 rounded-2xl text-sm font-bold border border-wc-border transition-all flex items-center justify-center gap-2"

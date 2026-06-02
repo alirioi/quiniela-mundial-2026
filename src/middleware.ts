@@ -22,7 +22,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     '/api/auth/login',
     '/api/auth/reset-password',
     '/api/auth/logout',
-    '/api/prize-pool'
+    '/api/prize-pool',
+    '/api/player-stats'
   ];
 
   const isPublicRoute = publicRoutes.includes(path) || (isApiRoute && publicRoutes.some(r => path.startsWith(r)));

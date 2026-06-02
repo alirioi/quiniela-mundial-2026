@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Trophy, Calendar, Filter, Search, Award, GitBranch } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Trophy, Calendar, Filter, Search, Award, GitBranch, BarChart3, Star, AlertTriangle, RefreshCw } from 'lucide-react';
 import { getTeamFlagUrl } from '../../utils/flags';
 import KnockoutBracket from './KnockoutBracket';
 
@@ -14,6 +14,16 @@ export interface Match {
   status: 'scheduled' | 'live' | 'finished';
   group_name: string | null;
   match_number: number;
+}
+
+interface Player {
+  id: string;
+  name: string;
+  team: string;
+  goals: number;
+  assists: number;
+  yellow_cards: number;
+  red_cards: number;
 }
 
 interface TeamStats {
@@ -34,10 +44,78 @@ interface Props {
 }
 
 export default function MundialDashboard({ matches }: Props) {
-  const [activeTab, setActiveTab] = useState<'grupos' | 'terceros' | 'calendario' | 'llave'>('grupos');
+  const [activeTab, setActiveTab] = useState<'grupos' | 'terceros' | 'calendario' | 'llave' | 'estadisticas'>('grupos');
   const [filterGroup, setFilterGroup] = useState<string>('todos');
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [playersLoading, setPlayersLoading] = useState(false);
+  const [playersError, setPlayersError] = useState<string | null>(null);
+
+  // Fetch players when 'estadisticas' tab is active
+  useEffect(() => {
+    if (activeTab !== 'estadisticas') return;
+    
+    const fetchPlayers = async () => {
+      setPlayersLoading(true);
+      setPlayersError(null);
+      try {
+        const response = await fetch('/api/player-stats');
+        if (!response.ok) {
+          throw new Error('Error al obtener la tabla de goleadores');
+        }
+        const data = await response.json();
+        if (data && data.error) {
+          throw new Error(data.error);
+        }
+        setPlayers(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        setPlayersError(err.message || 'Error de conexión');
+      } finally {
+        setPlayersLoading(false);
+      }
+    };
+
+    fetchPlayers();
+  }, [activeTab]);
+
+  // Calculate dynamic team stats summary (goals scored and conceded for all matches)
+  const teamStatsSummary = useMemo(() => {
+    const stats: Record<string, { team: string; gf: number; gc: number; pj: number }> = {};
+    matches.forEach(m => {
+      if ((m.status === 'finished' || m.status === 'live') && m.home_score !== null && m.away_score !== null) {
+        if (!stats[m.home_team]) stats[m.home_team] = { team: m.home_team, gf: 0, gc: 0, pj: 0 };
+        if (!stats[m.away_team]) stats[m.away_team] = { team: m.away_team, gf: 0, gc: 0, pj: 0 };
+        
+        stats[m.home_team].pj++;
+        stats[m.home_team].gf += m.home_score;
+        stats[m.home_team].gc += m.away_score;
+
+        stats[m.away_team].pj++;
+        stats[m.away_team].gf += m.away_score;
+        stats[m.away_team].gc += m.home_score;
+      }
+    });
+    // Sort teams by goals scored (gf) descending, then goals conceded (gc) ascending, then name
+    return Object.values(stats).sort((a, b) => {
+      if (b.gf !== a.gf) return b.gf - a.gf;
+      if (a.gc !== b.gc) return a.gc - b.gc;
+      return a.team.localeCompare(b.team);
+    });
+  }, [matches]);
+
+  // General tournament-wide figures
+  const generalStats = useMemo(() => {
+    const finishedMatches = matches.filter(m => m.status === 'finished');
+    const totalGoals = finishedMatches.reduce((acc, m) => acc + (m.home_score || 0) + (m.away_score || 0), 0);
+    const avgGoals = finishedMatches.length > 0 ? (totalGoals / finishedMatches.length).toFixed(2) : '0.00';
+    return {
+      played: finishedMatches.length,
+      goals: totalGoals,
+      avg: avgGoals
+    };
+  }, [matches]);
 
   // 1. Process group standings
   const { groupStandings, thirdPlaces } = useMemo(() => {
@@ -261,6 +339,16 @@ export default function MundialDashboard({ matches }: Props) {
               >
                 <GitBranch className="w-5 h-5 sm:w-4 sm:h-4" /> <span>Llave</span>
               </button>
+              <button
+                onClick={() => setActiveTab('estadisticas')}
+                title="Estadísticas del Mundial"
+                aria-label="Ver estadísticas"
+                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
+                  activeTab === 'estadisticas' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" /> <span>Estadísticas</span>
+              </button>
             </div>
           </div>
         </div>
@@ -477,6 +565,160 @@ export default function MundialDashboard({ matches }: Props) {
       {activeTab === 'llave' && (
         <div className="animate-fade-in">
           <KnockoutBracket groupStandings={groupStandings} thirdPlaces={thirdPlaces} />
+        </div>
+      )}
+
+      {activeTab === 'estadisticas' && (
+        <div className="space-y-8 animate-fade-in">
+          {/* Mundial in Figures General Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-5 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden flex items-center justify-between min-h-[100px]">
+              <div>
+                <span className="text-slate-450 text-[10px] font-sports font-bold tracking-wider uppercase block">Partidos Completados</span>
+                <span className="text-3xl font-extrabold font-mono text-white mt-1 block">{generalStats.played}</span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-wc-blue/10 border border-wc-blue/20 text-wc-blue">
+                <Calendar className="w-5.5 h-5.5" />
+              </div>
+            </div>
+
+            <div className="p-5 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden flex items-center justify-between min-h-[100px]">
+              <div>
+                <span className="text-slate-450 text-[10px] font-sports font-bold tracking-wider uppercase block">Goles Totales</span>
+                <span className="text-3xl font-extrabold font-mono text-wc-gold mt-1 block">{generalStats.goals}</span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-wc-gold/10 border border-wc-gold/20 text-wc-gold">
+                <Trophy className="w-5.5 h-5.5" />
+              </div>
+            </div>
+
+            <div className="p-5 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden flex items-center justify-between min-h-[100px]">
+              <div>
+                <span className="text-slate-450 text-[10px] font-sports font-bold tracking-wider uppercase block">Promedio de Goles</span>
+                <span className="text-3xl font-extrabold font-mono text-wc-green mt-1 block">{generalStats.avg}</span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-wc-green/10 border border-wc-green/20 text-wc-green">
+                <Star className="w-5.5 h-5.5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Goles por Selección (Dinámico) */}
+            <div className="bg-wc-card border border-wc-border rounded-2xl overflow-hidden shadow-xl flex flex-col">
+              <div className="bg-wc-dark/60 p-4 border-b border-wc-border">
+                <h3 className="font-sports text-lg text-wc-gold tracking-wider uppercase flex items-center gap-2">
+                  <Award className="w-5 h-5 text-wc-gold shrink-0" strokeWidth={2.5} /> Goles por Selección
+                </h3>
+              </div>
+              <div className="overflow-x-auto max-h-[500px] custom-scrollbar">
+                {teamStatsSummary.length === 0 ? (
+                  <div className="p-8 text-center text-slate-500 text-xs uppercase font-sports tracking-wider">
+                    No hay partidos finalizados para procesar.
+                  </div>
+                ) : (
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-wc-dark/30 text-[10px] sm:text-xs uppercase font-sports tracking-wider text-slate-500 border-b border-wc-border/30">
+                        <th className="p-4 w-12 text-center">#</th>
+                        <th className="p-4">Selección</th>
+                        <th className="p-4 text-center">Partidos</th>
+                        <th className="p-4 text-center text-wc-green">G. Marcados</th>
+                        <th className="p-4 text-center text-wc-red">G. Recibidos</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-wc-border/30 text-sm text-slate-300">
+                      {teamStatsSummary.map((t, idx) => {
+                        const flagUrl = getTeamFlagUrl(t.team);
+                        return (
+                          <tr key={t.team} className="hover:bg-white/5 transition-colors">
+                            <td className="p-4 text-center font-mono font-bold text-slate-500">{idx + 1}</td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                {flagUrl ? (
+                                  <img src={flagUrl} alt={t.team} className="w-5 h-3.5 object-cover rounded shadow-sm" />
+                                ) : (
+                                  <div className="w-5 h-3.5 bg-slate-800 rounded"></div>
+                                )}
+                                <span className="font-bold text-white text-xs sm:text-sm">{t.team}</span>
+                              </div>
+                            </td>
+                            <td className="p-4 text-center font-mono">{t.pj}</td>
+                            <td className="p-4 text-center font-mono font-extrabold text-wc-green text-base">{t.gf}</td>
+                            <td className="p-4 text-center font-mono text-slate-400">{t.gc}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+
+            {/* Tabla de Goleadores (Jugadores) */}
+            <div className="bg-wc-card border border-wc-border rounded-2xl overflow-hidden shadow-xl flex flex-col">
+              <div className="bg-wc-dark/60 p-4 border-b border-wc-border">
+                <h3 className="font-sports text-lg text-wc-gold tracking-wider uppercase flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-wc-gold shrink-0" strokeWidth={2.5} /> Tabla de Goleadores
+                </h3>
+              </div>
+              <div className="overflow-x-auto max-h-[500px] custom-scrollbar">
+                {playersLoading ? (
+                  <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
+                    <RefreshCw className="w-6 h-6 animate-spin text-wc-gold" />
+                    <span className="text-[10px] uppercase font-sports tracking-wider">Cargando goleadores...</span>
+                  </div>
+                ) : playersError ? (
+                  <div className="p-8 text-center text-wc-red text-xs uppercase font-sports tracking-wider flex items-center justify-center gap-2">
+                    <AlertTriangle className="w-4.5 h-4.5" />
+                    <span>{playersError}</span>
+                  </div>
+                ) : !Array.isArray(players) || players.length === 0 ? (
+                  <div className="p-8 text-center text-slate-500 text-xs uppercase font-sports tracking-wider">
+                    No hay goleadores individuales registrados.
+                  </div>
+                ) : (
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-wc-dark/30 text-[10px] sm:text-xs uppercase font-sports tracking-wider text-slate-500 border-b border-wc-border/30">
+                        <th className="p-4 w-12 text-center">#</th>
+                        <th className="p-4">Jugador</th>
+                        <th className="p-4 text-center text-wc-gold">Goles</th>
+                        <th className="p-4 text-center">Asistencias</th>
+                        <th className="p-4 text-center text-yellow-500">TA</th>
+                        <th className="p-4 text-center text-wc-red">TR</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-wc-border/30 text-sm text-slate-300">
+                      {Array.isArray(players) && players.map((p, idx) => {
+                        const flagUrl = getTeamFlagUrl(p.team);
+                        return (
+                          <tr key={p.id} className="hover:bg-white/5 transition-colors">
+                            <td className="p-4 text-center font-mono font-bold text-slate-500">{idx + 1}</td>
+                            <td className="p-4">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-bold text-white text-xs sm:text-sm">{p.name}</span>
+                                <div className="flex items-center gap-1.5 text-[10px] text-slate-450 font-semibold uppercase">
+                                  {flagUrl && (
+                                    <img src={flagUrl} alt={p.team} className="w-3.5 h-2.5 object-cover rounded-[1px]" />
+                                  )}
+                                  <span>{p.team}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-4 text-center font-mono font-extrabold text-wc-gold text-base">{p.goals}</td>
+                            <td className="p-4 text-center font-mono">{p.assists}</td>
+                            <td className="p-4 text-center font-mono text-yellow-500">{p.yellow_cards}</td>
+                            <td className="p-4 text-center font-mono text-wc-red">{p.red_cards}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

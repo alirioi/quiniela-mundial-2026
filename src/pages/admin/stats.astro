@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import AdminStatsManager from '../../components/islands/AdminStatsManager';
+---
+
+<AdminLayout title="Gestión de Estadísticas">
+  <AdminStatsManager client:load />
+</AdminLayout>

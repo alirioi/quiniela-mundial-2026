@@ -1,6 +1,6 @@
 ---
 import MainLayout from './MainLayout.astro';
-import { Shield, CreditCard, Trophy, Settings, Users, DollarSign } from 'lucide-react';
+import { Shield, CreditCard, Trophy, Settings, Users, DollarSign, BarChart3 } from 'lucide-react';
 import { supabaseAdmin } from '../lib/supabase-server';
 
 interface Props {
@@ -139,6 +139,17 @@ const potencialOrg = pendingNonAdminCount * 5;
           >
             <Users className="w-4.5 h-4.5" strokeWidth={2.5} />
             <span>Participantes</span>
+          </a>
+          <a
+            href="/admin/stats"
+            class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
+              activePath === '/admin/stats'
+                ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <BarChart3 className="w-4.5 h-4.5" strokeWidth={2.5} />
+            <span>Estadísticas</span>
           </a>
         </nav>
       </div>

@@ -43,3 +43,6 @@ skills-lock.json
 
 # Supabase temp directory
 supabase/.temp/
+
+# CLI local configuration
+.antigravitycli/

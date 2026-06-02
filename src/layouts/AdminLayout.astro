@@ -1,6 +1,7 @@
 ---
 import MainLayout from './MainLayout.astro';
-import { Shield, CreditCard, Trophy, Settings, Users } from 'lucide-react';
+import { Shield, CreditCard, Trophy, Settings, Users, DollarSign } from 'lucide-react';
+import { supabaseAdmin } from '../lib/supabase-server';
 
 interface Props {
   title: string;
@@ -13,69 +14,134 @@ const profile = Astro.locals.profile;
 
 // Verificamos en el middleware que sea admin, pero aquí mostramos su perfil
 const activePath = Astro.url.pathname;
+
+// Obtener estadísticas en el servidor para mostrar en el encabezado del panel admin
+let approvedNonAdminCount = 0;
+let pendingNonAdminCount = 0;
+
+try {
+  // Obtener IDs de administradores para excluirlos
+  const { data: adminProfiles } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('role', 'admin');
+  const adminIds = adminProfiles?.map(p => p.id) || [];
+
+  // Contar aprobados
+  let approvedQuery = supabaseAdmin
+    .from('entries')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'approved');
+  if (adminIds.length > 0) {
+    approvedQuery = approvedQuery.not('user_id', 'in', `(${adminIds.join(',')})`);
+  }
+  const { count: approvedCount } = await approvedQuery;
+  approvedNonAdminCount = approvedCount || 0;
+
+  // Contar pendientes
+  let pendingQuery = supabaseAdmin
+    .from('entries')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending');
+  if (adminIds.length > 0) {
+    pendingQuery = pendingQuery.not('user_id', 'in', `(${adminIds.join(',')})`);
+  }
+  const { count: pendingCount } = await pendingQuery;
+  pendingNonAdminCount = pendingCount || 0;
+} catch (e) {
+  console.error('Error fetching admin header stats:', e);
+}
+
+const recaudadoOrg = approvedNonAdminCount * 5;
+const potencialOrg = pendingNonAdminCount * 5;
 ---
 
 <MainLayout title={`Panel Admin - ${title}`} userProfile={profile}>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Admin Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-wc-border pb-6 mb-8">
-      <div>
-        <h1 class="text-3xl font-sports font-black tracking-wider text-white flex items-center gap-2.5">
-          <Shield className="w-7 h-7 text-wc-gold shrink-0" strokeWidth={2.5} /> Panel de Administración
-        </h1>
-        <p class="text-sm text-slate-400 mt-1.5">
-          Gestiona los pagos de los usuarios, registra marcadores oficiales y administra las fases del torneo.
-        </p>
+    <div class="border-b border-wc-border pb-6 mb-8 space-y-6">
+      <!-- Title & Stat Row -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-sports font-black tracking-wider text-white flex items-center gap-2.5">
+            <Shield className="w-7 h-7 text-wc-gold shrink-0" strokeWidth={2.5} /> Panel de Administración
+          </h1>
+          <p class="text-sm text-slate-400 mt-1.5">
+            Gestiona los pagos de los usuarios, registra marcadores oficiales y administra las fases del torneo.
+          </p>
+        </div>
+
+        <!-- Recaudación Organización Quick Stat -->
+        <div class="flex items-center gap-3.5 bg-wc-card/50 border border-wc-border px-4 py-3 rounded-2xl backdrop-blur-md self-start md:self-center shadow-md">
+          <div class="p-2 rounded-xl bg-wc-gold/10 border border-wc-gold/20 text-wc-gold shrink-0">
+            <DollarSign className="w-5 h-5" strokeWidth={2.5} />
+          </div>
+          <div class="flex flex-col">
+            <span class="text-slate-400 text-[10px] font-sports font-bold tracking-wider uppercase block">Recaudado Org (5 USD/c)</span>
+            <span class="text-xl font-bold font-mono text-white mt-0.5 block">${recaudadoOrg} USD</span>
+          </div>
+          {potencialOrg > 0 && (
+            <>
+              <div class="h-8 w-px bg-wc-border/50 mx-1"></div>
+              <div class="flex flex-col">
+                <span class="text-slate-350 text-[9px] font-sports font-bold tracking-wider uppercase block">Por Verificar</span>
+                <span class="text-xs font-bold font-mono text-wc-gold mt-0.5 block">+${potencialOrg} USD</span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-      
-      <!-- Subnavegación de Admin -->
-      <nav class="flex items-center gap-2 p-1 bg-wc-card/60 border border-wc-border rounded-2xl w-full md:w-fit overflow-x-auto hide-scrollbar whitespace-nowrap">
-        <a
-          href="/admin"
-          class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
-            activePath === '/admin'
-              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <CreditCard className="w-4.5 h-4.5" strokeWidth={2.5} />
-          <span>Cupos y Pagos</span>
-        </a>
-        <a
-          href="/admin/matches"
-          class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
-            activePath === '/admin/matches'
-              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Trophy className="w-4.5 h-4.5" strokeWidth={2.5} />
-          <span>Marcadores</span>
-        </a>
-        <a
-          href="/admin/phases"
-          class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
-            activePath === '/admin/phases'
-              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Settings className="w-4.5 h-4.5" strokeWidth={2.5} />
-          <span>Fases</span>
-        </a>
-        <a
-          href="/admin/users"
-          class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
-            activePath === '/admin/users'
-              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Users className="w-4.5 h-4.5" strokeWidth={2.5} />
-          <span>Participantes</span>
-        </a>
-      </nav>
+
+      <!-- Navigation Row -->
+      <div class="flex items-center justify-start">
+        <nav class="flex items-center gap-2 p-1 bg-wc-card/60 border border-wc-border rounded-2xl w-full md:w-fit overflow-x-auto md:overflow-x-visible custom-scrollbar whitespace-nowrap">
+          <a
+            href="/admin"
+            class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
+              activePath === '/admin'
+                ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <CreditCard className="w-4.5 h-4.5" strokeWidth={2.5} />
+            <span>Cupos y Pagos</span>
+          </a>
+          <a
+            href="/admin/matches"
+            class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
+              activePath === '/admin/matches'
+                ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Trophy className="w-4.5 h-4.5" strokeWidth={2.5} />
+            <span>Marcadores</span>
+          </a>
+          <a
+            href="/admin/phases"
+            class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
+              activePath === '/admin/phases'
+                ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Settings className="w-4.5 h-4.5" strokeWidth={2.5} />
+            <span>Fases</span>
+          </a>
+          <a
+            href="/admin/users"
+            class={`px-4 py-2 rounded-xl text-xs font-sports font-bold tracking-wider transition-colors flex items-center gap-1.5 ${
+              activePath === '/admin/users'
+                ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 shadow-md shadow-wc-gold/10'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Users className="w-4.5 h-4.5" strokeWidth={2.5} />
+            <span>Participantes</span>
+          </a>
+        </nav>
+      </div>
     </div>
 
     <!-- Área de Contenido del Panel -->

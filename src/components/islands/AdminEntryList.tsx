@@ -12,7 +12,10 @@ import {
   Check,
   X,
   ExternalLink,
-  Trash
+  Trash,
+  DollarSign,
+  TrendingUp,
+  Coins
 } from 'lucide-react';
 
 interface Entry {
@@ -30,6 +33,7 @@ interface Entry {
   profiles: {
     full_name: string;
     email: string;
+    role?: string;
   } | null;
 }
 
@@ -153,8 +157,88 @@ export default function AdminEntryList() {
     return entry.status === filter;
   });
 
+  // Estadísticas financieras (5 USD por cupo para la org)
+  const approvedEntries = entries.filter(e => e.status === 'approved');
+  const approvedNonAdminCount = approvedEntries.filter(e => e.profiles?.role !== 'admin').length;
+
+  const pendingEntries = entries.filter(e => e.status === 'pending');
+  const pendingNonAdminCount = pendingEntries.filter(e => e.profiles?.role !== 'admin').length;
+
+  const recaudadoOrg = approvedNonAdminCount * 5;
+  const recaudadoPremios = approvedNonAdminCount * 15;
+  const recaudadoTotal = approvedNonAdminCount * 20;
+
+  const potencialOrg = pendingNonAdminCount * 5;
+  const potencialPremios = pendingNonAdminCount * 15;
+  const potencialTotal = pendingNonAdminCount * 20;
+
   return (
     <div className="space-y-6">
+      {/* Resumen de Recaudación */}
+      {!loading && !error && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Card 1: Organización */}
+          <div className="p-5 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden flex flex-col justify-between min-h-[120px]">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="flex items-center justify-between relative z-10">
+              <div>
+                <span className="text-slate-400 text-[10px] font-sports font-bold tracking-wider uppercase block">Recaudado Organización</span>
+                <span className="text-2xl font-bold font-mono text-wc-gold mt-1 block">${recaudadoOrg} USD</span>
+              </div>
+              <div className="p-3 rounded-xl bg-wc-gold/10 border border-wc-gold/20 text-wc-gold">
+                <DollarSign className="w-5 h-5" strokeWidth={2.5} />
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-wc-border/30 flex justify-between items-center text-[10px] font-medium text-slate-450 relative z-10">
+              <span>{approvedNonAdminCount} cupos aprobados (5 USD/c)</span>
+              {potencialOrg > 0 && (
+                <span className="text-wc-gold font-bold">Por verificar: +${potencialOrg} USD</span>
+              )}
+            </div>
+          </div>
+
+          {/* Card 2: Pote de Premios */}
+          <div className="p-5 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden flex flex-col justify-between min-h-[120px]">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-wc-blue/5 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="flex items-center justify-between relative z-10">
+              <div>
+                <span className="text-slate-400 text-[10px] font-sports font-bold tracking-wider uppercase block">Pote de Premios (75%)</span>
+                <span className="text-2xl font-bold font-mono text-wc-blue mt-1 block">${recaudadoPremios} USD</span>
+              </div>
+              <div className="p-3 rounded-xl bg-wc-blue/10 border border-wc-blue/20 text-wc-blue">
+                <Coins className="w-5 h-5" strokeWidth={2.5} />
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-wc-border/30 flex justify-between items-center text-[10px] font-medium text-slate-450 relative z-10">
+              <span>{approvedNonAdminCount} cupos aprobados (15 USD/c)</span>
+              {potencialPremios > 0 && (
+                <span className="text-wc-blue font-bold">Por verificar: +${potencialPremios} USD</span>
+              )}
+            </div>
+          </div>
+
+          {/* Card 3: Total Recaudado */}
+          <div className="p-5 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden flex flex-col justify-between min-h-[120px]">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-wc-green/5 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="flex items-center justify-between relative z-10">
+              <div>
+                <span className="text-slate-400 text-[10px] font-sports font-bold tracking-wider uppercase block">Ingresos Totales</span>
+                <span className="text-2xl font-bold font-mono text-wc-green mt-1 block">${recaudadoTotal} USD</span>
+              </div>
+              <div className="p-3 rounded-xl bg-wc-green/10 border border-wc-green/20 text-wc-green">
+                <TrendingUp className="w-5 h-5" strokeWidth={2.5} />
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-wc-border/30 flex justify-between items-center text-[10px] font-medium text-slate-450 relative z-10">
+              <span>Monto total (20 USD/c)</span>
+              {potencialTotal > 0 && (
+                <span className="text-wc-green font-bold">Por verificar: +${potencialTotal} USD</span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Filtros */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>

@@ -1,8 +1,18 @@
+/**
+ * @file MundialDashboard.tsx
+ * @description Componente interactivo para visualizar el progreso general del Mundial 2026.
+ * Incluye tablas de posiciones en tiempo real, clasificación de mejores terceros, calendario
+ * de partidos y estadísticas detalladas de equipos y jugadores.
+ */
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Trophy, Calendar, Filter, Search, Award, GitBranch, BarChart3, Star, AlertTriangle, RefreshCw } from 'lucide-react';
 import { getTeamFlagUrl } from '../../utils/flags';
 import KnockoutBracket from './KnockoutBracket';
 
+/**
+ * Representa un partido de fútbol con sus datos básicos, puntajes y estado.
+ */
 export interface Match {
   id: number;
   phase_id: number;
@@ -80,7 +90,7 @@ export default function MundialDashboard({ matches }: Props) {
     fetchPlayers();
   }, [activeTab]);
 
-  // Calculate dynamic team stats summary (goals scored and conceded for all matches)
+  // Cálculo dinámico de estadísticas por equipo (goles a favor y en contra en todos los partidos)
   const teamStatsSummary = useMemo(() => {
     const stats: Record<string, { team: string; gf: number; gc: number; pj: number }> = {};
     matches.forEach(m => {
@@ -97,7 +107,7 @@ export default function MundialDashboard({ matches }: Props) {
         stats[m.away_team].gc += m.home_score;
       }
     });
-    // Sort teams by goals scored (gf) descending, then goals conceded (gc) ascending, then name
+    // Ordenar equipos por goles a favor (gf) descendente, luego goles en contra (gc) ascendente
     return Object.values(stats).sort((a, b) => {
       if (b.gf !== a.gf) return b.gf - a.gf;
       if (a.gc !== b.gc) return a.gc - b.gc;
@@ -105,7 +115,7 @@ export default function MundialDashboard({ matches }: Props) {
     });
   }, [matches]);
 
-  // General tournament-wide figures
+  // Estadísticas generales del torneo (goles totales, promedio, partidos jugados)
   const generalStats = useMemo(() => {
     const finishedMatches = matches.filter(m => m.status === 'finished');
     const totalGoals = finishedMatches.reduce((acc, m) => acc + (m.home_score || 0) + (m.away_score || 0), 0);
@@ -117,13 +127,13 @@ export default function MundialDashboard({ matches }: Props) {
     };
   }, [matches]);
 
-  // 1. Process group standings
+  // 1. Procesamiento de las tablas de posiciones de cada grupo
   const { groupStandings, thirdPlaces } = useMemo(() => {
     const statsByGroup: Record<string, Record<string, TeamStats>> = {};
 
-    // Initialize stats and process matches
+    // Inicializar estadísticas y procesar partidos de fase de grupos
     matches.forEach(match => {
-      if (!match.group_name || match.phase_id !== 1) return; // Only group stage matches
+      if (!match.group_name || match.phase_id !== 1) return;
       const group = match.group_name;
       
       if (!statsByGroup[group]) statsByGroup[group] = {};
@@ -165,10 +175,9 @@ export default function MundialDashboard({ matches }: Props) {
     const finalStandings: Record<string, TeamStats[]> = {};
     const allThirds: TeamStats[] = [];
 
-    // Sort teams inside groups
+    // Ordenar equipos dentro de los grupos según criterios FIFA (pts -> dg -> gf)
     Object.keys(statsByGroup).sort().forEach(group => {
       const teams = Object.values(statsByGroup[group]);
-      // Calculate DG just in case
       teams.forEach(t => t.dg = t.gf - t.gc);
       
       teams.sort((a, b) => {
@@ -181,11 +190,11 @@ export default function MundialDashboard({ matches }: Props) {
       finalStandings[group] = teams;
       
       if (teams.length >= 3) {
-        allThirds.push(teams[2]); // The 3rd placed team (index 2)
+        allThirds.push(teams[2]); // El 3º clasificado de cada grupo
       }
     });
 
-    // Sort third places
+    // Ordenar los mejores terceros de todo el mundial
     allThirds.sort((a, b) => {
       if (b.pts !== a.pts) return b.pts - a.pts;
       if (b.dg !== a.dg) return b.dg - a.dg;
@@ -197,7 +206,7 @@ export default function MundialDashboard({ matches }: Props) {
     return { groupStandings: finalStandings, thirdPlaces: allThirds };
   }, [matches]);
 
-  // Calendar filtering
+  // Filtrado de partidos para la pestaña de calendario
   const filteredMatches = useMemo(() => {
     return matches.filter(m => {
       const matchGroup = filterGroup === 'todos' || m.group_name === filterGroup;

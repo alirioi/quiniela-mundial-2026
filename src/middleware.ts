@@ -1,6 +1,17 @@
+/**
+ * @file middleware.ts
+ * @description Middleware de Astro para la gestión de autenticación, sesiones y control de acceso.
+ * Se encarga de verificar tokens de Supabase, refrescar sesiones, cargar perfiles de usuario
+ * y manejar las redirecciones basadas en el estado de autenticación, aprobación de entradas y roles.
+ */
+
 import { defineMiddleware } from 'astro:middleware';
 import { supabaseAdmin, createSupabaseServerClient } from './lib/supabase-server';
 
+/**
+ * Función principal del middleware que se ejecuta en cada petición de servidor.
+ * Implementa la lógica de protección de rutas públicas/privadas y gestiona el contexto global (locals).
+ */
 export const onRequest = defineMiddleware(async (context, next) => {
   const { url, cookies, redirect, locals } = context;
   const path = url.pathname;

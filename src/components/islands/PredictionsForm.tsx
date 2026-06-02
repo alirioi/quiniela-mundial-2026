@@ -1,9 +1,19 @@
+/**
+ * @file PredictionsForm.tsx
+ * @description Componente de formulario interactivo para que los usuarios ingresen y guarden sus predicciones.
+ * Permite la gestión por cupos individuales, visualización de tablas simuladas basadas en los pronósticos
+ * ingresados y validación de tiempos de bloqueo (lock) antes de cada partido.
+ */
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { showAlert } from '../../utils/alerts';
 import { getTeamFlagUrl } from '../../utils/flags';
 import { Lock, Clock, AlertTriangle, Loader2, Award, CheckCircle2, Trophy, GitBranch, Save } from 'lucide-react';
 import KnockoutBracket from './KnockoutBracket';
 
+/**
+ * Datos de una predicción específica.
+ */
 interface Prediction {
   id?: number;
   predicted_home: number;
@@ -101,7 +111,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 1. Process simulated group standings in real-time
+  // 1. Procesa las posiciones de grupos simuladas en tiempo real
   const { groupStandings, thirdPlaces } = useMemo(() => {
     if (phaseSlug !== 'grupos' || matches.length === 0) {
       return { groupStandings: {}, thirdPlaces: [] };
@@ -121,21 +131,21 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         statsByGroup[group][match.away_team] = { team: match.away_team, group, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
       }
 
-      // Determine simulated scores
+      // Determinar puntajes simulados (prioridad: input local > predicción guardada > marcador real)
       const input = inputs[match.id];
       let homeScore: number | null = null;
       let awayScore: number | null = null;
 
       if (input && input.home !== '' && input.away !== '') {
-        // Use user's local typed input if complete
+        // Usar input local del usuario si está completo
         homeScore = parseInt(input.home);
         awayScore = parseInt(input.away);
       } else if (match.prediction) {
-        // Use saved prediction if available
+        // Usar predicción guardada si está disponible
         homeScore = match.prediction.predicted_home;
         awayScore = match.prediction.predicted_away;
       } else if ((match.status === 'finished' || match.status === 'live') && match.home_score !== null && match.away_score !== null) {
-        // Use actual score if match finished/live and no prediction
+        // Usar marcador real si el partido ya ocurrió/está en vivo y no hay predicción
         homeScore = match.home_score;
         awayScore = match.away_score;
       }
@@ -171,7 +181,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
     const finalStandings: Record<string, TeamStats[]> = {};
     const allThirds: TeamStats[] = [];
 
-    // Sort teams inside groups
+    // Ordenar equipos dentro de cada grupo simulado
     Object.keys(statsByGroup).sort().forEach(group => {
       const teams = Object.values(statsByGroup[group]);
       teams.forEach(t => t.dg = t.gf - t.gc);
@@ -186,11 +196,11 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
       finalStandings[group] = teams;
 
       if (teams.length >= 3) {
-        allThirds.push(teams[2]); // The 3rd placed team
+        allThirds.push(teams[2]); // El 3º puesto simulado
       }
     });
 
-    // Sort third places
+    // Ordenar los mejores terceros simulados
     allThirds.sort((a, b) => {
       if (b.pts !== a.pts) return b.pts - a.pts;
       if (b.dg !== a.dg) return b.dg - a.dg;

@@ -1,16 +1,29 @@
+/**
+ * @file knockout.ts
+ * @description Utilidades para el cálculo y gestión de la fase de eliminación directa (knockout) del Mundial 2026.
+ * Incluye la lógica compleja para determinar emparejamientos basados en posiciones de grupos y
+ * la selección de los mejores terceros según las reglas de la FIFA.
+ */
+
+/**
+ * Estadísticas de rendimiento de un equipo en la fase de grupos.
+ */
 export interface TeamStats {
   team: string;
   group: string;
-  pj: number;
-  g: number;
-  e: number;
-  p: number;
-  gf: number;
-  gc: number;
-  dg: number;
-  pts: number;
+  pj: number; // Partidos Jugados
+  g: number;  // Ganados
+  e: number;  // Empatados
+  p: number;  // Perdidos
+  gf: number; // Goles a Favor
+  gc: number; // Goles en Contra
+  dg: number; // Diferencia de Goles
+  pts: number; // Puntos
 }
 
+/**
+ * Estructura de un partido en la fase de eliminación directa.
+ */
 export interface KnockoutMatch {
   matchNumber: number;
   homeTeam: string;
@@ -24,12 +37,15 @@ export interface KnockoutMatch {
   venue: string;
 }
 
+/**
+ * Representación del cuadro completo de la fase eliminatoria.
+ */
 export interface KnockoutBracketData {
-  r32: Record<number, KnockoutMatch>;
-  r16: Record<number, KnockoutMatch>;
-  qf: Record<number, KnockoutMatch>;
-  sf: Record<number, KnockoutMatch>;
-  finalMatch: KnockoutMatch;
+  r32: Record<number, KnockoutMatch>; // Dieciseisavos de final
+  r16: Record<number, KnockoutMatch>; // Octavos de final
+  qf: Record<number, KnockoutMatch>;  // Cuartos de final
+  sf: Record<number, KnockoutMatch>;  // Semifinales
+  finalMatch: KnockoutMatch;          // Gran Final
 }
 
 const allowedOpponents: Record<string, string[]> = {
@@ -43,7 +59,15 @@ const allowedOpponents: Record<string, string[]> = {
   'L': ['E', 'H', 'I', 'J', 'K']
 };
 
-// Backtracking solver to match Winners to Third Places based on FIFA's allowed lists.
+/**
+ * Algoritmo de resolución por backtracking para asignar ganadores de grupo a mejores terceros.
+ * Sigue las combinaciones permitidas por la FIFA para el formato de 48 equipos.
+ * 
+ * @param winners - Lista de letras de grupos cuyos ganadores enfrentan a un tercero.
+ * @param thirds - Lista de letras de grupos que clasificaron como mejores terceros.
+ * @param assignment - Acumulador para la recursión del mapeo.
+ * @returns Un objeto con el mapeo ganador -> tercero o null si no hay solución válida.
+ */
 function matchWinnersToThirds(
   winners: string[],
   thirds: string[],
@@ -66,12 +90,23 @@ function matchWinnersToThirds(
   return null;
 }
 
+/**
+ * Datos de predicción para un partido de eliminación directa.
+ */
 export interface KnockoutPrediction {
   predicted_home?: number | null;
   predicted_away?: number | null;
   predicted_winner?: string | null;
 }
 
+/**
+ * Calcula dinámicamente el cuadro de la fase eliminatoria.
+ * 
+ * @param groupStandings - Clasificaciones actuales de todos los grupos.
+ * @param thirdPlaces - Lista de equipos que quedaron en tercer lugar.
+ * @param predictionsMap - Mapa opcional con las predicciones del usuario para el cuadro.
+ * @returns Objeto con todos los partidos calculados para cada ronda.
+ */
 export function calculateKnockoutBracket(
   groupStandings: Record<string, TeamStats[]>,
   thirdPlaces: TeamStats[],

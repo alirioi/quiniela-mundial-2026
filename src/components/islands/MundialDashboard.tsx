@@ -307,12 +307,12 @@ export default function MundialDashboard({ matches }: Props) {
                 Consulta los resultados oficiales, las tablas de posiciones actualizadas y la clasificación de los mejores terceros de la fase de grupos.
               </p>
             </div>
-            <div className="flex w-full md:w-auto items-center gap-1 sm:gap-2 bg-wc-dark/60 p-1.5 rounded-xl border border-wc-border">
+            <div className="flex w-full md:w-auto items-center gap-1 sm:gap-2 bg-wc-dark/60 p-1.5 rounded-xl border border-wc-border overflow-x-auto custom-scrollbar whitespace-nowrap">
               <button
                 onClick={() => setActiveTab('grupos')}
                 title="Tabla de Grupos"
                 aria-label="Ver grupos"
-                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
+                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'grupos' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -322,7 +322,7 @@ export default function MundialDashboard({ matches }: Props) {
                 onClick={() => setActiveTab('terceros')}
                 title="Clasificación de Terceros"
                 aria-label="Ver mejores terceros"
-                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
+                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'terceros' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -332,7 +332,7 @@ export default function MundialDashboard({ matches }: Props) {
                 onClick={() => setActiveTab('calendario')}
                 title="Calendario de Partidos"
                 aria-label="Ver calendario de partidos"
-                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
+                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'calendario' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -342,7 +342,7 @@ export default function MundialDashboard({ matches }: Props) {
                 onClick={() => setActiveTab('llave')}
                 title="Fase Eliminatoria"
                 aria-label="Ver llave de fase eliminatoria"
-                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
+                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'llave' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -352,7 +352,7 @@ export default function MundialDashboard({ matches }: Props) {
                 onClick={() => setActiveTab('estadisticas')}
                 title="Estadísticas del Mundial"
                 aria-label="Ver estadísticas"
-                className={`flex-1 md:flex-none px-2 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
+                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'estadisticas' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >

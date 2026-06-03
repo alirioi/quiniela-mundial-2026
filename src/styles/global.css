@@ -30,6 +30,11 @@
   /* Red accessibility background / borders */
   --color-wc-red-bg: rgba(255, 77, 82, 0.1);
   --color-wc-red-border: rgba(255, 77, 82, 0.2);
+
+  /* Scrollbar custom variables */
+  --scrollbar-thumb: rgb(243, 198, 35);
+  --scrollbar-track: rgb(18, 18, 23);
+  --scrollbar-thumb-hover: rgb(243, 198, 35 / 0.85);
 }
 
 .light {
@@ -60,6 +65,11 @@
 
   --color-wc-red-bg: rgba(208, 28, 36, 0.08);
   --color-wc-red-border: rgba(208, 28, 36, 0.15);
+
+  /* Scrollbar custom variables (light mode) */
+  --scrollbar-thumb: rgb(212, 163, 0);
+  --scrollbar-track: rgb(255, 255, 255);
+  --scrollbar-thumb-hover: rgb(212, 163, 0 / 0.85);
 }
 
 /* Smooth transitions for theme switching */
@@ -122,7 +132,7 @@ body, header, footer, main, .bg-wc-card, .border-wc-border, input, select, texta
 /* Scrollbar personalizado */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgb(var(--color-wc-gold)) rgb(var(--color-wc-card));
+  scrollbar-color: var(--scrollbar-thumb, rgb(243, 198, 35)) var(--scrollbar-track, rgb(18, 18, 23));
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -131,17 +141,17 @@ body, header, footer, main, .bg-wc-card, .border-wc-border, input, select, texta
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgb(var(--color-wc-card));
+  background: var(--scrollbar-track, rgb(18, 18, 23));
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgb(var(--color-wc-gold));
+  background: var(--scrollbar-thumb, rgb(243, 198, 35));
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--color-wc-gold) / 0.85);
+  background: var(--scrollbar-thumb-hover, rgb(243, 198, 35 / 0.85));
 }
 
 /* Soporte de modo oscuro y claro para input de fecha */

@@ -71,7 +71,19 @@ interface PredictionsFormProps {
 }
 
 export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsFormProps) {
-  const [selectedEntryId, setSelectedEntryId] = useState<number>(userEntries[0]?.id || 0);
+  const [selectedEntryId, setSelectedEntryId] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const entryIdParam = params.get('entry');
+      if (entryIdParam) {
+        const parsed = parseInt(entryIdParam);
+        if (userEntries.some((e) => e.id === parsed)) {
+          return parsed;
+        }
+      }
+    }
+    return userEntries[0]?.id || 0;
+  });
 
   const selectedEntry = useMemo(() => {
     return userEntries.find(e => e.id === selectedEntryId);
@@ -89,6 +101,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeSubTab, setActiveSubTab] = useState<'pronosticos' | 'tabla' | 'llave'>('pronosticos');
+  const [activeGroup, setActiveGroup] = useState<string>('Grupo A');
   
   // Estado local para los inputs: record de matchId -> { home, away }
   const [inputs, setInputs] = useState<Record<number, { home: string; away: string }>>({});
@@ -473,9 +486,15 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   // Verificar si hay algún partido sin predicción guardada
   const unpredictedCount = matches.filter((m) => !m.prediction && !isLocked(m.match_time)).length;
 
+  // Filtrar partidos por grupo si estamos en fase de grupos
+  const filteredMatches = useMemo(() => {
+    if (phaseSlug !== 'grupos') return matches;
+    return matches.filter((m) => m.group_name === activeGroup);
+  }, [matches, phaseSlug, activeGroup]);
+
   // Agrupar partidos por fecha para orden visual premium
   const groupedMatches: Record<string, Match[]> = {};
-  matches.forEach((match) => {
+  filteredMatches.forEach((match) => {
     const dateKey = new Date(match.match_time).toLocaleDateString('es-ES', {
       weekday: 'long',
       day: 'numeric',
@@ -612,6 +631,24 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         <>
           {activeSubTab === 'pronosticos' || phaseSlug !== 'grupos' ? (
             <div className="space-y-8 animate-fade-in">
+              {phaseSlug === 'grupos' && activeSubTab === 'pronosticos' && (
+                <div className="flex items-center gap-2 overflow-x-auto pb-3 border-b border-wc-border/30 custom-scrollbar">
+                  {['Grupo A', 'Grupo B', 'Grupo C', 'Grupo D', 'Grupo E', 'Grupo F', 'Grupo G', 'Grupo H', 'Grupo I', 'Grupo J', 'Grupo K', 'Grupo L'].map((groupName) => (
+                    <button
+                      key={groupName}
+                      type="button"
+                      onClick={() => setActiveGroup(groupName)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border whitespace-nowrap transition-all duration-200 font-sports cursor-pointer shrink-0 ${
+                        activeGroup === groupName
+                          ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 border-transparent shadow-md'
+                          : 'bg-wc-dark border-wc-border text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {groupName}
+                    </button>
+                  ))}
+                </div>
+              )}
               {Object.entries(groupedMatches).map(([dateLabel, dateMatches]) => (
                 <div key={dateLabel} className="space-y-3">
                   <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 border-l-3 border-wc-gold pl-2.5 font-sports">

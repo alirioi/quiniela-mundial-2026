@@ -1,7 +1,8 @@
 ---
 export const prerender = false;
 import MainLayout from '../../layouts/MainLayout.astro';
-import { Trophy, Compass, ArrowRight, ShieldAlert, Award } from 'lucide-react';
+import PredictionsDashboard from '../../components/islands/PredictionsDashboard';
+import { ShieldAlert } from 'lucide-react';
 
 const profile = Astro.locals.profile;
 const entries = Astro.locals.entries || [];
@@ -11,121 +12,25 @@ const approvedEntries = entries.filter(e => e.status === 'approved');
 if (approvedEntries.length === 0 && profile?.role !== 'admin') {
   return Astro.redirect('/pending');
 }
-
-// Comprobar si hay algún cupo pendiente por llenar su Pronóstico de Oro
-const hasPendingGold = approvedEntries.some(
-  e => !e.predicted_champion || e.predicted_champion_goals === null || e.predicted_final_goals === null
-);
 ---
 
 <MainLayout title="Mis Pronósticos" userProfile={profile}>
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
     
-    <!-- Cabecera -->
+    {/* Cabecera */}
     <div class="text-center space-y-3">
       <h1 class="text-4xl sm:text-5xl font-black font-sports tracking-wider text-white uppercase bg-clip-text bg-gradient-to-r from-wc-gold to-amber-500">
         Mis Pronósticos
       </h1>
       <p class="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-        Elige qué fase del torneo deseas pronosticar. Recuerda completar tus marcadores antes del cierre establecido.
+        Gestiona tus cupos, realiza tus predicciones y sigue el rendimiento de tus jugadas en tiempo real.
       </p>
     </div>
 
-    <!-- Opciones de Fase (Cards) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      
-      <!-- CARD 1: Fase de Grupos -->
-      <a 
-        href="/predictions/grupos" 
-        class="group p-8 rounded-3xl bg-wc-card border border-wc-border hover:border-wc-gold/45 transition-all duration-300 flex flex-col justify-between hover:shadow-[0_0_20px_rgba(212,175,55,0.08)] relative overflow-hidden"
-      >
-        <div class="absolute -top-12 -right-12 w-36 h-36 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none group-hover:bg-wc-gold/10 transition-all duration-300"></div>
-        <div>
-          <div class="w-12 h-12 rounded-2xl bg-wc-gold/10 border border-wc-gold/20 flex items-center justify-center text-wc-gold mb-6 group-hover:scale-110 transition-transform duration-300">
-            <Compass className="w-6 h-6" strokeWidth={2} />
-          </div>
-          <h3 class="text-2xl font-bold text-white font-sports uppercase tracking-wide">
-            Fase de Grupos
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-450 mt-3 leading-relaxed">
-            Pronostica los 72 partidos de la fase inicial. Organiza tus marcadores de los grupos A al L y simula la tabla de posiciones en vivo.
-          </p>
-        </div>
-        <div class="mt-8 flex items-center justify-between">
-          <span class="text-xs font-bold text-wc-gold uppercase tracking-wider font-sports">Ir a Pronosticar</span>
-          <div class="w-8 h-8 rounded-xl bg-wc-dark flex items-center justify-center text-wc-gold border border-wc-border group-hover:translate-x-1.5 transition-transform">
-            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-          </div>
-        </div>
-      </a>
+    {/* Dashboard Island */}
+    <PredictionsDashboard client:load userEntries={approvedEntries} />
 
-      <!-- CARD 2: Fase Eliminatoria -->
-      <a 
-        href="/predictions/eliminatoria" 
-        class="group p-8 rounded-3xl bg-wc-card border border-wc-border hover:border-sky-500/30 transition-all duration-300 flex flex-col justify-between hover:shadow-[0_0_20px_rgba(56,189,248,0.08)] relative overflow-hidden"
-      >
-        <div class="absolute -top-12 -right-12 w-36 h-36 bg-sky-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-sky-500/10 transition-all duration-300"></div>
-        <div>
-          <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 mb-6 group-hover:scale-110 transition-transform duration-300">
-            <Trophy className="w-6 h-6" strokeWidth={2} />
-          </div>
-          <h3 class="text-2xl font-bold text-white font-sports uppercase tracking-wide flex items-center gap-2">
-            Fase Eliminatoria
-            <span class="text-[10px] bg-wc-gold/15 text-wc-gold border border-wc-gold/25 px-2 py-0.5 rounded-full uppercase tracking-widest font-sports font-black">
-              Prev
-            </span>
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-450 mt-3 leading-relaxed">
-            Visualiza el cuadro de emparejamientos y el camino al trofeo. Esta fase se encuentra bloqueada en previsualización de ejemplo y abrirá al finalizar la fase de grupos.
-          </p>
-        </div>
-        <div class="mt-8 flex items-center justify-between">
-          <span class="text-xs font-bold text-sky-400 uppercase tracking-wider font-sports group-hover:text-sky-300 transition-colors">Previsualizar Llave</span>
-          <div class="w-8 h-8 rounded-xl bg-wc-dark flex items-center justify-center text-sky-400 border border-wc-border group-hover:border-sky-500/30 group-hover:translate-x-1.5 transition-all">
-            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-          </div>
-        </div>
-      </a>
-
-      <!-- CARD 3: Pronóstico de Oro -->
-      <a 
-        href="/predictions/oro" 
-        class="group p-8 rounded-3xl bg-wc-card border border-wc-border hover:border-wc-gold/45 transition-all duration-300 flex flex-col justify-between hover:shadow-[0_0_20px_rgba(212,175,55,0.08)] relative overflow-hidden"
-      >
-        <div class="absolute -top-12 -right-12 w-36 h-36 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none group-hover:bg-wc-gold/10 transition-all duration-300"></div>
-        <div>
-          <div class="flex justify-between items-start mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-wc-gold/10 border border-wc-gold/20 flex items-center justify-center text-wc-gold group-hover:scale-110 transition-transform duration-300">
-              <Award className="w-6 h-6" strokeWidth={2} />
-            </div>
-            {hasPendingGold ? (
-              <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider border rounded-full bg-amber-500/10 text-amber-500 border-amber-500/20 font-sports">
-                Pendiente
-              </span>
-            ) : (
-              <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider border rounded-full bg-wc-green/15 text-wc-green border-wc-green/20 font-sports">
-                Completado
-              </span>
-            )}
-          </div>
-          <h3 class="text-2xl font-bold text-white font-sports uppercase tracking-wide flex items-center gap-2">
-            Pronóstico de Oro
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-450 mt-3 leading-relaxed">
-            Criterio clave de desempate: pronostica el Campeón del Mundo, sus goles y los de la final. Debe llenarse antes de comenzar el torneo.
-          </p>
-        </div>
-        <div class="mt-8 flex items-center justify-between">
-          <span class="text-xs font-bold text-wc-gold uppercase tracking-wider font-sports">Ir al Desempate</span>
-          <div class="w-8 h-8 rounded-xl bg-wc-dark flex items-center justify-center text-wc-gold border border-wc-border group-hover:translate-x-1.5 transition-transform">
-            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-          </div>
-        </div>
-      </a>
-
-    </div>
-
-    <!-- Disclaimer General -->
+    {/* Disclaimer General */}
     <div class="p-4 rounded-2xl bg-wc-dark/50 border border-wc-border text-center flex items-center justify-center gap-2.5 max-w-2xl mx-auto">
       <ShieldAlert className="w-5 h-5 text-slate-500 shrink-0 animate-pulse" />
       <p class="text-xs text-slate-450 leading-relaxed">

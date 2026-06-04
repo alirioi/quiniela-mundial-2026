@@ -15,6 +15,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     const formData = await request.formData();
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
     const fullName = formData.get('fullName') as string;
     const displayName = formData.get('displayName') as string;
     const birthDateStr = formData.get('birthDate') as string;
@@ -23,8 +24,12 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     const paymentReference = formData.get('paymentReference') as string;
     const receipt = formData.get('receipt') as File;
 
-    if (!email || !password || !fullName || !displayName || !birthDateStr || !paymentMethod || !paymentReference || !receipt) {
+    if (!email || !password || !confirmPassword || !fullName || !displayName || !birthDateStr || !paymentMethod || !paymentReference || !receipt) {
       return new Response(JSON.stringify({ error: 'Todos los campos marcados con * son obligatorios' }), { status: 400 });
+    }
+
+    if (password !== confirmPassword) {
+      return new Response(JSON.stringify({ error: 'Las contraseñas no coinciden' }), { status: 400 });
     }
 
     // 1. Validar fecha límite de registros (2 días antes del mundial)

@@ -41,7 +41,7 @@ const firstEntry = entries.find(e => e.entry_number === 1);
         </h1>
         
         <p class="text-sm text-slate-300 leading-relaxed">
-          ¡Hola <span class="font-semibold text-white">{profile?.full_name}</span>! Hemos recibido tu registro. 
+          ¡Hola <span class="font-semibold text-white">{profile?.full_name?.split(' ')[0]}</span>! Hemos recibido tu registro. 
           Un administrador está revisando tu comprobante de pago para habilitar tu cuenta.
         </p>
       </div>

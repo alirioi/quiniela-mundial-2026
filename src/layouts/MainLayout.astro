@@ -116,7 +116,7 @@ const isActive = (path: string) => {
           {userProfile ? (
             <div class="flex items-center space-x-2 sm:space-x-4">
               <span class="hidden lg:inline text-sm text-slate-350 font-semibold">
-                Hola, <span class="text-slate-100">{userProfile.full_name}</span>
+                Hola, <span class="text-slate-100">{userProfile.full_name.split(' ')[0]}</span>
               </span>
               <button
                 id="logout-btn"

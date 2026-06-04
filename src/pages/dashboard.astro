@@ -42,7 +42,7 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
       
       <div>
         <h1 class="text-3xl font-bold uppercase tracking-wider text-white font-sports">
-          ¡Hola, {profile?.full_name}!
+          ¡Hola, {profile?.full_name?.split(' ')[0]}!
         </h1>
         <p class="text-xs md:text-sm text-slate-400 mt-1 leading-relaxed">
           Bienvenido a la Quiniela Mundial 2026. Tienes <span class="font-bold text-wc-gold">{approvedEntryIds.length} {approvedEntryIds.length === 1 ? 'cupo activo' : 'cupos activos'}</span> participando en el torneo.

@@ -110,6 +110,9 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   const [timeRemaining, setTimeRemaining] = useState<Record<number, string>>({});
   const [showFloatingSave, setShowFloatingSave] = useState(false);
 
+  // Estado para el autoguardado
+  const [autosaveStatus, setAutosaveStatus] = useState<'idle' | 'saving-pending' | 'saving' | 'saved' | 'error'>('idle');
+  const autosaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -123,6 +126,129 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Helper para identificar predicciones modificadas completas
+  const getUnsavedPredictions = () => {
+    return matches
+      .filter((m) => !isLocked(m.match_time))
+      .map((m) => {
+        const input = inputs[m.id];
+        const savedHome = m.prediction ? String(m.prediction.predicted_home) : '';
+        const savedAway = m.prediction ? String(m.prediction.predicted_away) : '';
+        const hasChanges = input && (input.home !== savedHome || input.away !== savedAway);
+        const isComplete = input && input.home !== '' && input.away !== '';
+        
+        if (hasChanges && isComplete) {
+          return {
+            matchId: m.id,
+            predictedHome: input.home,
+            predictedAway: input.away,
+          };
+        }
+        return null;
+      })
+      .filter((p): p is { matchId: number; predictedHome: string; predictedAway: string } => p !== null);
+  };
+
+  // Efecto de autoguardado (debounce de 1.5 segundos)
+  useEffect(() => {
+    const unsaved = getUnsavedPredictions();
+    
+    if (autosaveTimeoutRef.current) {
+      clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+
+    if (unsaved.length > 0) {
+      setAutosaveStatus('saving-pending');
+      autosaveTimeoutRef.current = setTimeout(async () => {
+        setAutosaveStatus('saving');
+        try {
+          const response = await fetch('/api/predictions/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              entryId: selectedEntryId,
+              predictions: unsaved,
+            }),
+          });
+
+          if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || 'Error al guardar automáticamente');
+          }
+
+          // Actualizar datos de partidos sin disparar spinner global
+          await fetchMatchesAndPredictions(true);
+          setAutosaveStatus('saved');
+          
+          // Ocultar mensaje flotante de éxito tras 3 segundos
+          setTimeout(() => {
+            setAutosaveStatus(current => current === 'saved' ? 'idle' : current);
+          }, 3000);
+        } catch (err: any) {
+          console.error('Autosave error:', err);
+          setAutosaveStatus('error');
+        }
+      }, 1500);
+    } else {
+      setAutosaveStatus(prev => prev === 'saving-pending' ? 'idle' : prev);
+    }
+
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        clearTimeout(autosaveTimeoutRef.current);
+      }
+    };
+  }, [inputs, matches, selectedEntryId]);
+
+  const fetchMatchesAndPredictions = async (isSilent = false) => {
+    if (!selectedEntryId) return;
+    if (!isSilent) setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/matches/${phaseSlug}?entryId=${selectedEntryId}`);
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || 'Error al cargar los partidos');
+      }
+      const data = await response.json();
+      setPhase(data.phase);
+      setMatches(data.matches);
+
+      // Rellenar inputs iniciales manteniendo cambios locales
+      setInputs((prevInputs) => {
+        const mergedInputs: Record<number, { home: string; away: string }> = {};
+        data.matches.forEach((match: Match) => {
+          const matchId = match.id;
+          const oldMatch = matches.find(m => m.id === matchId);
+          const oldPredictionHome = oldMatch?.prediction ? String(oldMatch.prediction.predicted_home) : '';
+          const oldPredictionAway = oldMatch?.prediction ? String(oldMatch.prediction.predicted_away) : '';
+          
+          const prevVal = prevInputs[matchId];
+          const hasLocalChanges = prevVal && (prevVal.home !== oldPredictionHome || prevVal.away !== oldPredictionAway);
+
+          if (hasLocalChanges) {
+            mergedInputs[matchId] = prevVal;
+          } else {
+            mergedInputs[matchId] = {
+              home: match.prediction ? String(match.prediction.predicted_home) : '',
+              away: match.prediction ? String(match.prediction.predicted_away) : '',
+            };
+          }
+        });
+        return mergedInputs;
+      });
+    } catch (err: any) {
+      if (!isSilent) setError(err.message || 'Error de conexión');
+    } finally {
+      if (!isSilent) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMatchesAndPredictions();
+  }, [selectedEntryId]);
 
   // 1. Procesa las posiciones de grupos simuladas en tiempo real
   const { groupStandings, thirdPlaces } = useMemo(() => {
@@ -292,39 +418,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
     );
   };
 
-  const fetchMatchesAndPredictions = async () => {
-    if (!selectedEntryId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/matches/${phaseSlug}?entryId=${selectedEntryId}`);
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Error al cargar los partidos');
-      }
-      const data = await response.json();
-      setPhase(data.phase);
-      setMatches(data.matches);
 
-      // Rellenar inputs iniciales
-      const initialInputs: Record<number, { home: string; away: string }> = {};
-      data.matches.forEach((match: Match) => {
-        initialInputs[match.id] = {
-          home: match.prediction ? String(match.prediction.predicted_home) : '',
-          away: match.prediction ? String(match.prediction.predicted_away) : '',
-        };
-      });
-      setInputs(initialInputs);
-    } catch (err: any) {
-      setError(err.message || 'Error de conexión');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMatchesAndPredictions();
-  }, [selectedEntryId]);
 
   // Actualizar temporizadores (countdown de 2 horas antes de cada partido)
   useEffect(() => {
@@ -376,11 +470,11 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
     }));
   };
 
-  const isLocked = (matchTimeStr: string) => {
+  function isLocked(matchTimeStr: string) {
     const matchTime = new Date(matchTimeStr).getTime();
     const lockTime = matchTime - 2 * 60 * 60 * 1000;
     return Date.now() >= lockTime;
-  };
+  }
 
   // Guardar una predicción individual
   const handleSaveIndividual = async (matchId: number) => {
@@ -824,17 +918,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                               )}
                             </div>
 
-                            {/* Botón guardar individual */}
-                            {canSaveIndividual && (
-                              <button
-                                type="button"
-                                onClick={() => handleSaveIndividual(match.id)}
-                                disabled={savingIds[match.id]}
-                                className="px-4 py-1.5 bg-gradient-to-r from-wc-gold to-amber-500 hover:from-amber-400 hover:to-wc-gold text-slate-950 font-bold rounded-lg text-xs font-sports uppercase tracking-wider transition-all cursor-pointer shadow-sm shadow-wc-gold/10"
-                              >
-                                {savingIds[match.id] ? '...' : 'Guardar'}
-                              </button>
-                            )}
+
                           </div>
                         </div>
                       );
@@ -941,7 +1025,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         </>
       )}
 
-      {showFloatingSave && unpredictedCount > 0 && !loading && (
+      {showFloatingSave && !loading && (unpredictedCount > 0 || getUnsavedPredictions().length > 0) && (
         <button
           onClick={handleSaveBulk}
           disabled={bulkSaving}
@@ -957,6 +1041,36 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
             </>
           )}
         </button>
+      )}
+
+      {/* Toast de Autoguardado */}
+      {autosaveStatus !== 'idle' && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 md:left-auto md:right-6 md:translate-x-0 transition-all duration-300 animate-fade-in w-[90%] max-w-xs sm:max-w-sm">
+          <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl bg-wc-card/95 ${
+            autosaveStatus === 'saved'
+              ? 'border-wc-green/70 text-wc-green'
+              : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending'
+              ? 'border-wc-gold/70 text-wc-gold animate-pulse'
+              : 'border-wc-red/70 text-wc-red'
+          }`}>
+            {autosaveStatus === 'saved' ? (
+              <>
+                <CheckCircle2 className="w-5 h-5 text-wc-green shrink-0 animate-bounce" strokeWidth={2.5} />
+                <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Pronósticos guardados</span>
+              </>
+            ) : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending' ? (
+              <>
+                <Loader2 className="w-5 h-5 text-wc-gold shrink-0 animate-spin" strokeWidth={2.5} />
+                <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Guardando...</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="w-5 h-5 text-wc-red shrink-0" strokeWidth={2.5} />
+                <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Error al guardar</span>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

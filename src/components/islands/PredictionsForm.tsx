@@ -102,6 +102,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   const [error, setError] = useState<string | null>(null);
   const [activeSubTab, setActiveSubTab] = useState<'pronosticos' | 'tabla' | 'llave'>('pronosticos');
   const [activeGroup, setActiveGroup] = useState<string>('Grupo A');
+  const [viewMode, setViewMode] = useState<'grupos' | 'cronologico'>('grupos');
   
   // Estado local para los inputs: record de matchId -> { home, away }
   const [inputs, setInputs] = useState<Record<number, { home: string; away: string }>>({});
@@ -580,11 +581,14 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   // Verificar si hay algún partido sin predicción guardada
   const unpredictedCount = matches.filter((m) => !m.prediction && !isLocked(m.match_time)).length;
 
-  // Filtrar partidos por grupo si estamos en fase de grupos
+  // Filtrar partidos por grupo si estamos en fase de grupos o aplicar orden cronológico
   const filteredMatches = useMemo(() => {
     if (phaseSlug !== 'grupos') return matches;
+    if (viewMode === 'cronologico') {
+      return [...matches].sort((a, b) => new Date(a.match_time).getTime() - new Date(b.match_time).getTime());
+    }
     return matches.filter((m) => m.group_name === activeGroup);
-  }, [matches, phaseSlug, activeGroup]);
+  }, [matches, phaseSlug, activeGroup, viewMode]);
 
   // Agrupar partidos por fecha para orden visual premium
   const groupedMatches: Record<string, Match[]> = {};
@@ -726,21 +730,52 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
           {activeSubTab === 'pronosticos' || phaseSlug !== 'grupos' ? (
             <div className="space-y-8 animate-fade-in">
               {phaseSlug === 'grupos' && activeSubTab === 'pronosticos' && (
-                <div className="flex items-center gap-2 overflow-x-auto pb-3 border-b border-wc-border/30 custom-scrollbar">
-                  {['Grupo A', 'Grupo B', 'Grupo C', 'Grupo D', 'Grupo E', 'Grupo F', 'Grupo G', 'Grupo H', 'Grupo I', 'Grupo J', 'Grupo K', 'Grupo L'].map((groupName) => (
+                <div className="space-y-4">
+                  {/* Selector de modo de ordenamiento */}
+                  <div className="flex bg-wc-dark/80 border border-wc-border/50 rounded-xl p-1 shadow-inner w-fit">
                     <button
-                      key={groupName}
                       type="button"
-                      onClick={() => setActiveGroup(groupName)}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border whitespace-nowrap transition-all duration-200 font-sports cursor-pointer shrink-0 ${
-                        activeGroup === groupName
-                          ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 border-transparent shadow-md'
-                          : 'bg-wc-dark border-wc-border text-slate-400 hover:text-slate-200'
+                      onClick={() => setViewMode('grupos')}
+                      className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                        viewMode === 'grupos'
+                          ? 'bg-wc-gold text-slate-950 shadow'
+                          : 'text-slate-400 hover:text-white'
                       }`}
                     >
-                      {groupName}
+                      Por Grupos
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('cronologico')}
+                      className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                        viewMode === 'cronologico'
+                          ? 'bg-wc-gold text-slate-950 shadow'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Cronológico
+                    </button>
+                  </div>
+
+                  {/* Barra de grupos (solo visible en modo 'grupos') */}
+                  {viewMode === 'grupos' && (
+                    <div className="flex items-center gap-2 overflow-x-auto pb-3 border-b border-wc-border/30 custom-scrollbar animate-fade-in">
+                      {['Grupo A', 'Grupo B', 'Grupo C', 'Grupo D', 'Grupo E', 'Grupo F', 'Grupo G', 'Grupo H', 'Grupo I', 'Grupo J', 'Grupo K', 'Grupo L'].map((groupName) => (
+                        <button
+                          key={groupName}
+                          type="button"
+                          onClick={() => setActiveGroup(groupName)}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border whitespace-nowrap transition-all duration-200 font-sports cursor-pointer shrink-0 ${
+                            activeGroup === groupName
+                              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 border-transparent shadow-md'
+                              : 'bg-wc-dark border-wc-border text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          {groupName}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               {Object.entries(groupedMatches).map(([dateLabel, dateMatches]) => (

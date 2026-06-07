@@ -240,6 +240,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         });
         return mergedInputs;
       });
+      return data.matches;
     } catch (err: any) {
       if (!isSilent) setError(err.message || 'Error de conexión');
     } finally {
@@ -564,13 +565,20 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         }),
       });
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Error al guardar las predicciones');
+      const updatedMatches = await fetchMatchesAndPredictions();
+      if (updatedMatches) {
+        const remaining = updatedMatches.filter((m: any) => !m.prediction && !isLocked(m.match_time)).length;
+        if (remaining === 0) {
+          showAlert.success('¡Completado!', '¡Todas tus predicciones se guardaron correctamente! Has llenado todos los pronósticos para esta fase.');
+        } else {
+          showAlert.success(
+            '¡Guardado!',
+            `Tus predicciones se guardaron correctamente. Te queda${remaining === 1 ? ' solo' : 'n'} ${remaining} pronóstico${remaining === 1 ? '' : 's'} por llenar.`
+          );
+        }
+      } else {
+        showAlert.success('Éxito', '¡Todas tus predicciones se guardaron correctamente!');
       }
-
-      showAlert.success('Éxito', '¡Todas tus predicciones se guardaron correctamente!');
-      await fetchMatchesAndPredictions();
     } catch (err: any) {
       showAlert.error('Error', err.message);
     } finally {

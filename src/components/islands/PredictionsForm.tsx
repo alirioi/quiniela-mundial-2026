@@ -527,7 +527,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
       }
 
       // Volver a cargar predicciones del cupo para actualizar IDs
-      await fetchMatchesAndPredictions();
+      await fetchMatchesAndPredictions(true);
     } catch (err: any) {
       showAlert.error('Error', err.message);
     } finally {
@@ -565,7 +565,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
         }),
       });
 
-      const updatedMatches = await fetchMatchesAndPredictions();
+      const updatedMatches = await fetchMatchesAndPredictions(true);
       if (updatedMatches) {
         const remaining = updatedMatches.filter((m: any) => !m.prediction && !isLocked(m.match_time)).length;
         if (remaining === 0) {

@@ -42,9 +42,9 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 
     if (firstMatch) {
       const firstMatchTime = new Date(firstMatch.match_time).getTime();
-      const limitTime = firstMatchTime - 2 * 24 * 60 * 60 * 1000; // 2 días en ms
+      const limitTime = firstMatchTime - 1 * 24 * 60 * 60 * 1000; // 1 día en ms
       if (Date.now() >= limitTime) {
-        return new Response(JSON.stringify({ error: 'El registro de nuevos usuarios y la compra de cupos finalizó 2 días antes del inicio del mundial.' }), { status: 400 });
+        return new Response(JSON.stringify({ error: 'El registro de nuevos usuarios y la compra de cupos finalizó 1 día antes del inicio del mundial.' }), { status: 400 });
       }
     }
 

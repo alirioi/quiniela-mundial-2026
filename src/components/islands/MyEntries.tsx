@@ -44,7 +44,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
 
   const FIRST_MATCH_TIME = new Date("2026-06-11T22:30:00Z");
   const REGISTRATION_DEADLINE = new Date(
-    FIRST_MATCH_TIME.getTime() - 2 * 24 * 60 * 60 * 1000,
+    FIRST_MATCH_TIME.getTime() - 1 * 24 * 60 * 60 * 1000,
   );
   const isRegistrationClosed = new Date() >= REGISTRATION_DEADLINE;
 
@@ -296,7 +296,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               <span>Compras Cerradas</span>
             </span>
             <span className="text-xs text-slate-500 font-sports tracking-wider">
-              Finalizó el 9 de Junio
+              Finalizó el 10 de Junio
             </span>
           </div>
         ) : (

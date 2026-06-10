@@ -15,7 +15,8 @@ import {
   Trash,
   DollarSign,
   TrendingUp,
-  Coins
+  Coins,
+  Shield
 } from 'lucide-react';
 
 interface Entry {
@@ -172,6 +173,101 @@ export default function AdminEntryList() {
   const potencialPremios = pendingNonAdminCount * 15;
   const potencialTotal = pendingNonAdminCount * 20;
 
+  const renderEntryRow = (entry: Entry) => {
+    const profileName = entry.profiles?.full_name || 'Desconocido';
+    const profileEmail = entry.profiles?.email || 'N/A';
+
+    return (
+      <tr key={entry.id} className="hover:bg-wc-card/85 transition-colors">
+        <td className="p-4 sm:p-5">
+          <div className="font-bold text-white text-sm">{entry.display_name}</div>
+          <div className="text-xs text-slate-455 mt-0.5">{profileName} • {profileEmail}</div>
+        </td>
+        <td className="p-4 sm:p-5 text-slate-300 text-xs font-mono font-medium max-w-[180px]">
+          <div className="flex flex-col gap-0.5">
+            <span className="uppercase text-[10px] text-slate-400 font-bold tracking-wider">
+              {entry.payment_method === 'binance_pay' ? 'Binance Pay' : entry.payment_method === 'pago_movil' ? 'Pago Móvil' : entry.payment_method === 'transferencia_bs' ? 'Transferencia Bs' : entry.payment_method}
+            </span>
+            <span className="truncate" title={entry.payment_reference || 'N/A'}>
+              {entry.payment_reference || <span className="text-slate-550 italic font-sans">N/A</span>}
+            </span>
+          </div>
+        </td>
+        <td className="p-4 sm:p-5 font-mono text-xs text-wc-gold font-bold">
+          #{entry.entry_number}
+        </td>
+        <td className="p-4 sm:p-5 text-slate-400 text-xs font-medium">
+          {new Date(entry.created_at).toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </td>
+        <td className="p-4 sm:p-5 text-center">
+          {entry.signedUrl ? (
+            <button
+              onClick={() => setSelectedReceipt({ id: entry.id, url: entry.signedUrl!, name: entry.display_name })}
+              className="px-3 py-1.5 rounded-lg bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white border border-wc-border transition-colors text-xs font-bold font-sports tracking-wider uppercase inline-flex items-center gap-1.5"
+            >
+              <Eye className="w-4 h-4 text-slate-300" strokeWidth={2.5} /> Ver Archivo
+            </button>
+          ) : (
+            <span className="text-slate-550 text-xs font-sports uppercase tracking-wider">Sin comprobante</span>
+          )}
+        </td>
+        <td className="p-4 sm:p-5">
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border font-sports tracking-wider uppercase ${entry.status === 'approved'
+            ? 'bg-wc-green/10 border-wc-green/20 text-wc-green'
+            : entry.status === 'rejected'
+              ? 'bg-wc-red/10 border-wc-red/20 text-wc-red'
+              : 'bg-wc-gold/10 border-wc-gold/20 text-wc-gold'
+            }`}>
+            {entry.status === 'approved' && 'Aprobado'}
+            {entry.status === 'rejected' && 'Rechazado'}
+            {entry.status === 'pending' && 'Pendiente'}
+          </span>
+        </td>
+        <td className="p-4 sm:p-5 text-right">
+          {actionLoadingId === entry.id ? (
+            <span className="text-xs text-slate-400 font-sports uppercase tracking-wider animate-pulse">Guardando...</span>
+          ) : (
+            <div className="flex justify-end items-center gap-2">
+              {entry.status !== 'approved' && (
+                <button
+                  onClick={() => handleUpdateStatus(entry.id, 'approved')}
+                  className="px-2.5 py-1.5 rounded-lg bg-wc-green hover:bg-green-500 text-white font-bold font-sports tracking-wider uppercase text-xs transition-colors flex items-center gap-1"
+                  title="Aprobar Pago"
+                >
+                  <Check className="w-4 h-4" strokeWidth={2.5} />
+                </button>
+              )}
+              {entry.status !== 'rejected' && (
+                <button
+                  onClick={() => setRejectingId(entry.id)}
+                  className="px-2.5 py-1.5 rounded-lg bg-wc-dark hover:bg-wc-red/10 text-slate-450 hover:text-wc-red border border-wc-border hover:border-wc-red/30 transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1"
+                  title="Rechazar Pago"
+                >
+                  <X className="w-4 h-4" strokeWidth={2.5} />
+                </button>
+              )}
+              <button
+                onClick={() => handleDeleteEntry(entry.id)}
+                className="px-2.5 py-1.5 rounded-lg bg-wc-red/10 hover:bg-wc-red text-wc-red hover:text-white border border-wc-red/20 hover:border-wc-red transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1"
+                title="Eliminar Cupo por Completo"
+              >
+                <Trash className="w-4 h-4" strokeWidth={2.5} />
+              </button>
+            </div>
+          )}
+        </td>
+      </tr>
+    );
+  };
+
+  const realEntries = filteredEntries.filter(e => e.profiles?.role !== 'admin');
+  const adminEntries = filteredEntries.filter(e => e.profiles?.role === 'admin');
+
   return (
     <div className="space-y-6">
       {/* Resumen de Recaudación */}
@@ -314,113 +410,59 @@ export default function AdminEntryList() {
           <span className="text-slate-450 font-sports text-xs uppercase tracking-wider">No hay cupos en esta categoría.</span>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-wc-border bg-wc-card/30 backdrop-blur-md">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
-                <th className="p-4 sm:p-5">Usuario / Apodo</th>
-                <th className="p-4 sm:p-5">Pago y Ref.</th>
-                <th className="p-4 sm:p-5">Cupo #</th>
-                <th className="p-4 sm:p-5">Fecha Reg.</th>
-                <th className="p-4 sm:p-5 text-center">Comprobante</th>
-                <th className="p-4 sm:p-5">Estado</th>
-                <th className="p-4 sm:p-5 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-wc-border text-sm">
-              {filteredEntries.map((entry) => {
-                const profileName = entry.profiles?.full_name || 'Desconocido';
-                const profileEmail = entry.profiles?.email || 'N/A';
-
-                return (
-                  <tr key={entry.id} className="hover:bg-wc-card/85 transition-colors">
-                    <td className="p-4 sm:p-5">
-                      <div className="font-bold text-white text-sm">{entry.display_name}</div>
-                      <div className="text-xs text-slate-455 mt-0.5">{profileName} • {profileEmail}</div>
-                    </td>
-                    <td className="p-4 sm:p-5 text-slate-300 text-xs font-mono font-medium max-w-[180px]">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="uppercase text-[10px] text-slate-400 font-bold tracking-wider">
-                          {entry.payment_method === 'binance_pay' ? 'Binance Pay' : entry.payment_method === 'pago_movil' ? 'Pago Móvil' : entry.payment_method === 'transferencia_bs' ? 'Transferencia Bs' : entry.payment_method}
-                        </span>
-                        <span className="truncate" title={entry.payment_reference || 'N/A'}>
-                          {entry.payment_reference || <span className="text-slate-550 italic font-sans">N/A</span>}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-4 sm:p-5 font-mono text-xs text-wc-gold font-bold">
-                      #{entry.entry_number}
-                    </td>
-                    <td className="p-4 sm:p-5 text-slate-400 text-xs font-medium">
-                      {new Date(entry.created_at).toLocaleDateString('es-ES', {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </td>
-                    <td className="p-4 sm:p-5 text-center">
-                      {entry.signedUrl ? (
-                        <button
-                          onClick={() => setSelectedReceipt({ id: entry.id, url: entry.signedUrl!, name: entry.display_name })}
-                          className="px-3 py-1.5 rounded-lg bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white border border-wc-border transition-colors text-xs font-bold font-sports tracking-wider uppercase inline-flex items-center gap-1.5"
-                        >
-                          <Eye className="w-4 h-4 text-slate-300" strokeWidth={2.5} /> Ver Archivo
-                        </button>
-                      ) : (
-                        <span className="text-slate-550 text-xs font-sports uppercase tracking-wider">Sin comprobante</span>
-                      )}
-                    </td>
-                    <td className="p-4 sm:p-5">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border font-sports tracking-wider uppercase ${entry.status === 'approved'
-                        ? 'bg-wc-green/10 border-wc-green/20 text-wc-green'
-                        : entry.status === 'rejected'
-                          ? 'bg-wc-red/10 border-wc-red/20 text-wc-red'
-                          : 'bg-wc-gold/10 border-wc-gold/20 text-wc-gold'
-                        }`}>
-                        {entry.status === 'approved' && 'Aprobado'}
-                        {entry.status === 'rejected' && 'Rechazado'}
-                        {entry.status === 'pending' && 'Pendiente'}
-                      </span>
-                    </td>
-                    <td className="p-4 sm:p-5 text-right">
-                      {actionLoadingId === entry.id ? (
-                        <span className="text-xs text-slate-400 font-sports uppercase tracking-wider animate-pulse">Guardando...</span>
-                      ) : (
-                        <div className="flex justify-end items-center gap-2">
-                          {entry.status !== 'approved' && (
-                            <button
-                              onClick={() => handleUpdateStatus(entry.id, 'approved')}
-                              className="px-2.5 py-1.5 rounded-lg bg-wc-green hover:bg-green-500 text-white font-bold font-sports tracking-wider uppercase text-xs transition-colors flex items-center gap-1"
-                              title="Aprobar Pago"
-                            >
-                              <Check className="w-4 h-4" strokeWidth={2.5} />
-                            </button>
-                          )}
-                          {entry.status !== 'rejected' && (
-                            <button
-                              onClick={() => setRejectingId(entry.id)}
-                              className="px-2.5 py-1.5 rounded-lg bg-wc-dark hover:bg-wc-red/10 text-slate-450 hover:text-wc-red border border-wc-border hover:border-wc-red/30 transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1"
-                              title="Rechazar Pago"
-                            >
-                              <X className="w-4 h-4" strokeWidth={2.5} />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDeleteEntry(entry.id)}
-                            className="px-2.5 py-1.5 rounded-lg bg-wc-red/10 hover:bg-wc-red text-wc-red hover:text-white border border-wc-red/20 hover:border-wc-red transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1"
-                            title="Eliminar Cupo por Completo"
-                          >
-                            <Trash className="w-4 h-4" strokeWidth={2.5} />
-                          </button>
-                        </div>
-                      )}
-                    </td>
+        <div className="space-y-6">
+          {realEntries.length > 0 && (
+            <div className="overflow-x-auto rounded-2xl border border-wc-border bg-wc-card/30 backdrop-blur-md">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
+                    <th className="p-4 sm:p-5">Usuario / Apodo</th>
+                    <th className="p-4 sm:p-5">Pago y Ref.</th>
+                    <th className="p-4 sm:p-5">Cupo #</th>
+                    <th className="p-4 sm:p-5">Fecha Reg.</th>
+                    <th className="p-4 sm:p-5 text-center">Comprobante</th>
+                    <th className="p-4 sm:p-5">Estado</th>
+                    <th className="p-4 sm:p-5 text-right">Acciones</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody className="divide-y divide-wc-border text-sm">
+                  {realEntries.map(renderEntryRow)}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {adminEntries.length > 0 && (
+            <div className="mt-8 pt-6 border-t border-wc-border/50">
+              <div className="flex items-center gap-2 mb-4 px-1">
+                <Shield className="w-4 h-4 text-wc-red/80" />
+                <h3 className="text-xs font-bold font-sports uppercase tracking-wider text-slate-400">
+                  Cupos de Administración (Pruebas)
+                </h3>
+                <span className="text-[10px] text-slate-550 font-medium font-sans">
+                  (No suman a las estadísticas de ingresos)
+                </span>
+              </div>
+              <div className="overflow-x-auto rounded-2xl border border-wc-border bg-wc-card/30 backdrop-blur-md opacity-80 hover:opacity-100 transition-opacity duration-200">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
+                      <th className="p-4 sm:p-5">Usuario / Apodo</th>
+                      <th className="p-4 sm:p-5">Pago y Ref.</th>
+                      <th className="p-4 sm:p-5">Cupo #</th>
+                      <th className="p-4 sm:p-5">Fecha Reg.</th>
+                      <th className="p-4 sm:p-5 text-center">Comprobante</th>
+                      <th className="p-4 sm:p-5">Estado</th>
+                      <th className="p-4 sm:p-5 text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-wc-border text-sm">
+                    {adminEntries.map(renderEntryRow)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

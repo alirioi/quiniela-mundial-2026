@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Trash2, Award, Star, ShieldAlert, RefreshCw, X, ChevronDown } from 'lucide-react';
+import { Search, Plus, Trash2, Award, Star, ShieldAlert, RefreshCw, X, ChevronDown, Trophy } from 'lucide-react';
 import { showAlert } from '../../utils/alerts';
 import { getTeamFlagUrl } from '../../utils/flags';
 
@@ -27,7 +27,13 @@ const TEAMS_LIST = [
 ].sort();
 
 export default function AdminStatsManager() {
+  interface GoldStat {
+    team: string;
+    count: number;
+  }
+
   const [players, setPlayers] = useState<Player[]>([]);
+  const [goldPredictions, setGoldPredictions] = useState<GoldStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,7 +59,8 @@ export default function AdminStatsManager() {
         throw new Error('Error al cargar las estadísticas de los jugadores');
       }
       const data = await response.json();
-      setPlayers(data || []);
+      setPlayers(data.players || []);
+      setGoldPredictions(data.goldStats || []);
     } catch (err: any) {
       setError(err.message || 'Error al conectar con el servidor');
     } finally {
@@ -227,161 +234,231 @@ export default function AdminStatsManager() {
         </div>
       </div>
 
-      {/* Main Players List Table */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center p-16 space-y-4 bg-wc-card/25 rounded-2xl border border-wc-border">
-          <RefreshCw className="w-8 h-8 text-wc-gold animate-spin" strokeWidth={2.5} />
-          <p className="text-slate-450 text-xs font-sports uppercase tracking-wider">Cargando goleadores...</p>
+      {/* Grid Layout: Player Stats (2/3) and Gold Predictions (1/3) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Player Stats */}
+        <div className="lg:col-span-2 space-y-6">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center p-16 space-y-4 bg-wc-card/25 rounded-2xl border border-wc-border">
+              <RefreshCw className="w-8 h-8 text-wc-gold animate-spin" strokeWidth={2.5} />
+              <p className="text-slate-455 text-xs font-sports uppercase tracking-wider">Cargando goleadores...</p>
+            </div>
+          ) : error ? (
+            <div className="p-5 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center text-xs text-red-200 flex items-center justify-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-wc-red" strokeWidth={2.5} />
+              <span>{error}</span>
+            </div>
+          ) : filteredPlayers.length === 0 ? (
+            <div className="p-12 text-center bg-wc-card/30 border border-wc-border text-slate-500 text-sm flex flex-col items-center justify-center space-y-2 rounded-2xl">
+              <Award className="w-9 h-9 text-slate-400 mb-1" strokeWidth={2.5} />
+              <span className="text-slate-450 font-sports text-xs uppercase tracking-wider">No se encontraron goleadores registrados.</span>
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-wc-border bg-wc-card/30 backdrop-blur-md">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
+                    <th className="p-4 sm:p-5">Jugador</th>
+                    <th className="p-4 sm:p-5">Selección</th>
+                    <th className="p-4 sm:p-5 text-center">Goles</th>
+                    <th className="p-4 sm:p-5 text-center">Asistencias</th>
+                    <th className="p-4 sm:p-5 text-center">Tarjetas A.</th>
+                    <th className="p-4 sm:p-5 text-center">Tarjetas R.</th>
+                    <th className="p-4 sm:p-5 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-wc-border text-sm">
+                  {filteredPlayers.map((player) => {
+                    const flagUrl = getTeamFlagUrl(player.team);
+
+                    return (
+                      <tr key={player.id} className="hover:bg-wc-card/85 transition-colors">
+                        <td className="p-4 sm:p-5 font-bold text-white text-sm">
+                          {player.name}
+                        </td>
+                        <td className="p-4 sm:p-5 text-slate-300">
+                          <div className="flex items-center gap-2">
+                            {flagUrl ? (
+                              <img
+                                src={flagUrl}
+                                alt={`Bandera de ${player.team}`}
+                                className="w-5 h-3.5 object-cover rounded shadow-sm shrink-0 border border-slate-700/50"
+                              />
+                            ) : (
+                              <div className="w-5 h-3.5 bg-slate-800 rounded shrink-0 border border-slate-700/50"></div>
+                            )}
+                            <span className="font-medium text-xs sm:text-sm">{player.team}</span>
+                          </div>
+                        </td>
+                        
+                        {/* Goles Control */}
+                        <td className="p-4 sm:p-5 text-center">
+                          <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
+                            <button
+                              onClick={() => handleUpdateStat(player.id, 'goals', false)}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 font-mono font-extrabold text-wc-gold text-sm text-center">
+                              {player.goals}
+                            </span>
+                            <button
+                              onClick={() => handleUpdateStat(player.id, 'goals', true)}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-gold hover:bg-yellow-400 text-slate-950 font-bold text-xs select-none transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Asistencias Control */}
+                        <td className="p-4 sm:p-5 text-center">
+                          <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
+                            <button
+                              onClick={() => handleUpdateStat(player.id, 'assists', false)}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 font-mono font-semibold text-slate-200 text-sm text-center">
+                              {player.assists}
+                            </span>
+                            <button
+                              onClick={() => handleUpdateStat(player.id, 'assists', true)}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Tarjetas Amarillas */}
+                        <td className="p-4 sm:p-5 text-center">
+                          <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
+                            <button
+                              onClick={() => handleUpdateStat(player.id, 'yellow_cards', false)}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 font-mono font-bold text-yellow-400 text-sm text-center">
+                              {player.yellow_cards}
+                            </span>
+                            <button
+                              onClick={() => handleUpdateStat(player.id, 'yellow_cards', true)}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Tarjetas Rojas */}
+                        <td className="p-4 sm:p-5 text-center">
+                          <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
+                            <button
+                              onClick={() => handleUpdateStat(player.id, 'red_cards', false)}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 font-mono font-bold text-wc-red text-sm text-center">
+                              {player.red_cards}
+                            </span>
+                            <button
+                              onClick={() => handleUpdateStat(player.id, 'red_cards', true)}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Acciones */}
+                        <td className="p-4 sm:p-5 text-right">
+                          <button
+                            onClick={() => handleDeletePlayer(player.id, player.name)}
+                            className="px-2.5 py-2 rounded-lg bg-wc-red/10 hover:bg-wc-red text-wc-red hover:text-white border border-wc-red/20 hover:border-wc-red transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase inline-flex items-center gap-1.5"
+                            title="Eliminar Jugador"
+                          >
+                            <Trash2 className="w-4 h-4" strokeWidth={2.5} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      ) : error ? (
-        <div className="p-5 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center text-xs text-red-200 flex items-center justify-center gap-2">
-          <ShieldAlert className="w-5 h-5 text-wc-red" strokeWidth={2.5} />
-          <span>{error}</span>
-        </div>
-      ) : filteredPlayers.length === 0 ? (
-        <div className="p-12 text-center bg-wc-card/30 border border-wc-border text-slate-500 text-sm flex flex-col items-center justify-center space-y-2 rounded-2xl">
-          <Award className="w-9 h-9 text-slate-400 mb-1" strokeWidth={2.5} />
-          <span className="text-slate-450 font-sports text-xs uppercase tracking-wider">No se encontraron goleadores registrados.</span>
-        </div>
-      ) : (
-        <div className="overflow-x-auto rounded-2xl border border-wc-border bg-wc-card/30 backdrop-blur-md">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
-                <th className="p-4 sm:p-5">Jugador</th>
-                <th className="p-4 sm:p-5">Selección</th>
-                <th className="p-4 sm:p-5 text-center">Goles</th>
-                <th className="p-4 sm:p-5 text-center">Asistencias</th>
-                <th className="p-4 sm:p-5 text-center">Tarjetas A.</th>
-                <th className="p-4 sm:p-5 text-center">Tarjetas R.</th>
-                <th className="p-4 sm:p-5 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-wc-border text-sm">
-              {filteredPlayers.map((player) => {
-                const flagUrl = getTeamFlagUrl(player.team);
+
+        {/* Right Column: Gold Predictions Statistics */}
+        <div className="space-y-6">
+          <div className="p-5 rounded-2xl border border-wc-border bg-wc-card/50 backdrop-blur-sm relative overflow-hidden flex flex-col min-h-[350px]">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="flex items-center gap-2 pb-4 border-b border-wc-border relative z-10">
+              <Trophy className="w-5 h-5 text-wc-gold" />
+              <h3 className="text-sm font-bold font-sports uppercase tracking-wider text-white">
+                Favoritos a Campeón (Oro)
+              </h3>
+            </div>
+
+            <div className="mt-4 space-y-4 relative z-10 flex-grow">
+              {loading ? (
+                <div className="flex items-center justify-center p-8">
+                  <RefreshCw className="w-6 h-6 text-wc-gold animate-spin" />
+                </div>
+              ) : goldPredictions.length === 0 ? (
+                <p className="text-xs text-slate-500 italic text-center py-8">
+                  Ningún equipo ha sido seleccionado todavía.
+                </p>
+              ) : (() => {
+                const totalSelections = goldPredictions.reduce((acc, curr) => acc + curr.count, 0);
 
                 return (
-                  <tr key={player.id} className="hover:bg-wc-card/85 transition-colors">
-                    <td className="p-4 sm:p-5 font-bold text-white text-sm">
-                      {player.name}
-                    </td>
-                    <td className="p-4 sm:p-5 text-slate-300">
-                      <div className="flex items-center gap-2">
-                        {flagUrl ? (
-                          <img
-                            src={flagUrl}
-                            alt={`Bandera de ${player.team}`}
-                            className="w-5 h-3.5 object-cover rounded shadow-sm shrink-0 border border-slate-700/50"
-                          />
-                        ) : (
-                          <div className="w-5 h-3.5 bg-slate-800 rounded shrink-0 border border-slate-700/50"></div>
-                        )}
-                        <span className="font-medium text-xs sm:text-sm">{player.team}</span>
-                      </div>
-                    </td>
-                    
-                    {/* Goles Control */}
-                    <td className="p-4 sm:p-5 text-center">
-                      <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
-                        <button
-                          onClick={() => handleUpdateStat(player.id, 'goals', false)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 font-mono font-extrabold text-wc-gold text-sm text-center">
-                          {player.goals}
-                        </span>
-                        <button
-                          onClick={() => handleUpdateStat(player.id, 'goals', true)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-gold hover:bg-yellow-400 text-slate-950 font-bold text-xs select-none transition-colors"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </td>
+                  <div className="space-y-3.5 max-h-[450px] overflow-y-auto pr-1">
+                    {goldPredictions.map((stat, idx) => {
+                      const flagUrl = getTeamFlagUrl(stat.team);
+                      const percentage = totalSelections > 0 ? Math.round((stat.count / totalSelections) * 100) : 0;
 
-                    {/* Asistencias Control */}
-                    <td className="p-4 sm:p-5 text-center">
-                      <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
-                        <button
-                          onClick={() => handleUpdateStat(player.id, 'assists', false)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 font-mono font-semibold text-slate-200 text-sm text-center">
-                          {player.assists}
-                        </span>
-                        <button
-                          onClick={() => handleUpdateStat(player.id, 'assists', true)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </td>
-
-                    {/* Tarjetas Amarillas */}
-                    <td className="p-4 sm:p-5 text-center">
-                      <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
-                        <button
-                          onClick={() => handleUpdateStat(player.id, 'yellow_cards', false)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 font-mono font-bold text-yellow-400 text-sm text-center">
-                          {player.yellow_cards}
-                        </span>
-                        <button
-                          onClick={() => handleUpdateStat(player.id, 'yellow_cards', true)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </td>
-
-                    {/* Tarjetas Rojas */}
-                    <td className="p-4 sm:p-5 text-center">
-                      <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
-                        <button
-                          onClick={() => handleUpdateStat(player.id, 'red_cards', false)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 font-mono font-bold text-wc-red text-sm text-center">
-                          {player.red_cards}
-                        </span>
-                        <button
-                          onClick={() => handleUpdateStat(player.id, 'red_cards', true)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </td>
-
-                    {/* Acciones */}
-                    <td className="p-4 sm:p-5 text-right">
-                      <button
-                        onClick={() => handleDeletePlayer(player.id, player.name)}
-                        className="px-2.5 py-2 rounded-lg bg-wc-red/10 hover:bg-wc-red text-wc-red hover:text-white border border-wc-red/20 hover:border-wc-red transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase inline-flex items-center gap-1.5"
-                        title="Eliminar Jugador"
-                      >
-                        <Trash2 className="w-4 h-4" strokeWidth={2.5} />
-                      </button>
-                    </td>
-                  </tr>
+                      return (
+                        <div key={stat.team} className="space-y-1">
+                          <div className="flex justify-between items-center text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-slate-500 min-w-[16px]">#{idx + 1}</span>
+                              {flagUrl ? (
+                                <img
+                                  src={flagUrl}
+                                  alt={`Bandera de ${stat.team}`}
+                                  className="w-5 h-3.5 object-cover rounded shadow-sm shrink-0 border border-slate-700/50"
+                                />
+                              ) : (
+                                <div className="w-5 h-3.5 bg-slate-800 rounded shrink-0 border border-slate-700/50"></div>
+                              )}
+                              <span className="font-bold text-slate-200">{stat.team}</span>
+                            </div>
+                            <span className="font-bold text-wc-gold font-sports uppercase tracking-wide">
+                              {stat.count} {stat.count === 1 ? 'voto' : 'votos'} ({percentage}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className="bg-gradient-to-r from-wc-gold to-amber-500 h-1.5 rounded-full"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 );
-              })}
-            </tbody>
-          </table>
+              })()}
+            </div>
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Modal / Formulario para Agregar Jugador */}
       {isAddModalOpen && (

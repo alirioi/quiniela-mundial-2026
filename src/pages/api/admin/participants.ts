@@ -9,7 +9,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    // 1. Obtener total de partidos programados
+    // 1. Obtener total de partidos programados y primer partido
     const { count: totalMatches, error: matchesError } = await supabaseAdmin
       .from('matches')
       .select('*', { count: 'exact', head: true });
@@ -17,6 +17,15 @@ export const GET: APIRoute = async ({ request, locals }) => {
     if (matchesError) {
       return new Response(JSON.stringify({ error: matchesError.message }), { status: 400 });
     }
+
+    const { data: firstMatch } = await supabaseAdmin
+      .from('matches')
+      .select('id')
+      .order('match_time', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    const firstMatchId = firstMatch?.id || null;
 
     // 2. Obtener perfiles de usuarios con sus entradas y predicciones asociadas
     const { data: profiles, error: profilesError } = await supabaseAdmin
@@ -123,6 +132,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     return new Response(
       JSON.stringify({
         totalMatches: totalMatches || 0,
+        firstMatchId,
         participants: formattedParticipants
       }),
       { status: 200 }

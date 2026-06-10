@@ -36,17 +36,24 @@ export const POST: APIRoute = async ({ params, locals }) => {
     const matchIds = matches?.map(m => m.id) || [];
     const totalMatches = matchIds.length;
 
-    if (totalMatches === 0) {
-      return new Response(JSON.stringify({ sentCount: 0 }), { status: 200 });
-    }
+    // 3. Obtener el primer partido del mundial (el de fecha más antigua)
+    const { data: firstMatch } = await supabaseAdmin
+      .from('matches')
+      .select('id')
+      .order('match_time', { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
-    // 3. Obtener usuarios aprobados y sus predicciones
+    const firstMatchId = firstMatch?.id;
+
+    // 4. Obtener usuarios aprobados y sus predicciones (incluyendo Pronóstico de Oro)
     const { data: entries } = await supabaseAdmin
       .from('entries')
       .select(`
         id,
         user_id,
         status,
+        predicted_champion,
         profiles:user_id (
           full_name,
           email,
@@ -62,8 +69,8 @@ export const POST: APIRoute = async ({ params, locals }) => {
        return new Response(JSON.stringify({ sentCount: 0 }), { status: 200 });
     }
 
-    // 4. Determinar quiénes no han completado
-    const usersToRemind = new Map<string, { email: string, name: string }>();
+    // 5. Determinar quiénes no han completado
+    const usersToRemind = new Map<string, { email: string, name: string, missingGold: boolean, missingFirstMatch: boolean }>();
 
     entries.forEach((entry: any) => {
       if (!entry.profiles || entry.profiles.role === 'admin') return;
@@ -71,24 +78,54 @@ export const POST: APIRoute = async ({ params, locals }) => {
       const email = entry.profiles.email;
       const name = entry.profiles.full_name;
 
-      if (usersToRemind.has(email)) return;
+      const hasGoldPrediction = !!entry.predicted_champion;
+      const hasFirstMatchPrediction = firstMatchId
+        ? entry.predictions.some((p: any) => p.match_id === firstMatchId)
+        : true;
 
-      const userPredictionsForPhase = entry.predictions.filter((p: any) => matchIds.includes(p.match_id));
-      
-      if (userPredictionsForPhase.length < totalMatches) {
-        usersToRemind.set(email, { email, name });
+      // Si le falta el pronóstico de oro OR el pronóstico del primer partido, le notificamos
+      if (!hasGoldPrediction || !hasFirstMatchPrediction) {
+        const missingGold = !hasGoldPrediction;
+        const missingFirstMatch = !hasFirstMatchPrediction;
+        
+        const existing = usersToRemind.get(email);
+        if (existing) {
+          existing.missingGold = existing.missingGold || missingGold;
+          existing.missingFirstMatch = existing.missingFirstMatch || missingFirstMatch;
+        } else {
+          usersToRemind.set(email, {
+            email,
+            name,
+            missingGold,
+            missingFirstMatch
+          });
+        }
       }
     });
 
-    // 5. Enviar correos
+    // 6. Enviar correos
     let sentCount = 0;
     const emailPromises = Array.from(usersToRemind.values()).map(async (user) => {
       try {
-        const html = render(PhaseReminderEmail({ userName: user.name, phaseName: phase.name }));
+        const html = render(
+          PhaseReminderEmail({
+            userName: user.name,
+            phaseName: phase.name,
+            missingGold: user.missingGold,
+            missingFirstMatch: user.missingFirstMatch
+          })
+        );
+        
+        const subject = user.missingGold && user.missingFirstMatch
+          ? '¡Te falta tu Pronóstico de Oro y tu primer partido! ⏰'
+          : user.missingGold
+          ? '¡Te falta llenar tu Pronóstico de Oro! 🏆'
+          : '¡Te falta pronosticar el primer partido del Mundial! ⚽';
+
         await resend.emails.send({
           from: 'Quiniela Mundial 2026 <quiniela@alirioi.dev>',
           to: user.email,
-          subject: `Faltan pronósticos para la ${phase.name} ⏰`,
+          subject,
           html,
         });
         sentCount++;

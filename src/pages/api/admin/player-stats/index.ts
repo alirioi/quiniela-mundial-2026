@@ -9,19 +9,44 @@ export const GET: APIRoute = async ({ locals }) => {
   }
 
   try {
-    const { data: players, error } = await supabaseAdmin
-      .from('player_stats')
-      .select('*')
-      .order('goals', { ascending: false })
-      .order('name', { ascending: true });
+    const [playersRes, entriesRes] = await Promise.all([
+      supabaseAdmin
+        .from('player_stats')
+        .select('*')
+        .order('goals', { ascending: false })
+        .order('name', { ascending: true }),
+      supabaseAdmin
+        .from('entries')
+        .select('predicted_champion, profiles!inner(role)')
+        .eq('status', 'approved')
+        .neq('profiles.role', 'admin')
+    ]);
 
-    if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 400 });
+    if (playersRes.error) {
+      return new Response(JSON.stringify({ error: playersRes.error.message }), { status: 400 });
+    }
+    if (entriesRes.error) {
+      return new Response(JSON.stringify({ error: entriesRes.error.message }), { status: 400 });
     }
 
-    return new Response(JSON.stringify(players), { status: 200 });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: 'Error interno del servidor' }), { status: 500 });
+    const counts: Record<string, number> = {};
+    entriesRes.data?.forEach((entry: any) => {
+      if (entry.predicted_champion) {
+        const team = entry.predicted_champion.trim();
+        counts[team] = (counts[team] || 0) + 1;
+      }
+    });
+
+    const goldStats = Object.entries(counts)
+      .map(([team, count]) => ({ team, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return new Response(JSON.stringify({
+      players: playersRes.data || [],
+      goldStats
+    }), { status: 200 });
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: 'Error interno del servidor', details: e.message }), { status: 500 });
   }
 };
 

@@ -32,20 +32,10 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       return new Response(JSON.stringify({ error: 'Las contraseñas no coinciden' }), { status: 400 });
     }
 
-    // 1. Validar fecha límite de registros (2 días antes del mundial)
-    const { data: firstMatch } = await supabaseAdmin
-      .from('matches')
-      .select('match_time')
-      .order('match_time', { ascending: true })
-      .limit(1)
-      .maybeSingle();
-
-    if (firstMatch) {
-      const firstMatchTime = new Date(firstMatch.match_time).getTime();
-      const limitTime = firstMatchTime - 1 * 24 * 60 * 60 * 1000; // 1 día en ms
-      if (Date.now() >= limitTime) {
-        return new Response(JSON.stringify({ error: 'El registro de nuevos usuarios y la compra de cupos finalizó 1 día antes del inicio del mundial.' }), { status: 400 });
-      }
+    // 1. Validar fecha límite de registros (10 de junio a la medianoche hora de Venezuela)
+    const limitTime = new Date('2026-06-11T00:00:00-04:00').getTime();
+    if (Date.now() >= limitTime) {
+      return new Response(JSON.stringify({ error: 'El registro de nuevos usuarios y la compra de cupos finalizó el 10 de Junio de 2026 a la medianoche (Hora de Venezuela).' }), { status: 400 });
     }
 
     // 2. Validar mayoría de edad (>= 18 años)

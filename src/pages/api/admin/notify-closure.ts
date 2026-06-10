@@ -63,7 +63,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
           
           <p>Hola <strong>${fullName}</strong>,</p>
           
-          <p>Te informamos que las inscripciones y compras de cupos adicionales para la <strong>Quiniela Mundial 2026</strong> han cerrado oficialmente de acuerdo al reglamento (24 horas antes del pitazo inicial).</p>
+          <p>Te informamos que las inscripciones y compras de cupos adicionales para la <strong>Quiniela Mundial 2026</strong> han cerrado oficialmente el 10 de Junio a la medianoche (Hora de Venezuela).</p>
           
           <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
             <span style="font-size: 12px; text-transform: uppercase; font-weight: bold; color: #64748b; letter-spacing: 0.05em;">Pote Oficial Confirmado</span>

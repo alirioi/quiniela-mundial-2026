@@ -19,9 +19,8 @@ if (user) {
   }
 }
 
-// Calcular límite de inscripciones (1 día antes del mundial)
-const FIRST_MATCH_TIME = new Date('2026-06-11T22:30:00Z');
-const REGISTRATION_DEADLINE = new Date(FIRST_MATCH_TIME.getTime() - 1 * 24 * 60 * 60 * 1000);
+// Calcular límite de inscripciones (10 de junio a la medianoche hora de Venezuela)
+const REGISTRATION_DEADLINE = new Date('2026-06-11T00:00:00-04:00');
 const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
 ---
 
@@ -44,7 +43,7 @@ const isRegistrationClosed = Date.now() >= REGISTRATION_DEADLINE.getTime();
           <Lock className="w-12 h-12 text-slate-500 mb-2" strokeWidth={2.5} />
           <h2 class="text-lg font-sports font-bold text-wc-gold tracking-wider">Inscripciones Cerradas</h2>
           <p class="text-xs text-slate-400 mt-2">
-            El registro de nuevos usuarios y la compra de cupos finalizaron el 10 de Junio de 2026 a las 22:30 UTC (24 horas antes del inicio del torneo).
+            El registro de nuevos usuarios y la compra de cupos finalizaron el 10 de Junio de 2026 a la medianoche (Hora de Venezuela).
           </p>
           <div class="pt-4">
             <a href="/" class="inline-block py-2.5 px-6 rounded-lg bg-wc-card hover:bg-wc-card/85 text-slate-200 text-xs font-semibold border border-wc-border transition-all">

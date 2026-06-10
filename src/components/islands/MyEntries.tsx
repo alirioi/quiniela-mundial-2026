@@ -42,10 +42,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const FIRST_MATCH_TIME = new Date("2026-06-11T22:30:00Z");
-  const REGISTRATION_DEADLINE = new Date(
-    FIRST_MATCH_TIME.getTime() - 1 * 24 * 60 * 60 * 1000,
-  );
+  const REGISTRATION_DEADLINE = new Date("2026-06-11T00:00:00-04:00");
   const isRegistrationClosed = new Date() >= REGISTRATION_DEADLINE;
 
   // Form states

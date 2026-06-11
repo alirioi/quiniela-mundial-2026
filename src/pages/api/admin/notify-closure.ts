@@ -12,7 +12,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    // 1. Obtener todos los cupos aprobados y la información de los usuarios
+    // 1. Obtener todos los cupos aprobados y la información de los usuarios (incluyendo rol para filtrar administradores)
     const { data: entries, error: entriesError } = await supabaseAdmin
       .from('entries')
       .select(`
@@ -20,7 +20,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
         display_name,
         profiles (
           full_name,
-          email
+          email,
+          role
         )
       `)
       .eq('status', 'approved');
@@ -33,9 +34,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ message: 'No hay cupos aprobados para notificar.' }), { status: 200 });
     }
 
+    // Filtrar los cupos de administradores para no tomarlos en cuenta en la recaudación ni en la notificación de cierre
+    const realEntries = entries.filter((entry: any) => entry.profiles?.role !== 'admin');
+
+    if (realEntries.length === 0) {
+      return new Response(JSON.stringify({ message: 'No hay cupos de participantes reales aprobados para notificar.' }), { status: 200 });
+    }
+
     // 2. Agrupar destinatarios por email para evitar correos duplicados por usuario
     const recipients = new Map<string, string>(); // email -> full_name
-    entries.forEach((entry: any) => {
+    realEntries.forEach((entry: any) => {
       const email = entry.profiles?.email;
       const name = entry.profiles?.full_name;
       if (email) {
@@ -43,7 +51,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       }
     });
 
-    const approvedEntriesCount = entries.length;
+    const approvedEntriesCount = realEntries.length;
     const totalPool = approvedEntriesCount * 15;
     const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://quiniela.alirioi.dev';
 

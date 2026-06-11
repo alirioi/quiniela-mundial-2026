@@ -47,6 +47,7 @@ export default function AdminEntryList() {
   const [rejectingId, setRejectingId] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+  const [notifyingClosure, setNotifyingClosure] = useState(false);
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -62,6 +63,34 @@ export default function AdminEntryList() {
       setError(err.message || 'Error al conectar con el servidor');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleNotifyClosure = async () => {
+    const result = await showAlert.confirm(
+      '¿Enviar correos de cierre?',
+      '¿Estás seguro de que quieres enviar el correo de cierre e informar sobre el pote oficial a todos los participantes con cupos aprobados?'
+    );
+    if (!result.isConfirmed) return;
+
+    setNotifyingClosure(true);
+    try {
+      const response = await fetch('/api/admin/notify-closure', {
+        method: 'POST'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        showAlert.success(
+          'Éxito',
+          `Correos enviados con éxito. Total destinatarios: ${data.totalDestinatarios}, Exitosos: ${data.exitosos}`
+        );
+      } else {
+        throw new Error(data.error || 'Error al enviar notificaciones');
+      }
+    } catch (e: any) {
+      showAlert.error('Error', e.message);
+    } finally {
+      setNotifyingClosure(false);
     }
   };
 
@@ -378,13 +407,24 @@ export default function AdminEntryList() {
           ))}
         </div>
 
-        <button
-          onClick={fetchEntries}
-          className="p-2 px-3.5 rounded-xl bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white border border-wc-border transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1.5 relative z-10"
-          disabled={loading}
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} strokeWidth={2.5} /> Recargar
-        </button>
+        <div className="flex items-center gap-2 relative z-10">
+          <button
+            onClick={handleNotifyClosure}
+            className="p-2 px-3.5 rounded-xl bg-wc-blue hover:bg-blue-600 text-white font-bold font-sports tracking-wider uppercase text-xs transition-all flex items-center gap-1.5"
+            disabled={notifyingClosure}
+          >
+            <Mail className={`w-4 h-4 ${notifyingClosure ? 'animate-pulse' : ''}`} strokeWidth={2.5} />
+            {notifyingClosure ? 'Enviando...' : 'Notificar Cierre y Pote'}
+          </button>
+
+          <button
+            onClick={fetchEntries}
+            className="p-2 px-3.5 rounded-xl bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white border border-wc-border transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1.5"
+            disabled={loading}
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} strokeWidth={2.5} /> Recargar
+          </button>
+        </div>
       </div>
 
       {/* Lista de Cupos */}

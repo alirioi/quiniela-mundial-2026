@@ -25,10 +25,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: 'Todos los campos son obligatorios' }), { status: 400 });
     }
 
-    // 2. Validar fecha límite de registros (10 de junio a la medianoche hora de Venezuela)
-    const limitTime = new Date('2026-06-11T00:00:00-04:00').getTime();
+    // 2. Validar fecha límite de registros (11 de junio a las 12:00 PM / mediodía hora de Venezuela)
+    const limitTime = new Date('2026-06-11T12:00:00-04:00').getTime();
     if (Date.now() >= limitTime) {
-      return new Response(JSON.stringify({ error: 'La compra de cupos finalizó el 10 de Junio de 2026 a la medianoche (Hora de Venezuela).' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'La compra de cupos finalizó el 11 de Junio de 2026 a las 12:00 PM (Mediodía, Hora de Venezuela).' }), { status: 400 });
     }
 
     // 3. Validar unicidad del nombre del cupo

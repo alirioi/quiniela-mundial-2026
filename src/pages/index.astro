@@ -11,8 +11,8 @@ const isApproved = Astro.locals.isApproved;
 // Definir fecha del primer partido en UTC
 // 2026-06-11 22:30:00 UTC
 const FIRST_MATCH_TIME = new Date('2026-06-11T22:30:00Z');
-// El registro cierra hoy 10 de junio a la medianoche (Hora de Venezuela)
-const REGISTRATION_DEADLINE = new Date('2026-06-11T00:00:00-04:00');
+// El registro cierra el 11 de junio a las 12:00 PM (Mediodía, Hora de Venezuela)
+const REGISTRATION_DEADLINE = new Date('2026-06-11T12:00:00-04:00');
 ---
 
 <MainLayout 
@@ -161,7 +161,7 @@ const REGISTRATION_DEADLINE = new Date('2026-06-11T00:00:00-04:00');
       if (parent) {
         const info = document.createElement('p');
         info.className = "text-[10px] text-rose-500 font-semibold mt-2 text-center";
-        info.textContent = "Las inscripciones finalizaron el 10 de Junio a la medianoche (Hora de Venezuela).";
+        info.textContent = "Las inscripciones finalizaron el 11 de Junio a las 12:00 PM (Mediodía, Hora de Venezuela).";
         parent.appendChild(info);
       }
     }

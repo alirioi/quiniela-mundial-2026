@@ -42,7 +42,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const REGISTRATION_DEADLINE = new Date("2026-06-11T00:00:00-04:00");
+  const REGISTRATION_DEADLINE = new Date("2026-06-11T12:00:00-04:00");
   const isRegistrationClosed = new Date() >= REGISTRATION_DEADLINE;
 
   // Form states
@@ -293,7 +293,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
               <span>Compras Cerradas</span>
             </span>
             <span className="text-xs text-slate-500 font-sports tracking-wider">
-              Finalizó el 10 de Junio
+              Finalizó el 11 de Junio
             </span>
           </div>
         ) : (

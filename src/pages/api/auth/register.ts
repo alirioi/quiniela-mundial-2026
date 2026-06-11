@@ -32,10 +32,10 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       return new Response(JSON.stringify({ error: 'Las contraseñas no coinciden' }), { status: 400 });
     }
 
-    // 1. Validar fecha límite de registros (10 de junio a la medianoche hora de Venezuela)
-    const limitTime = new Date('2026-06-11T00:00:00-04:00').getTime();
+    // 1. Validar fecha límite de registros (11 de junio a las 12:00 PM / mediodía hora de Venezuela)
+    const limitTime = new Date('2026-06-11T12:00:00-04:00').getTime();
     if (Date.now() >= limitTime) {
-      return new Response(JSON.stringify({ error: 'El registro de nuevos usuarios y la compra de cupos finalizó el 10 de Junio de 2026 a la medianoche (Hora de Venezuela).' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'El registro de nuevos usuarios y la compra de cupos finalizó el 11 de Junio de 2026 a las 12:00 PM (Mediodía, Hora de Venezuela).' }), { status: 400 });
     }
 
     // 2. Validar mayoría de edad (>= 18 años)

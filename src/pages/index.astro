@@ -9,8 +9,8 @@ const profile = Astro.locals.profile;
 const isApproved = Astro.locals.isApproved;
 
 // Definir fecha del primer partido en UTC
-// 2026-06-11 22:30:00 UTC
-const FIRST_MATCH_TIME = new Date('2026-06-11T22:30:00Z');
+// 2026-06-11 19:00:00 UTC
+const FIRST_MATCH_TIME = new Date('2026-06-11T19:00:00Z');
 // El registro cierra el 11 de junio a las 12:00 PM (Mediodía, Hora de Venezuela)
 const REGISTRATION_DEADLINE = new Date('2026-06-11T12:00:00-04:00');
 ---
@@ -61,7 +61,7 @@ const REGISTRATION_DEADLINE = new Date('2026-06-11T12:00:00-04:00');
               --d --h --m --s
             </div>
             <div class="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-              Inicio: 11 de Junio, 2026 (22:30 UTC)
+              Inicio: 11 de Junio, 2026 (19:00 UTC)
             </div>
           </div>
 

@@ -78,7 +78,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
           <div style="margin: 24px 0; font-size: 14px; line-height: 1.5;">
             <h3 style="color: #0f172a; font-size: 16px; margin-bottom: 8px;">Recordatorios Importantes:</h3>
             <ul style="padding-left: 20px; margin: 0; color: #475569;">
-              <li style="margin-bottom: 6px;"><strong>Bloqueo de Pronósticos:</strong> Las predicciones de cada partido se bloquean automáticamente <strong>2 horas antes</strong> de su hora programada de inicio. ¡No olvides llenar tus marcadores a tiempo!</li>
+              <li style="margin-bottom: 6px;"><strong>Bloqueo de Pronósticos:</strong> Las predicciones de cada partido se bloquean automáticamente <strong>30 minutos antes</strong> de su hora programada de inicio. ¡No olvides llenar tus marcadores a tiempo!</li>
               <li style="margin-bottom: 6px;"><strong>Clasificación General:</strong> La tabla de posiciones y los apodos de todos los participantes se harán públicos una vez comience el primer partido.</li>
               <li style="margin-bottom: 6px;"><strong>Preguntas Frecuentes:</strong> Si tienes dudas sobre las reglas de desempate o cálculo de puntos, puedes visitar la sección de <a href="${siteUrl}/faq" style="color: #10b981; text-decoration: none; font-weight: 600;">Reglas y FAQ</a>.</li>
             </ul>

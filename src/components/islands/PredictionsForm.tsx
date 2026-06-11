@@ -422,13 +422,13 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
 
 
 
-  // Actualizar temporizadores (countdown de 2 horas antes de cada partido)
+  // Actualizar temporizadores (countdown de 30 minutos antes de cada partido)
   useEffect(() => {
     const updateCountdowns = () => {
       const remaining: Record<number, string> = {};
       matches.forEach((match) => {
         const matchTime = new Date(match.match_time).getTime();
-        const lockTime = matchTime - 2 * 60 * 60 * 1000; // 2 horas antes
+        const lockTime = matchTime - 30 * 60 * 1000; // 30 minutos antes
         const now = Date.now();
 
         if (now >= lockTime) {
@@ -474,7 +474,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
 
   function isLocked(matchTimeStr: string) {
     const matchTime = new Date(matchTimeStr).getTime();
-    const lockTime = matchTime - 2 * 60 * 60 * 1000;
+    const lockTime = matchTime - 30 * 60 * 1000;
     return Date.now() >= lockTime;
   }
 

@@ -39,8 +39,8 @@ begin
     raise exception 'Partido no encontrado';
   end if;
 
-  if now() >= v_match_time - interval '2 hours' then
-    raise exception 'Predicción bloqueada: faltan menos de 2 horas para el partido';
+  if now() >= v_match_time - interval '30 minutes' then
+    raise exception 'Predicción bloqueada: faltan menos de 30 minutos para el partido';
   end if;
 
   return new;

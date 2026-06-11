@@ -26,7 +26,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     const firstMatch = firstMatchRes.data;
     const activeMatchesCount = activeMatchesRes.count;
 
-    const firstMatchTimeStr = firstMatch?.match_time || '2026-06-11T22:30:00Z';
+    const firstMatchTimeStr = firstMatch?.match_time || '2026-06-11T19:00:00Z';
     const firstMatchTime = new Date(firstMatchTimeStr);
     const now = new Date();
 

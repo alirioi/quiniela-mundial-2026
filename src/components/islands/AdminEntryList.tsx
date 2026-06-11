@@ -16,7 +16,8 @@ import {
   DollarSign,
   TrendingUp,
   Coins,
-  Shield
+  Shield,
+  Mail
 } from 'lucide-react';
 
 interface Entry {

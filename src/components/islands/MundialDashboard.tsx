@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Trophy, Calendar, Filter, Search, Award, GitBranch, BarChart3, Star, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Trophy, Calendar, Filter, Search, Award, GitBranch, BarChart3, Star, AlertTriangle, RefreshCw, ChevronUp, ChevronDown, ChevronRight } from 'lucide-react';
 import { getTeamFlagUrl } from '../../utils/flags';
 import KnockoutBracket from './KnockoutBracket';
 
@@ -59,6 +59,10 @@ export default function MundialDashboard({ matches }: Props) {
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   
+  const [teamSortKey, setTeamSortKey] = useState<'pj' | 'gf' | 'gc' | 'team'>('gf');
+  const [teamSortDirection, setTeamSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [playerTab, setPlayerTab] = useState<'goleadores' | 'asistentes' | 'mixto'>('goleadores');
+  
   const [players, setPlayers] = useState<Player[]>([]);
   const [playersLoading, setPlayersLoading] = useState(false);
   const [playersError, setPlayersError] = useState<string | null>(null);
@@ -90,6 +94,16 @@ export default function MundialDashboard({ matches }: Props) {
     fetchPlayers();
   }, [activeTab]);
 
+  // Handler para el ordenamiento de los equipos
+  const handleTeamSort = (key: 'pj' | 'gf' | 'gc' | 'team') => {
+    if (teamSortKey === key) {
+      setTeamSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setTeamSortKey(key);
+      setTeamSortDirection(key === 'team' ? 'asc' : 'desc');
+    }
+  };
+
   // Cálculo dinámico de estadísticas por equipo (goles a favor y en contra en todos los partidos)
   const teamStatsSummary = useMemo(() => {
     const stats: Record<string, { team: string; gf: number; gc: number; pj: number }> = {};
@@ -107,13 +121,25 @@ export default function MundialDashboard({ matches }: Props) {
         stats[m.away_team].gc += m.home_score;
       }
     });
-    // Ordenar equipos por goles a favor (gf) descendente, luego goles en contra (gc) ascendente
+    // Ordenar equipos por la columna seleccionada
     return Object.values(stats).sort((a, b) => {
-      if (b.gf !== a.gf) return b.gf - a.gf;
-      if (a.gc !== b.gc) return a.gc - b.gc;
-      return a.team.localeCompare(b.team);
+      let comparison = 0;
+      if (teamSortKey === 'team') {
+        comparison = a.team.localeCompare(b.team);
+      } else {
+        comparison = a[teamSortKey] - b[teamSortKey];
+      }
+
+      if (comparison === 0) {
+        // Fallback en caso de empate
+        if (b.gf !== a.gf) return b.gf - a.gf;
+        if (a.gc !== b.gc) return a.gc - b.gc;
+        return a.team.localeCompare(b.team);
+      }
+
+      return teamSortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [matches]);
+  }, [matches, teamSortKey, teamSortDirection]);
 
   // Estadísticas generales del torneo (goles totales, promedio, partidos jugados)
   const generalStats = useMemo(() => {
@@ -614,11 +640,14 @@ export default function MundialDashboard({ matches }: Props) {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Goles por Selección (Dinámico) */}
-            <div className="bg-wc-card border border-wc-border rounded-2xl overflow-hidden shadow-xl flex flex-col">
-              <div className="bg-wc-dark/60 p-4 border-b border-wc-border">
+            <div className="bg-wc-card border border-wc-border rounded-2xl overflow-hidden shadow-xl flex flex-col relative">
+              <div className="bg-wc-dark/60 p-4 border-b border-wc-border flex items-center justify-between">
                 <h3 className="font-sports text-lg text-wc-gold tracking-wider uppercase flex items-center gap-2">
                   <Award className="w-5 h-5 text-wc-gold shrink-0" strokeWidth={2.5} /> Goles por Selección
                 </h3>
+                <span className="sm:hidden text-[10px] text-slate-400 font-sports tracking-wider uppercase flex items-center gap-1 animate-pulse">
+                  Desliza <ChevronRight className="w-3 h-3" />
+                </span>
               </div>
               <div className="overflow-x-auto max-h-[500px] custom-scrollbar">
                 {teamStatsSummary.length === 0 ? (
@@ -630,10 +659,33 @@ export default function MundialDashboard({ matches }: Props) {
                     <thead>
                       <tr className="bg-wc-dark/30 text-[10px] sm:text-xs uppercase font-sports tracking-wider text-slate-500 border-b border-wc-border/30">
                         <th className="p-4 w-12 text-center">#</th>
-                        <th className="p-4">Selección</th>
-                        <th className="p-4 text-center">Partidos</th>
-                        <th className="p-4 text-center text-wc-green">G. Marcados</th>
-                        <th className="p-4 text-center text-wc-red">G. Recibidos</th>
+                        <th className="p-4 cursor-pointer hover:text-white transition-colors select-none group" onClick={() => handleTeamSort('team')}>
+                          <div className="flex items-center gap-1">
+                            Selección
+                            <span className="opacity-0 group-hover:opacity-100 transition-opacity">
+                              {teamSortKey === 'team' ? (teamSortDirection === 'asc' ? <ChevronUp className="w-3.5 h-3.5 text-white opacity-100" /> : <ChevronDown className="w-3.5 h-3.5 text-white opacity-100" />) : <ChevronUp className="w-3.5 h-3.5" />}
+                            </span>
+                            {teamSortKey === 'team' && <span className="opacity-100 absolute ml-[70px]">{teamSortDirection === 'asc' ? <ChevronUp className="w-3.5 h-3.5 text-white" /> : <ChevronDown className="w-3.5 h-3.5 text-white" />}</span>}
+                          </div>
+                        </th>
+                        <th className="p-4 text-center cursor-pointer hover:text-white transition-colors select-none group" onClick={() => handleTeamSort('pj')}>
+                          <div className="flex items-center justify-center gap-1 relative">
+                            Partidos
+                            {teamSortKey === 'pj' ? (teamSortDirection === 'asc' ? <ChevronUp className="w-3.5 h-3.5 text-white" /> : <ChevronDown className="w-3.5 h-3.5 text-white" />) : <ChevronUp className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                          </div>
+                        </th>
+                        <th className="p-4 text-center text-wc-green cursor-pointer hover:text-green-400 transition-colors select-none group" onClick={() => handleTeamSort('gf')}>
+                          <div className="flex items-center justify-center gap-1 relative">
+                            G. Marcados
+                            {teamSortKey === 'gf' ? (teamSortDirection === 'asc' ? <ChevronUp className="w-3.5 h-3.5 text-green-400" /> : <ChevronDown className="w-3.5 h-3.5 text-green-400" />) : <ChevronUp className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                          </div>
+                        </th>
+                        <th className="p-4 text-center text-wc-red cursor-pointer hover:text-red-400 transition-colors select-none group" onClick={() => handleTeamSort('gc')}>
+                          <div className="flex items-center justify-center gap-1 relative">
+                            G. Recibidos
+                            {teamSortKey === 'gc' ? (teamSortDirection === 'asc' ? <ChevronUp className="w-3.5 h-3.5 text-red-400" /> : <ChevronDown className="w-3.5 h-3.5 text-red-400" />) : <ChevronUp className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                          </div>
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-wc-border/30 text-sm text-slate-300">
@@ -664,12 +716,37 @@ export default function MundialDashboard({ matches }: Props) {
               </div>
             </div>
 
-            {/* Tabla de Goleadores (Jugadores) */}
-            <div className="bg-wc-card border border-wc-border rounded-2xl overflow-hidden shadow-xl flex flex-col">
-              <div className="bg-wc-dark/60 p-4 border-b border-wc-border">
-                <h3 className="font-sports text-lg text-wc-gold tracking-wider uppercase flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-wc-gold shrink-0" strokeWidth={2.5} /> Tabla de Goleadores
-                </h3>
+            {/* Tabla de Jugadores */}
+            <div className="bg-wc-card border border-wc-border rounded-2xl overflow-hidden shadow-xl flex flex-col relative">
+              <div className="bg-wc-dark/60 p-4 border-b border-wc-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center justify-between w-full sm:w-auto">
+                  <h3 className="font-sports text-lg text-wc-gold tracking-wider uppercase flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-wc-gold shrink-0" strokeWidth={2.5} /> Estadísticas de Jugadores
+                  </h3>
+                  <span className="sm:hidden text-[10px] text-slate-400 font-sports tracking-wider uppercase flex items-center gap-1 animate-pulse ml-2">
+                    Desliza <ChevronRight className="w-3 h-3" />
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 bg-wc-dark/50 p-1 rounded-lg border border-wc-border/50 text-[10px] font-sports tracking-wider uppercase flex-wrap">
+                  <button
+                    onClick={() => setPlayerTab('goleadores')}
+                    className={`px-3 py-1.5 rounded-md transition-all ${playerTab === 'goleadores' ? 'bg-wc-gold text-wc-dark font-bold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    Goleadores
+                  </button>
+                  <button
+                    onClick={() => setPlayerTab('asistentes')}
+                    className={`px-3 py-1.5 rounded-md transition-all ${playerTab === 'asistentes' ? 'bg-wc-blue text-wc-dark font-bold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    Asistencias
+                  </button>
+                  <button
+                    onClick={() => setPlayerTab('mixto')}
+                    className={`px-3 py-1.5 rounded-md transition-all ${playerTab === 'mixto' ? 'bg-wc-green text-wc-dark font-bold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    Goles + Asist.
+                  </button>
+                </div>
               </div>
               <div className="overflow-x-auto max-h-[500px] custom-scrollbar">
                 {playersLoading ? (
@@ -693,13 +770,26 @@ export default function MundialDashboard({ matches }: Props) {
                         <th className="p-4 w-12 text-center">#</th>
                         <th className="p-4">Jugador</th>
                         <th className="p-4 text-center text-wc-gold">Goles</th>
-                        <th className="p-4 text-center">Asistencias</th>
-                        <th className="p-4 text-center text-yellow-500">TA</th>
-                        <th className="p-4 text-center text-wc-red">TR</th>
+                        <th className="p-4 text-center text-wc-blue">Asistencias</th>
+                        <th className="p-4 text-center text-wc-green">G+A</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-wc-border/30 text-sm text-slate-300">
-                      {Array.isArray(players) && players.map((p, idx) => {
+                      {Array.isArray(players) && [...players].sort((a, b) => {
+                        if (playerTab === 'goleadores') {
+                          if (b.goals !== a.goals) return b.goals - a.goals;
+                          return b.assists - a.assists;
+                        } else if (playerTab === 'asistentes') {
+                          if (b.assists !== a.assists) return b.assists - a.assists;
+                          return b.goals - a.goals;
+                        } else {
+                          const aTotal = a.goals + a.assists;
+                          const bTotal = b.goals + b.assists;
+                          if (bTotal !== aTotal) return bTotal - aTotal;
+                          if (b.goals !== a.goals) return b.goals - a.goals;
+                          return b.assists - a.assists;
+                        }
+                      }).map((p, idx) => {
                         const flagUrl = getTeamFlagUrl(p.team);
                         return (
                           <tr key={p.id} className="hover:bg-white/5 transition-colors">
@@ -715,10 +805,9 @@ export default function MundialDashboard({ matches }: Props) {
                                 </div>
                               </div>
                             </td>
-                            <td className="p-4 text-center font-mono font-extrabold text-wc-gold text-base">{p.goals}</td>
-                            <td className="p-4 text-center font-mono">{p.assists}</td>
-                            <td className="p-4 text-center font-mono text-yellow-500">{p.yellow_cards}</td>
-                            <td className="p-4 text-center font-mono text-wc-red">{p.red_cards}</td>
+                            <td className={`p-4 text-center font-mono font-extrabold text-base ${playerTab === 'goleadores' ? 'text-wc-gold' : 'text-slate-400'}`}>{p.goals}</td>
+                            <td className={`p-4 text-center font-mono font-extrabold text-base ${playerTab === 'asistentes' ? 'text-wc-blue' : 'text-slate-400'}`}>{p.assists}</td>
+                            <td className={`p-4 text-center font-mono font-extrabold text-base ${playerTab === 'mixto' ? 'text-wc-green' : 'text-slate-400'}`}>{p.goals + p.assists}</td>
                           </tr>
                         );
                       })}

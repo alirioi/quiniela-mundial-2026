@@ -116,7 +116,7 @@ export default function LiveMatchWidget() {
         {liveMatches.map((match) => (
           <div
             key={match.id}
-            className="p-5 rounded-2xl bg-gradient-to-br from-wc-card to-slate-900 border border-wc-red/35 backdrop-blur-sm relative overflow-hidden shadow-lg shadow-wc-red/5"
+            className="p-5 rounded-2xl bg-gradient-to-br from-wc-card to-wc-dark/10 border border-wc-red/35 backdrop-blur-sm relative overflow-hidden shadow-lg shadow-wc-red/5"
           >
             {/* Decoración de fondo */}
             <div className="absolute top-0 right-0 w-24 h-24 bg-wc-red/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -124,7 +124,7 @@ export default function LiveMatchWidget() {
 
             {/* Header */}
             <div className="flex justify-between items-center border-b border-wc-border/50 pb-2.5 mb-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-350 flex items-center gap-1.5 font-sports">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 font-sports">
                 <Activity className="w-4 h-4 text-wc-red animate-pulse" strokeWidth={2.5} />
                 Partido en Vivo
               </h3>
@@ -152,12 +152,12 @@ export default function LiveMatchWidget() {
 
               {/* Score */}
               <div className="flex flex-col items-center justify-center flex-shrink-0">
-                <div className="flex items-center gap-2 px-4 py-2 bg-slate-950/80 rounded-2xl border border-wc-border font-sports font-black text-xl text-slate-100 min-w-[5.5rem] justify-center shadow-inner">
+                <div className="flex items-center gap-2 px-4 py-2 bg-wc-dark/90 rounded-2xl border border-wc-border font-sports font-black text-xl text-slate-100 min-w-[5.5rem] justify-center shadow-inner">
                   <span className="text-wc-red animate-pulse">{match.home_score}</span>
-                  <span className="text-slate-600 font-normal">:</span>
+                  <span className="text-slate-450 font-normal">:</span>
                   <span className="text-wc-red animate-pulse">{match.away_score}</span>
                 </div>
-                <span className="text-[9px] font-sports font-bold tracking-wider uppercase text-slate-500 mt-1.5 bg-wc-dark px-1.5 py-0.5 rounded border border-wc-border/50">
+                <span className="text-[9px] font-sports font-bold tracking-wider uppercase text-slate-400 mt-1.5 bg-wc-dark px-1.5 py-0.5 rounded border border-wc-border/50">
                   M#{match.match_number}
                 </span>
               </div>

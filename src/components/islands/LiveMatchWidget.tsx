@@ -157,9 +157,6 @@ export default function LiveMatchWidget() {
                   <span className="text-slate-450 font-normal">:</span>
                   <span className="text-wc-red animate-pulse">{match.away_score}</span>
                 </div>
-                <span className="text-[9px] font-sports font-bold tracking-wider uppercase text-slate-400 mt-1.5 bg-wc-dark px-1.5 py-0.5 rounded border border-wc-border/50">
-                  M#{match.match_number}
-                </span>
               </div>
 
               {/* Visitante */}

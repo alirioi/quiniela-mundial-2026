@@ -23,32 +23,12 @@ export default function LiveMatchWidget() {
 
   const fetchMatchesData = async () => {
     try {
-      // 1. Intentar obtener partidos en vivo
-      const { data: liveData, error: liveError } = await supabase
-        .from('matches')
-        .select('*')
-        .eq('status', 'live')
-        .order('match_time', { ascending: true });
-
-      if (liveError) throw liveError;
-
-      if (liveData && liveData.length > 0) {
-        setLiveMatches(liveData);
-        setNextMatch(null);
-      } else {
-        setLiveMatches([]);
-        // 2. Si no hay partidos en vivo, buscar el siguiente programado
-        const { data: nextData, error: nextError } = await supabase
-          .from('matches')
-          .select('*')
-          .eq('status', 'scheduled')
-          .gt('match_time', new Date().toISOString())
-          .order('match_time', { ascending: true })
-          .limit(1);
-
-        if (nextError) throw nextError;
-        setNextMatch(nextData && nextData.length > 0 ? nextData[0] : null);
-      }
+      const response = await fetch('/api/matches/live');
+      if (!response.ok) throw new Error('Error al consultar /api/matches/live');
+      
+      const data = await response.json();
+      setLiveMatches(data.liveMatches || []);
+      setNextMatch(data.nextMatch || null);
     } catch (e) {
       console.error('Error al cargar datos del widget de partidos:', e);
     } finally {
@@ -58,6 +38,9 @@ export default function LiveMatchWidget() {
 
   useEffect(() => {
     fetchMatchesData();
+
+    // Polling de respaldo cada 30 segundos para asegurar actualización de marcadores en vivo
+    const pollInterval = setInterval(fetchMatchesData, 30000);
 
     // Suscribirse a cambios en la tabla 'matches' en tiempo real
     const channel = supabase
@@ -72,6 +55,7 @@ export default function LiveMatchWidget() {
       .subscribe();
 
     return () => {
+      clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
   }, []);

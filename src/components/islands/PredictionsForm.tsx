@@ -102,7 +102,8 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   const [error, setError] = useState<string | null>(null);
   const [activeSubTab, setActiveSubTab] = useState<'pronosticos' | 'tabla' | 'llave'>('pronosticos');
   const [activeGroup, setActiveGroup] = useState<string>('Grupo A');
-  const [viewMode, setViewMode] = useState<'grupos' | 'cronologico'>('grupos');
+  const [viewMode, setViewMode] = useState<'grupos' | 'cronologico' | 'fechas'>('grupos');
+  const [activeDate, setActiveDate] = useState<string>('');
   
   // Estado local para los inputs: record de matchId -> { home, away }
   const [inputs, setInputs] = useState<Record<number, { home: string; away: string }>>({});
@@ -589,14 +590,90 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
   // Verificar si hay algún partido sin predicción guardada
   const unpredictedCount = matches.filter((m) => !m.prediction && !isLocked(m.match_time)).length;
 
-  // Filtrar partidos por grupo si estamos en fase de grupos o aplicar orden cronológico
+  // Obtener la lista de fechas únicas con partidos de manera ordenada
+  const dateTabs = useMemo(() => {
+    const todayStr = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    const dateList: { key: string; label: string }[] = [];
+    const seen = new Set<string>();
+
+    const sorted = [...matches].sort((a, b) => new Date(a.match_time).getTime() - new Date(b.match_time).getTime());
+
+    sorted.forEach((m) => {
+      const dateKey = new Date(m.match_time).toLocaleDateString('es-ES', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
+      if (!seen.has(dateKey)) {
+        seen.add(dateKey);
+        let label = dateKey;
+        // Capitalizar la primera letra
+        label = label.charAt(0).toUpperCase() + label.slice(1);
+        
+        // Etiquetas relativas amigables
+        if (dateKey === todayStr) {
+          label = `Hoy (${label})`;
+        } else if (dateKey === tomorrowStr) {
+          label = `Mañana (${label})`;
+        } else if (dateKey === yesterdayStr) {
+          label = `Ayer (${label})`;
+        }
+        
+        dateList.push({ key: dateKey, label });
+      }
+    });
+    
+    return dateList;
+  }, [matches]);
+
+  // Inicializar activeDate dinámicamente
+  useEffect(() => {
+    if (viewMode === 'fechas' && dateTabs.length > 0 && !activeDate) {
+      const todayStr = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+      const hasToday = dateTabs.find(d => d.key === todayStr);
+      if (hasToday) {
+        setActiveDate(hasToday.key);
+      } else {
+        const nextMatch = matches.find(m => m.status !== 'finished');
+        if (nextMatch) {
+          const nextMatchDateKey = new Date(nextMatch.match_time).toLocaleDateString('es-ES', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          });
+          setActiveDate(nextMatchDateKey);
+        } else {
+          setActiveDate(dateTabs[0].key);
+        }
+      }
+    }
+  }, [viewMode, dateTabs, activeDate, matches]);
+
+  // Filtrar partidos por grupo si estamos en fase de grupos o aplicar orden cronológico / fechas
   const filteredMatches = useMemo(() => {
     if (phaseSlug !== 'grupos') return matches;
     if (viewMode === 'cronologico') {
       return [...matches].sort((a, b) => new Date(a.match_time).getTime() - new Date(b.match_time).getTime());
     }
+    if (viewMode === 'fechas') {
+      return matches.filter((m) => {
+        const dateKey = new Date(m.match_time).toLocaleDateString('es-ES', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+        });
+        return dateKey === activeDate;
+      });
+    }
     return matches.filter((m) => m.group_name === activeGroup);
-  }, [matches, phaseSlug, activeGroup, viewMode]);
+  }, [matches, phaseSlug, activeGroup, viewMode, activeDate]);
 
   // Agrupar partidos por fecha para orden visual premium
   const groupedMatches: Record<string, Match[]> = {};
@@ -740,29 +817,45 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
               {phaseSlug === 'grupos' && activeSubTab === 'pronosticos' && (
                 <div className="space-y-4">
                   {/* Selector de modo de ordenamiento */}
-                  <div className="flex bg-wc-dark/80 border border-wc-border/50 rounded-xl p-1 shadow-inner w-fit">
-                    <button
-                      type="button"
-                      onClick={() => setViewMode('grupos')}
-                      className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
-                        viewMode === 'grupos'
-                          ? 'bg-wc-gold text-slate-950 shadow'
-                          : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      Por Grupos
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setViewMode('cronologico')}
-                      className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
-                        viewMode === 'cronologico'
-                          ? 'bg-wc-gold text-slate-950 shadow'
-                          : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      Cronológico
-                    </button>
+                  <div className="flex items-center gap-3 border-l-2 border-wc-blue/40 pl-3">
+                    <span className="text-[10px] uppercase font-sports tracking-wider text-slate-500 font-bold hidden xs:inline">
+                      Visualizar:
+                    </span>
+                    <div className="flex bg-wc-dark/95 border border-wc-border rounded-xl p-1 shadow-inner w-fit">
+                      <button
+                        type="button"
+                        onClick={() => setViewMode('grupos')}
+                        className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                          viewMode === 'grupos'
+                            ? 'bg-wc-blue text-slate-900 shadow-md font-extrabold'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Por Grupos
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setViewMode('cronologico')}
+                        className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                          viewMode === 'cronologico'
+                            ? 'bg-wc-blue text-slate-900 shadow-md font-extrabold'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Cronológico
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setViewMode('fechas')}
+                        className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                          viewMode === 'fechas'
+                            ? 'bg-wc-blue text-slate-900 shadow-md font-extrabold'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Por Fechas
+                      </button>
+                    </div>
                   </div>
 
                   {/* Barra de grupos (solo visible en modo 'grupos') */}
@@ -775,11 +868,31 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                           onClick={() => setActiveGroup(groupName)}
                           className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border whitespace-nowrap transition-all duration-200 font-sports cursor-pointer shrink-0 ${
                             activeGroup === groupName
-                              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 border-transparent shadow-md'
-                              : 'bg-wc-dark border-wc-border text-slate-400 hover:text-slate-200'
+                              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 border-transparent shadow-md shadow-wc-gold/20'
+                              : 'bg-wc-dark border-wc-border text-slate-400 hover:text-slate-200 hover:border-slate-700'
                           }`}
                         >
                           {groupName}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Barra de fechas (solo visible en modo 'fechas') */}
+                  {viewMode === 'fechas' && (
+                    <div className="flex items-center gap-2 overflow-x-auto pb-3 border-b border-wc-border/30 custom-scrollbar animate-fade-in">
+                      {dateTabs.map((dateObj) => (
+                        <button
+                          key={dateObj.key}
+                          type="button"
+                          onClick={() => setActiveDate(dateObj.key)}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border whitespace-nowrap transition-all duration-200 font-sports cursor-pointer shrink-0 ${
+                            activeDate === dateObj.key
+                              ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 border-transparent shadow-md shadow-wc-gold/20'
+                              : 'bg-wc-dark border-wc-border text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                          }`}
+                        >
+                          {dateObj.label}
                         </button>
                       ))}
                     </div>

@@ -86,11 +86,15 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const totalPredictions = predictions?.length || 0;
     
-    // Contar correctas (outcome correcto: puntos_earned > 0)
-    const correctPredictions = predictions?.filter(p => p.points_earned !== null && p.points_earned > 0).length || 0;
-    const exactPredictions = predictions?.filter(p => p.points_earned === 3).length || 0;
+    // Filtrar predicciones en partidos que ya han terminado
+    const finishedPredictions = predictions?.filter(p => p.matches && p.matches.status === 'finished') || [];
+    const finishedPredictionsCount = finishedPredictions.length;
+    
+    // Contar correctas y exactas únicamente de los partidos finalizados
+    const correctPredictions = finishedPredictions.filter(p => p.points_earned !== null && p.points_earned > 0).length;
+    const exactPredictions = finishedPredictions.filter(p => p.points_earned === 3).length;
 
-    const accuracyRate = totalPredictions > 0 ? (correctPredictions / totalPredictions) * 100 : 0;
+    const accuracyRate = finishedPredictionsCount > 0 ? (correctPredictions / finishedPredictionsCount) * 100 : 0;
 
     // Formatear el historial de partidos finalizados
     const history = (predictions || [])

@@ -38,9 +38,16 @@ export const GET: APIRoute = async ({ request, locals }) => {
       .eq('role', 'admin');
     const adminIds = adminProfiles?.map(p => p.id) || [];
 
+    // Obtener configuraciones del torneo (resultados reales oficiales)
+    const { data: settings } = await supabaseAdmin
+      .from('tournament_settings')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle();
+
     let standingsQuery = supabaseAdmin
       .from('entries')
-      .select('id, total_points, created_at')
+      .select('id, display_name, total_points, created_at, predicted_champion, predicted_champion_goals, predicted_final_goals')
       .eq('status', 'approved');
 
     if (adminIds.length > 0) {
@@ -49,12 +56,62 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const { data: standings } = await standingsQuery;
 
+    const maxPoints = standings && standings.length > 0 ? Math.max(...standings.map(s => s.total_points)) : 0;
+
     // Lógica de ordenación idéntica
     const sortedStandings = [...(standings || [])].sort((a, b) => {
+      // 1. Criterio Principal: Puntos totales (Descendente)
       if (b.total_points !== a.total_points) {
         return b.total_points - a.total_points;
       }
-      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+
+      // Si hay empate de puntos y los resultados oficiales ya están disponibles
+      if (settings && settings.actual_champion) {
+        const aChamp = a.predicted_champion?.trim().toLowerCase();
+        const bChamp = b.predicted_champion?.trim().toLowerCase();
+        const actualChamp = settings.actual_champion.trim().toLowerCase();
+
+        const aChampionMatched = aChamp === actualChamp;
+        const bChampionMatched = bChamp === actualChamp;
+
+        // Criterio 1: Campeón Exacto
+        if (aChampionMatched && !bChampionMatched) return -1;
+        if (!aChampionMatched && bChampionMatched) return 1;
+
+        // Criterio 2: Goles del Campeón (Menor diferencia absoluta)
+        if (settings.actual_champion_goals !== null && settings.actual_champion_goals !== undefined) {
+          const aGoalsDiff = Math.abs((a.predicted_champion_goals || 0) - settings.actual_champion_goals);
+          const bGoalsDiff = Math.abs((b.predicted_champion_goals || 0) - settings.actual_champion_goals);
+
+          if (aGoalsDiff !== bGoalsDiff) {
+            return aGoalsDiff - bGoalsDiff;
+          }
+        }
+
+        // Criterio 3: Goles en la Final (Menor diferencia absoluta)
+        if (settings.actual_final_goals !== null && settings.actual_final_goals !== undefined) {
+          const aFinalDiff = Math.abs((a.predicted_final_goals || 0) - settings.actual_final_goals);
+          const bFinalDiff = Math.abs((b.predicted_final_goals || 0) - settings.actual_final_goals);
+
+          if (aFinalDiff !== bFinalDiff) {
+            return aFinalDiff - bFinalDiff;
+          }
+        }
+      } else {
+        // Mientras no entre en acción el pronóstico de oro, y están empatados en el primer lugar
+        if (a.total_points === maxPoints) {
+          return a.display_name.localeCompare(b.display_name, 'es');
+        }
+      }
+
+      // Fallback final: Fecha de registro (created_at Ascendente, el que se registró primero queda arriba)
+      const aTime = new Date(a.created_at).getTime();
+      const bTime = new Date(b.created_at).getTime();
+      if (aTime !== bTime) {
+        return aTime - bTime;
+      }
+
+      return a.id - b.id;
     });
 
     const rankIndex = sortedStandings.findIndex(s => s.id === entryId);

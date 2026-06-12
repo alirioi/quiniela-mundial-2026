@@ -70,6 +70,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: error.message }), { status: 400 });
     }
 
+    const maxPoints = standings && standings.length > 0 ? Math.max(...standings.map(s => s.total_points)) : 0;
+
     // Ordenar standings con lógica de desempate
     const sortedStandings = [...(standings || [])].sort((a, b) => {
       // 1. Criterio Principal: Puntos totales (Descendente)
@@ -108,6 +110,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
           if (aFinalDiff !== bFinalDiff) {
             return aFinalDiff - bFinalDiff;
           }
+        }
+      } else {
+        // Mientras no entre en acción el pronóstico de oro, y están empatados en el primer lugar
+        if (a.total_points === maxPoints) {
+          return a.display_name.localeCompare(b.display_name, 'es');
         }
       }
 

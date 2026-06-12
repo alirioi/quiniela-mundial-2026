@@ -15,16 +15,15 @@ interface Player {
 
 // Lista ordenada de los 48 equipos participantes para sugerencias en el formulario
 const TEAMS_LIST = [
-  'Alemania', 'Argelia', 'Argentina', 'Australia', 'Austria', 
-  'Bélgica', 'Bosnia y Herzegovina', 'Brasil', 'Cabo Verde', 'Canadá', 
-  'Colombia', 'Corea del Sur', 'Costa de Marfil', 'Croacia', 'Curazao', 
-  'Ecuador', 'Egipto', 'Escocia', 'España', 'Estados Unidos', 
-  'Francia', 'Ghana', 'Haití', 'Inglaterra', 'Irán', 'Irak', 
-  'Japón', 'Jordania', 'Marruecos', 'México', 'Noruega', 
-  'Nueva Zelanda', 'Países Bajos', 'Panamá', 'Paraguay', 'Portugal', 
-  'Qatar', 'RD Congo', 'Senegal', 'Suecia', 'Suiza', 
-  'Túnez', 'Turquía', 'Uruguay', 'Uzbekistán'
-].sort();
+  "Alemania", "Argelia", "Argentina", "Arabia Saudita", "Australia", "Austria",
+  "Bélgica", "Bosnia y Herzegovina", "Brasil", "Canadá", "Cabo Verde", "Chequia",
+  "Colombia", "Corea del Sur", "Costa de Marfil", "Croacia", "Curazao", "Ecuador",
+  "Egipto", "Escocia", "España", "Estados Unidos", "Francia", "Ghana", "Haití",
+  "Inglaterra", "Irak", "Irán", "Japón", "Jordania", "Marruecos",
+  "México", "Noruega", "Nueva Zelanda", "Países Bajos", "Panamá", "Paraguay",
+  "Portugal", "Qatar", "RD Congo", "Senegal", "Sudáfrica", "Suecia",
+  "Suiza", "Túnez", "Turquía", "Uruguay", "Uzbekistán"
+].sort((a, b) => a.localeCompare(b, 'es'));
 
 export default function AdminStatsManager() {
   interface GoldStat {
@@ -262,8 +261,6 @@ export default function AdminStatsManager() {
                     <th className="p-4 sm:p-5">Selección</th>
                     <th className="p-4 sm:p-5 text-center">Goles</th>
                     <th className="p-4 sm:p-5 text-center">Asistencias</th>
-                    <th className="p-4 sm:p-5 text-center">Tarjetas A.</th>
-                    <th className="p-4 sm:p-5 text-center">Tarjetas R.</th>
                     <th className="p-4 sm:p-5 text-right">Acciones</th>
                   </tr>
                 </thead>
@@ -326,48 +323,6 @@ export default function AdminStatsManager() {
                             </span>
                             <button
                               onClick={() => handleUpdateStat(player.id, 'assists', true)}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </td>
-
-                        {/* Tarjetas Amarillas */}
-                        <td className="p-4 sm:p-5 text-center">
-                          <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
-                            <button
-                              onClick={() => handleUpdateStat(player.id, 'yellow_cards', false)}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                            >
-                              -
-                            </button>
-                            <span className="w-8 font-mono font-bold text-yellow-400 text-sm text-center">
-                              {player.yellow_cards}
-                            </span>
-                            <button
-                              onClick={() => handleUpdateStat(player.id, 'yellow_cards', true)}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </td>
-
-                        {/* Tarjetas Rojas */}
-                        <td className="p-4 sm:p-5 text-center">
-                          <div className="inline-flex items-center gap-2 bg-wc-dark/40 border border-wc-border p-1 rounded-xl">
-                            <button
-                              onClick={() => handleUpdateStat(player.id, 'red_cards', false)}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
-                            >
-                              -
-                            </button>
-                            <span className="w-8 font-mono font-bold text-wc-red text-sm text-center">
-                              {player.red_cards}
-                            </span>
-                            <button
-                              onClick={() => handleUpdateStat(player.id, 'red_cards', true)}
                               className="w-7 h-7 flex items-center justify-center rounded-lg bg-wc-card hover:bg-slate-800 text-slate-400 hover:text-white border border-wc-border font-bold text-xs select-none transition-colors"
                             >
                               +
@@ -533,29 +488,7 @@ export default function AdminStatsManager() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-400 text-[10px] font-sports font-bold tracking-wider uppercase block">Tarjetas Amarillas</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={newYellowCards}
-                    onChange={(e) => setNewYellowCards(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="w-full bg-wc-dark border border-wc-border rounded-xl p-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-wc-gold/80 transition-all"
-                  />
-                </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-slate-400 text-[10px] font-sports font-bold tracking-wider uppercase block">Tarjetas Rojas</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={newRedCards}
-                    onChange={(e) => setNewRedCards(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="w-full bg-wc-dark border border-wc-border rounded-xl p-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-wc-gold/80 transition-all"
-                  />
-                </div>
-              </div>
 
               <div className="flex justify-end items-center gap-3 pt-2">
                 <button

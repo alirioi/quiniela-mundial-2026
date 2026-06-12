@@ -411,7 +411,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
                     className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60 transition-transform hover:scale-105"
                   />
                 )}
-                <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 truncate max-w-full" title={match.home_team}>
+                <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={match.home_team}>
                   {match.home_team}
                 </span>
               </div>
@@ -420,7 +420,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
               <div className="flex flex-col items-center justify-center flex-shrink-0">
                 <div className="flex items-center gap-2 px-4 py-2 bg-wc-dark/90 rounded-2xl border border-wc-border font-sports font-black text-xl text-slate-100 min-w-[5.5rem] justify-center shadow-inner">
                   <span className="text-wc-red animate-pulse">{match.home_score}</span>
-                  <span className="text-slate-450 font-normal">:</span>
+                  <span className="text-slate-455 font-normal">:</span>
                   <span className="text-wc-red animate-pulse">{match.away_score}</span>
                 </div>
               </div>
@@ -434,7 +434,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
                     className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60 transition-transform hover:scale-105"
                   />
                 )}
-                <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 truncate max-w-full" title={match.away_team}>
+                <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={match.away_team}>
                   {match.away_team}
                 </span>
               </div>
@@ -486,7 +486,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
                 className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60"
               />
             )}
-            <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 truncate max-w-full" title={nextMatch.home_team}>
+            <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={nextMatch.home_team}>
               {nextMatch.home_team}
             </span>
           </div>
@@ -507,7 +507,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
                 className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60"
               />
             )}
-            <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 truncate max-w-full" title={nextMatch.away_team}>
+            <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={nextMatch.away_team}>
               {nextMatch.away_team}
             </span>
           </div>

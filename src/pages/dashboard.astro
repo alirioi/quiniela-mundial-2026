@@ -4,6 +4,7 @@ import MainLayout from '../layouts/MainLayout.astro';
 import PredictionWarningBanner from '../components/islands/PredictionWarningBanner';
 import PrizePoolDisplay from '../components/islands/PrizePoolDisplay';
 import LiveScoreboard from '../components/islands/LiveScoreboard';
+import LiveMatchWidget from '../components/islands/LiveMatchWidget';
 import StandingsTable from '../components/islands/StandingsTable';
 import { Edit3, CreditCard, Shield, Info, MessageSquare, Sparkles, BarChart3 } from 'lucide-react';
 
@@ -97,6 +98,9 @@ const approvedEntryIds = entries.filter(e => e.status === 'approved').map(e => e
 
       <!-- Sidebar Informativo (1 columna de ancho) -->
       <div class="space-y-6">
+        <!-- Partido en Vivo (Si aplica) -->
+        <LiveMatchWidget client:load />
+
         <!-- Tarjeta de Reglas de Puntuación -->
         <div class="p-5 rounded-2xl bg-wc-card border border-wc-border backdrop-blur-sm space-y-4">
           <h3 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 border-b border-wc-border pb-2.5 font-sports">

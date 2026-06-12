@@ -47,38 +47,32 @@ export default function PrizePoolDisplay() {
 
   if (loading) {
     return (
-      <div className="w-full p-6 rounded-2xl bg-slate-900/40 border border-slate-800 animate-pulse flex items-center justify-between">
-        <div className="h-4 bg-slate-800 rounded w-1/3"></div>
-        <div className="h-8 bg-slate-800 rounded w-1/4"></div>
+      <div className="w-full p-4 rounded-xl bg-slate-900/40 border border-slate-800 animate-pulse flex items-center justify-center gap-5">
+        <div className="w-10 h-10 rounded-full bg-slate-800 shrink-0"></div>
+        <div className="flex flex-col gap-2 w-32">
+          <div className="h-3 bg-slate-800 rounded w-full"></div>
+          <div className="h-6 bg-slate-800 rounded w-full"></div>
+        </div>
       </div>
     );
   }
 
   const pool = data?.totalPool || 0;
-  const count = data?.approvedEntriesCount || 0;
 
   return (
-    <div className="w-full p-6 rounded-2xl bg-gradient-to-r from-wc-gold/5 via-amber-500/5 to-wc-blue/5 border border-wc-gold/20 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 backdrop-blur-md animate-fade-in">
+    <div className="w-full p-4 rounded-xl bg-gradient-to-r from-slate-900/90 to-wc-dark border border-wc-gold/20 shadow-xl relative overflow-hidden flex items-center justify-center gap-5 backdrop-blur-md animate-fade-in">
       {/* Decorative shine */}
-      <div className="absolute -top-12 -left-12 w-32 h-32 bg-wc-gold/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-wc-blue/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -top-12 -left-12 w-24 h-24 bg-wc-gold/10 rounded-full blur-2xl pointer-events-none"></div>
 
-      <div className="flex items-center space-x-4">
-        <div className="w-14 h-14 shrink-0 rounded-full bg-wc-gold/10 border border-wc-gold/30 flex items-center justify-center shadow-inner shadow-wc-gold/5 select-none animate-pulse-subtle">
-          <Trophy className="w-7 h-7 text-wc-gold" strokeWidth={2.5} />
-        </div>
-        <div className="text-center sm:text-left">
-          <h3 className="text-base sm:text-lg font-bold uppercase tracking-wider text-wc-gold font-sports">
-            Pote Acumulado Oficial
-          </h3>
-          <p className="text-sm sm:text-base text-slate-350 mt-1.5 leading-relaxed max-w-xl">
-            El 100% de este pote acumulado se entregará al primer lugar (único ganador) al finalizar el torneo. ({count} {count === 1 ? 'cupo aprobado' : 'cupos aprobados'})
-          </p>
-        </div>
+      <div className="w-10 h-10 rounded-full bg-wc-gold/10 border border-wc-gold/30 flex items-center justify-center shadow-inner shadow-wc-gold/5 select-none shrink-0 z-10">
+        <Trophy className="w-5 h-5 text-wc-gold" strokeWidth={2.5} />
       </div>
 
-      <div className="text-center sm:text-right flex-shrink-0">
-        <div className="text-5xl sm:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-wc-gold via-amber-400 to-yellow-300 tracking-wider font-sports select-none">
+      <div className="flex flex-col text-left z-10">
+        <h3 className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400 font-sports leading-none">
+          Pote Acumulado Oficial
+        </h3>
+        <div className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-wc-gold via-amber-400 to-yellow-300 tracking-wider font-sports select-none mt-1">
           {pool.toLocaleString('es-ES', { minimumFractionDigits: 0 })} USDT
         </div>
       </div>

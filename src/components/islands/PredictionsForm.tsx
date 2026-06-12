@@ -924,7 +924,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                       return (
                         <div
                           key={match.id}
-                          className={`p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between ${
+                          className={`p-4 sm:p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between ${
                             locked
                               ? 'border-wc-border bg-wc-dark/30 opacity-90'
                               : hasChanges
@@ -934,147 +934,160 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                               : 'border-wc-border bg-wc-card'
                           }`}
                         >
-                          {/* Fila superior: Info de Partido y Countdown */}
-                          <div className="flex justify-between items-center text-xs text-slate-500 mb-3 border-b border-wc-border pb-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-sports bg-wc-dark px-2 py-0.5 rounded text-slate-300 border border-wc-border">
-                                #{match.match_number}
-                              </span>
+                          {/* Header: Grupo + Estado */}
+                          <div className="flex justify-between items-center text-xs text-slate-500 mb-4 pb-2.5 border-b border-wc-border/50">
+                            <div className="flex items-center gap-2">
                               {match.group_name && (
-                                <span className="font-bold text-slate-400 font-sports uppercase tracking-wider">{match.group_name}</span>
+                                <span className="font-bold text-slate-300 font-sports uppercase tracking-wider text-xs sm:text-sm">{match.group_name}</span>
                               )}
                             </div>
 
                             {/* Estado o cuenta regresiva */}
                             <div className="flex items-center gap-1.5 font-bold text-xs">
                               {match.status === 'live' ? (
-                                <span className="px-2 py-0.5 bg-wc-red/10 text-wc-red rounded-md border border-wc-red/20 animate-pulse text-xs uppercase tracking-wider flex items-center gap-1 font-sports">
+                                <span className="px-2.5 py-1 bg-wc-red/10 text-wc-red rounded-lg border border-wc-red/20 animate-pulse text-xs uppercase tracking-wider flex items-center gap-1 font-sports">
                                   <span className="w-1.5 h-1.5 rounded-full bg-wc-red inline-block animate-ping"></span>
                                   <span>En vivo</span>
                                 </span>
                               ) : match.status === 'finished' ? (
-                                <span className="px-2 py-0.5 bg-wc-dark text-slate-400 rounded-md border border-wc-border text-xs uppercase tracking-wider font-sports">
-                                  Fin
+                                <span className="px-2.5 py-1 bg-wc-dark text-slate-400 rounded-lg border border-wc-border text-xs uppercase tracking-wider font-sports font-bold">
+                                  Finalizado
                                 </span>
                               ) : (
                                 <span className={`flex items-center gap-1 font-sports ${locked ? 'text-wc-red' : 'text-wc-gold'}`}>
                                   {locked ? (
-                                    <Lock className="w-4 h-4 shrink-0 text-wc-red" strokeWidth={2.5} />
+                                    <Lock className="w-3.5 h-3.5 shrink-0 text-wc-red" strokeWidth={2.5} />
                                   ) : (
-                                    <Clock className="w-4 h-4 shrink-0 text-wc-gold animate-pulse" strokeWidth={2.5} />
+                                    <Clock className="w-3.5 h-3.5 shrink-0 text-wc-gold animate-pulse" strokeWidth={2.5} />
                                   )}
-                                  <span>{countdown}</span>
+                                  <span className="text-[11px]">{countdown}</span>
                                 </span>
                               )}
                             </div>
                           </div>
 
-                          {/* Fila central: Marcador del Partido y Predicción */}
-                          <div className="flex items-center justify-between gap-3 my-2">
-                            {/* Local */}
-                            <div className="flex-1 min-w-0 pr-1">
-                              <div className="flex items-center justify-end gap-2">
-                                <span className="font-bold text-white text-sm sm:text-base truncate" title={match.home_team}>
-                                  {match.home_team}
-                                </span>
-                                {getTeamFlagUrl(match.home_team) && (
-                                  <img
-                                    src={getTeamFlagUrl(match.home_team)!}
-                                    alt={`Bandera de ${match.home_team}`}
-                                    className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
-                                  />
-                                )}
+                          {/* Equipos y Marcador - Layout vertical para mobile */}
+                          <div className="flex items-start justify-between gap-2 sm:gap-4 my-1">
+                            {/* Local - Vertical: Bandera encima, nombre debajo */}
+                            <div className="flex-1 flex flex-col items-center text-center min-w-0 gap-1.5">
+                              {getTeamFlagUrl(match.home_team) ? (
+                                <img
+                                  src={getTeamFlagUrl(match.home_team)!}
+                                  alt={`Bandera de ${match.home_team}`}
+                                  className="w-10 h-7 sm:w-12 sm:h-8 object-cover rounded-md shadow-md border border-slate-700/50"
+                                />
+                              ) : (
+                                <div className="w-10 h-7 sm:w-12 sm:h-8 bg-slate-700 rounded-md"></div>
+                              )}
+                              <span
+                                className="font-bold text-slate-200 text-[11px] sm:text-xs md:text-sm font-sports uppercase tracking-wide leading-tight text-center max-w-[95px] sm:max-w-[130px]"
+                                title={match.home_team}
+                              >
+                                {match.home_team}
+                              </span>
+                            </div>
+
+                            {/* Marcador Central / Pronóstico */}
+                            <div className="flex flex-col items-center justify-center flex-shrink-0 gap-0.5 pt-0.5">
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  maxLength={2}
+                                  value={input.home}
+                                  onChange={(e) => handleInputChange(match.id, 'home', e.target.value)}
+                                  disabled={locked}
+                                  placeholder="-"
+                                  className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-wc-dark text-center text-base sm:text-lg font-bold font-sports border focus:outline-none focus:ring-2 focus:ring-wc-gold/40 transition-all ${
+                                    locked
+                                      ? 'border-wc-border text-slate-400 cursor-not-allowed bg-wc-dark/55'
+                                      : 'border-wc-border text-wc-gold focus:border-wc-gold'
+                                  }`}
+                                />
+                                <span className="text-slate-500 font-bold text-base font-sports">-</span>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  maxLength={2}
+                                  value={input.away}
+                                  onChange={(e) => handleInputChange(match.id, 'away', e.target.value)}
+                                  disabled={locked}
+                                  placeholder="-"
+                                  className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-wc-dark text-center text-base sm:text-lg font-bold font-sports border focus:outline-none focus:ring-2 focus:ring-wc-gold/40 transition-all ${
+                                    locked
+                                      ? 'border-wc-border text-slate-400 cursor-not-allowed bg-wc-dark/55'
+                                      : 'border-wc-border text-wc-gold focus:border-wc-gold'
+                                  }`}
+                                />
                               </div>
                             </div>
 
-                            {/* Marcador Real (si está jugando o terminado) */}
-                            {locked && (match.status === 'finished' || match.status === 'live') && (
-                              <div className="px-3 py-1.5 bg-wc-dark rounded-lg border border-wc-border text-white font-bold text-sm font-sports tracking-widest">
-                                {match.home_score} - {match.away_score}
-                              </div>
-                            )}
-
-                            {/* Pronóstico Inputs */}
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <input
-                                type="text"
-                                maxLength={2}
-                                value={input.home}
-                                onChange={(e) => handleInputChange(match.id, 'home', e.target.value)}
-                                disabled={locked}
-                                placeholder="-"
-                                className={`w-11 h-11 rounded-xl bg-wc-dark text-center text-lg font-bold font-sports border focus:outline-none focus:ring-2 focus:ring-wc-gold/40 transition-all ${
-                                  locked
-                                    ? 'border-wc-border text-slate-500 cursor-not-allowed bg-wc-dark/55'
-                                    : 'border-wc-border text-wc-gold focus:border-wc-gold'
-                                }`}
-                              />
-
-                              <span className="text-slate-600 font-bold text-lg font-sports">:</span>
-
-                              <input
-                                type="text"
-                                maxLength={2}
-                                value={input.away}
-                                onChange={(e) => handleInputChange(match.id, 'away', e.target.value)}
-                                disabled={locked}
-                                placeholder="-"
-                                className={`w-11 h-11 rounded-xl bg-wc-dark text-center text-lg font-bold font-sports border focus:outline-none focus:ring-2 focus:ring-wc-gold/40 transition-all ${
-                                  locked
-                                    ? 'border-wc-border text-slate-500 cursor-not-allowed bg-wc-dark/55'
-                                    : 'border-wc-border text-wc-gold focus:border-wc-gold'
-                                }`}
-                              />
-                            </div>
-
-                            {/* Visitante */}
-                            <div className="flex-1 min-w-0 pl-1">
-                              <div className="flex items-center justify-start gap-2">
-                                {getTeamFlagUrl(match.away_team) && (
-                                  <img
-                                    src={getTeamFlagUrl(match.away_team)!}
-                                    alt={`Bandera de ${match.away_team}`}
-                                    className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
-                                  />
-                                )}
-                                <span className="font-bold text-white text-sm sm:text-base truncate" title={match.away_team}>
-                                  {match.away_team}
-                                </span>
-                              </div>
+                            {/* Visitante - Vertical: Bandera encima, nombre debajo */}
+                            <div className="flex-1 flex flex-col items-center text-center min-w-0 gap-1.5">
+                              {getTeamFlagUrl(match.away_team) ? (
+                                <img
+                                  src={getTeamFlagUrl(match.away_team)!}
+                                  alt={`Bandera de ${match.away_team}`}
+                                  className="w-10 h-7 sm:w-12 sm:h-8 object-cover rounded-md shadow-md border border-slate-700/50"
+                                />
+                              ) : (
+                                <div className="w-10 h-7 sm:w-12 sm:h-8 bg-slate-700 rounded-md"></div>
+                              )}
+                              <span
+                                className="font-bold text-slate-200 text-[11px] sm:text-xs md:text-sm font-sports uppercase tracking-wide leading-tight text-center max-w-[95px] sm:max-w-[130px]"
+                                title={match.away_team}
+                              >
+                                {match.away_team}
+                              </span>
                             </div>
                           </div>
 
-                          {/* Fila inferior: Puntuación ganada o Botón Guardar */}
-                          <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-wc-border">
-                            {/* Puntuación ganada */}
-                            <div className="text-xs">
+                          {/* Sección de Resultado Real / Estado del Pronóstico */}
+                          <div className="mt-4 pt-3 border-t border-wc-border/50 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-bold font-sports uppercase tracking-wider shrink-0">
+                              {match.status === 'live' || match.status === 'finished' ? (
+                                <span>Resultado:</span>
+                              ) : match.prediction ? (
+                                <span className="text-slate-400 font-bold flex items-center gap-1 font-sports uppercase tracking-wider text-[10px] sm:text-xs">
+                                  <CheckCircle2 className="w-4 h-4 text-wc-gold" strokeWidth={2.5} />
+                                  <span className="hidden sm:inline">Pronóstico Guardado</span>
+                                </span>
+                              ) : (
+                                <span className="text-wc-gold font-bold flex items-center gap-1 font-sports uppercase tracking-wider text-[10px] sm:text-xs">
+                                  <AlertTriangle className="w-4 h-4 text-wc-gold animate-pulse" strokeWidth={2.5} />
+                                  <span className="hidden sm:inline">Sin Pronóstico</span>
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Marcador Real */}
+                            {(match.status === 'live' || match.status === 'finished') && (
+                              <div className="flex items-center gap-2 px-2.5 py-1 bg-wc-dark rounded-xl border border-wc-border font-sports font-black text-xs sm:text-sm text-slate-200 shadow-inner">
+                                <span className={match.status === 'live' ? 'text-wc-red animate-pulse' : ''}>{match.home_score}</span>
+                                <span className="text-slate-500 font-normal">vs</span>
+                                <span className={match.status === 'live' ? 'text-wc-red animate-pulse' : ''}>{match.away_score}</span>
+                              </div>
+                            )}
+
+                            {/* Puntuación o Estado */}
+                            <div className="text-xs shrink-0">
                               {match.status === 'finished' && match.prediction ? (
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold border font-sports text-sm tracking-wider uppercase ${
+                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg font-bold border font-sports text-[11px] sm:text-xs tracking-wider uppercase ${
                                   pointsEarned === 3
                                     ? 'bg-wc-gold/10 border-wc-gold/25 text-wc-gold'
                                     : pointsEarned === 1
                                     ? 'bg-wc-blue/10 border-wc-blue/25 text-wc-blue'
                                     : 'bg-wc-dark border-wc-border text-slate-500'
                                 }`}>
-                                  <Award className="w-4 h-4" strokeWidth={2.5} />
-                                  <span>{pointsEarned} {pointsEarned === 1 ? 'punto' : 'puntos'}</span>
+                                  <Award className="w-3.5 h-3.5" strokeWidth={2.5} />
+                                  <span>{pointsEarned} pts</span>
                                 </span>
                               ) : match.status === 'finished' && !match.prediction ? (
-                                <span className="text-slate-500 font-medium font-sports tracking-wide uppercase">Sin pronóstico (0 pts)</span>
-                              ) : match.prediction ? (
-                                <span className="text-xs text-slate-400 font-bold flex items-center gap-1.5 font-sports uppercase tracking-wider">
-                                  <CheckCircle2 className="w-4.5 h-4.5 text-wc-gold animate-pulse" strokeWidth={2.5} />
-                                  <span>Guardado</span>
-                                </span>
-                              ) : (
-                                <span className="text-xs text-wc-gold font-bold flex items-center gap-1.5 font-sports uppercase tracking-wider">
-                                  <AlertTriangle className="w-4.5 h-4.5 text-wc-gold" strokeWidth={2.5} />
-                                  <span>Sin pronóstico</span>
-                                </span>
-                              )}
+                                <span className="text-slate-500 font-medium font-sports tracking-wide uppercase text-[10px] sm:text-xs">0 pts</span>
+                              ) : null}
                             </div>
-
-
                           </div>
                         </div>
                       );

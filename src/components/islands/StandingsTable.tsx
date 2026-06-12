@@ -227,10 +227,8 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
                     medal = <Trophy className="w-4.5 h-4.5 text-wc-gold fill-wc-gold/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-wc-gold font-bold';
                   } else if (position === 2) {
-                    medal = <Trophy className="w-4.5 h-4.5 text-slate-300 fill-slate-300/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-slate-300 font-bold';
                   } else if (position === 3) {
-                    medal = <Trophy className="w-4.5 h-4.5 text-amber-600 fill-amber-600/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-amber-600 font-bold';
                   }
 
@@ -294,10 +292,8 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
                     medal = <Trophy className="w-4.5 h-4.5 text-wc-gold fill-wc-gold/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-wc-gold font-bold';
                   } else if (position === 2) {
-                    medal = <Trophy className="w-4.5 h-4.5 text-slate-300 fill-slate-300/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-slate-300 font-bold';
                   } else if (position === 3) {
-                    medal = <Trophy className="w-4.5 h-4.5 text-amber-600 fill-amber-600/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-amber-600 font-bold';
                   }
 

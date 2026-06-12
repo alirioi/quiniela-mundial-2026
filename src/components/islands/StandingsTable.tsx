@@ -200,7 +200,7 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
   const myRankedEntries = rankedStandings.filter(entry => myEntryIds.includes(entry.id));
 
   // Paginación local
-  const itemsPerPage = 10;
+  const itemsPerPage = Math.max(1, Math.ceil(rankedStandings.length / 2));
   const totalPages = Math.max(1, Math.ceil(rankedStandings.length / itemsPerPage));
   const activePage = Math.min(currentPage, totalPages);
   const paginatedStandings = rankedStandings.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);

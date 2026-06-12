@@ -70,7 +70,17 @@ export default function LiveMatchWidget() {
   }
 
   if (liveMatches.length === 0) {
-    return null; // Ocultar por completo si no hay partidos en vivo
+    return (
+      <div className="p-5 rounded-2xl bg-wc-card border border-wc-border backdrop-blur-sm space-y-3 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-slate-500/5 rounded-full blur-xl pointer-events-none"></div>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-350 flex items-center gap-1.5 border-b border-wc-border/50 pb-2.5 font-sports">
+          <Activity className="w-4 h-4 text-slate-500" strokeWidth={2.5} /> Partido en Vivo
+        </h3>
+        <p className="text-xs md:text-sm text-slate-400 leading-relaxed">
+          No hay ningún partido en juego en este momento. Tan pronto empiece un encuentro, verás el marcador en vivo y sus actualizaciones en tiempo real aquí.
+        </p>
+      </div>
+    );
   }
 
   return (

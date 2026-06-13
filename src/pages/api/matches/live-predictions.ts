@@ -113,6 +113,11 @@ export const GET: APIRoute = async ({ locals }) => {
       predictionsMap.set(p.entry_id, p);
     });
 
+    const matchTimeMs = new Date(match.match_time).getTime();
+    const nowMs = Date.now();
+    const lockTimeMs = matchTimeMs - 30 * 60 * 1000; // 30 minutos antes del partido
+    const isLocked = nowMs >= lockTimeMs;
+
     const isMatchScheduled = match.status === 'scheduled';
 
     // Combinar participantes con sus predicciones y enmascarar si corresponde
@@ -120,8 +125,8 @@ export const GET: APIRoute = async ({ locals }) => {
       const pred = predictionsMap.get(entry.id);
       const isOwnEntry = userEntryIds.has(entry.id);
       
-      // Ocultar pronósticos si el partido no ha iniciado y no es su propio cupo
-      const hidePrediction = isMatchScheduled && !isOwnEntry;
+      // Ocultar pronósticos si el partido no ha iniciado, no está bloqueado (<30m) y no es su propio cupo
+      const hidePrediction = isMatchScheduled && !isLocked && !isOwnEntry;
 
       return {
         entry_id: entry.id,
@@ -135,7 +140,30 @@ export const GET: APIRoute = async ({ locals }) => {
       };
     });
 
-    return new Response(JSON.stringify({ match, predictions: mergedData }), { status: 200 });
+    // Calcular tendencias agregadas basadas en pronósticos reales
+    let homeWins = 0;
+    let draws = 0;
+    let awayWins = 0;
+    let totalPredictions = 0;
+
+    predictions?.forEach((p) => {
+      const associatedEntry = entries.find(e => e.id === p.entry_id);
+      if (associatedEntry && p.predicted_home !== null && p.predicted_away !== null) {
+        totalPredictions++;
+        if (p.predicted_home > p.predicted_away) homeWins++;
+        else if (p.predicted_home === p.predicted_away) draws++;
+        else awayWins++;
+      }
+    });
+
+    const tendencies = {
+      home_win_percent: totalPredictions > 0 ? Math.round((homeWins / totalPredictions) * 100) : 0,
+      draw_percent: totalPredictions > 0 ? Math.round((draws / totalPredictions) * 100) : 0,
+      away_win_percent: totalPredictions > 0 ? Math.round((awayWins / totalPredictions) * 100) : 0,
+      total_predictions: totalPredictions
+    };
+
+    return new Response(JSON.stringify({ match, predictions: mergedData, tendencies }), { status: 200 });
   } catch (e) {
     return new Response(JSON.stringify({ error: 'Error interno del servidor' }), { status: 500 });
   }

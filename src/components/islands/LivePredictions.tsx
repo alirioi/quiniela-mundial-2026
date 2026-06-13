@@ -26,9 +26,17 @@ interface Match {
   match_number: number;
 }
 
+interface Tendencies {
+  home_win_percent: number;
+  draw_percent: number;
+  away_win_percent: number;
+  total_predictions: number;
+}
+
 export default function LivePredictions() {
   const [match, setMatch] = useState<Match | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [tendencies, setTendencies] = useState<Tendencies | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -52,6 +60,7 @@ export default function LivePredictions() {
       const data = await response.json();
       setMatch(data.match);
       setPredictions(data.predictions);
+      setTendencies(data.tendencies || null);
       
       if (data.match) {
         setSimHome(data.match.home_score !== null ? String(data.match.home_score) : '0');
@@ -268,6 +277,37 @@ export default function LivePredictions() {
                 </span>
               </div>
             </div>
+
+            {/* Tendencias de la Comunidad */}
+            {tendencies && tendencies.total_predictions > 0 && (
+              <div className="mt-5 pt-4 border-t border-wc-border/50 relative z-10">
+                <p className="text-[10px] text-wc-gold font-bold uppercase tracking-wider font-sports text-center mb-2.5">
+                  Tendencia de los Participantes
+                </p>
+                <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 font-sports uppercase tracking-wider mb-2">
+                  <span className="text-emerald-600 dark:text-wc-green">{match.home_team} {tendencies.home_win_percent}%</span>
+                  <span className="text-slate-550 dark:text-slate-400 font-bold">Empate {tendencies.draw_percent}%</span>
+                  <span className="text-blue-600 dark:text-wc-blue">{match.away_team} {tendencies.away_win_percent}%</span>
+                </div>
+                <div className="h-2.5 rounded-full overflow-hidden flex bg-slate-200 dark:bg-slate-800">
+                  <div 
+                    style={{ width: `${tendencies.home_win_percent}%` }} 
+                    className="bg-emerald-500 dark:bg-wc-green transition-all duration-500" 
+                    title={`Victoria de ${match.home_team}: ${tendencies.home_win_percent}%`} 
+                  />
+                  <div 
+                    style={{ width: `${tendencies.draw_percent}%` }} 
+                    className="bg-slate-400 dark:bg-slate-600 transition-all duration-500" 
+                    title={`Empate: ${tendencies.draw_percent}%`} 
+                  />
+                  <div 
+                    style={{ width: `${tendencies.away_win_percent}%` }} 
+                    className="bg-blue-500 dark:bg-wc-blue transition-all duration-500" 
+                    title={`Victoria de ${match.away_team}: ${tendencies.away_win_percent}%`} 
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick Counters Cards - Only shown if match is live/finished (so calculations are visible) */}

@@ -84,34 +84,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Fetch profile and entries if authenticated
   if (user) {
-    // Definimos qué necesitamos buscar según la ruta
-    // isApproved solo es crítico para rutas protegidas o para redirigir login/register
-    const needsEntries = !isPublicRoute || path === '/login' || path === '/register' || path === '/pending';
+    // Usamos la nueva función RPC para obtener todo el contexto en una sola petición
+    const { data: contextData, error: contextError } = await supabaseAdmin.rpc('get_user_context', { 
+      p_user_id: user.id 
+    });
 
-    if (needsEntries) {
-      // Fetch en paralelo para ahorrar tiempo de ejecución
-      const [profileRes, entriesRes] = await Promise.all([
-        supabaseAdmin.from('profiles').select('*').eq('id', user.id).single(),
-        supabaseAdmin.from('entries').select('*').eq('user_id', user.id)
-      ]);
-
-      profile = profileRes.data;
-      entries = entriesRes.data || [];
-      isApproved = entries.some(e => e.status === 'approved');
-      
-      if (profileRes.error) {
-        console.error('Error al consultar perfil en middleware:', profileRes.error);
-      }
-      if (entriesRes.error) {
-        console.error('Error al consultar entries en middleware:', entriesRes.error);
-      }
+    if (!contextError && contextData) {
+      profile = contextData.profile;
+      entries = contextData.entries || [];
+      isApproved = contextData.is_approved || false;
     } else {
-      // En rutas públicas simples solo necesitamos el perfil para el header
-      const { data, error } = await supabaseAdmin.from('profiles').select('*').eq('id', user.id).single();
-      profile = data;
-      if (error) {
-        console.error('Error al consultar perfil en middleware (public):', error);
-      }
+      console.error('Error al consultar contexto de usuario en middleware:', contextError);
+      
+      // Fallback: Si el RPC falla (ej. por no estar migrado aún), intentamos carga básica
+      // para no romper la navegación por completo
+      const { data: profileData } = await supabaseAdmin.from('profiles').select('*').eq('id', user.id).single();
+      profile = profileData;
     }
 
     // Store in locals for pages and endpoints

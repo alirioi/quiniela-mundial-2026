@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getTeamFlagUrl } from '../../utils/flags';
-import { RefreshCw, Search, Award, Activity, Users, CheckCircle, HelpCircle, XCircle } from 'lucide-react';
+import { RefreshCw, Search, Award, Activity, Users, CheckCircle, HelpCircle, XCircle, Lock } from 'lucide-react';
 
 interface Prediction {
   entry_id: string;
@@ -185,12 +185,12 @@ export default function LivePredictions() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
             
             {/* Match Metadata */}
-            <div className="flex justify-between items-center text-xs text-slate-400 mb-5 border-b border-wc-border/50 pb-3 relative z-10">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-400 mb-5 border-b border-wc-border/50 pb-3 relative z-10">
+              <div className="flex flex-wrap items-center gap-2">
                 {match.group_name && (
-                  <span className="font-bold text-slate-455 font-sports tracking-wider uppercase bg-wc-dark/60 px-3 py-1 rounded-xl border border-wc-border">{match.group_name}</span>
+                  <span className="whitespace-nowrap font-bold text-slate-455 font-sports tracking-wider uppercase bg-wc-dark/60 px-3 py-1 rounded-xl border border-wc-border">{match.group_name}</span>
                 )}
-                <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-sports tracking-wide uppercase ${
+                <span className={`whitespace-nowrap px-2 py-0.5 rounded text-[10px] font-bold font-sports tracking-wide uppercase ${
                   match.status === 'live'
                     ? 'bg-wc-red/10 border border-wc-red/30 text-wc-red animate-pulse'
                     : match.status === 'finished'
@@ -200,76 +200,72 @@ export default function LivePredictions() {
                   {match.status === 'live' ? 'En Vivo' : match.status === 'finished' ? 'Finalizado' : 'Programado'}
                 </span>
               </div>
-              <div className="font-bold font-sports tracking-wider uppercase text-slate-450">
+              <div className="font-bold font-sports tracking-wider uppercase text-slate-450 sm:text-right">
                 {matchTime ? `${matchTime.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} • ${matchTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}` : ''}
               </div>
             </div>
 
             {/* Score Simulation Form */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+            <div className="flex items-center justify-between gap-2 sm:gap-6 relative z-10">
               {/* Home Team */}
-              <div className="flex-1 w-full text-center md:text-right">
-                <div className="flex flex-col md:flex-row items-center justify-center md:justify-end gap-3">
-                  <span className="font-bold text-white text-base sm:text-lg font-sports tracking-wide uppercase order-2 md:order-1">
-                    {match.home_team}
-                  </span>
-                  {getTeamFlagUrl(match.home_team) && (
-                    <img
-                      src={getTeamFlagUrl(match.home_team)!}
-                      alt={match.home_team}
-                      className="w-9 h-6 object-cover rounded shadow border border-slate-700/50 order-1 md:order-2 shrink-0"
-                    />
-                  )}
-                </div>
+              <div className="flex-1 min-w-0 flex flex-col items-center text-center">
+                {getTeamFlagUrl(match.home_team) && (
+                  <img
+                    src={getTeamFlagUrl(match.home_team)!}
+                    alt={match.home_team}
+                    className="w-10 h-7 object-cover rounded shadow border border-slate-700/50 shrink-0"
+                  />
+                )}
+                <span className="font-extrabold text-white text-xs sm:text-base font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full">
+                  {match.home_team}
+                </span>
               </div>
 
               {/* Simulation Score Controller */}
-              <div className="flex flex-col items-center gap-2 bg-wc-dark/40 border border-wc-border p-3 px-5 rounded-2xl min-w-[200px]">
-                <span className="text-[10px] text-wc-gold font-bold uppercase tracking-wider font-sports">Simulador de Marcador</span>
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col items-center gap-1.5 bg-wc-dark/40 border border-wc-border p-2 sm:p-3 px-3 sm:px-5 rounded-2xl min-w-[130px] sm:min-w-[200px] shrink-0">
+                <span className="text-[8px] sm:text-[10px] text-wc-gold font-bold uppercase tracking-wider font-sports text-center">Simulador</span>
+                <div className="flex items-center gap-2 sm:gap-3">
                   <input
                     type="text"
                     maxLength={2}
                     value={simHome}
                     onChange={(e) => handleSimScoreChange('home', e.target.value)}
                     placeholder="0"
-                    className="w-14 h-14 rounded-xl bg-wc-dark text-center text-2xl font-bold border border-wc-border text-wc-gold focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold font-mono"
+                    className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-wc-dark text-center text-lg sm:text-2xl font-bold border border-wc-border text-wc-gold focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold font-mono"
                   />
-                  <span className="text-slate-500 font-bold text-2xl">:</span>
+                  <span className="text-slate-500 font-bold text-lg sm:text-2xl">:</span>
                   <input
                     type="text"
                     maxLength={2}
                     value={simAway}
                     onChange={(e) => handleSimScoreChange('away', e.target.value)}
                     placeholder="0"
-                    className="w-14 h-14 rounded-xl bg-wc-dark text-center text-2xl font-bold border border-wc-border text-wc-gold focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold font-mono"
+                    className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-wc-dark text-center text-lg sm:text-2xl font-bold border border-wc-border text-wc-gold focus:outline-none focus:ring-2 focus:ring-wc-gold/50 focus:border-wc-gold font-mono"
                   />
                 </div>
                 {match.status === 'scheduled' && (
-                  <span className="text-xs text-slate-500 font-bold tracking-wider font-sports uppercase">Partido no iniciado</span>
+                  <span className="text-[9px] sm:text-xs text-slate-500 font-bold tracking-wider font-sports uppercase text-center">Programado</span>
                 )}
                 {match.status === 'live' && (
-                  <span className="text-xs text-wc-red animate-pulse font-bold tracking-wider font-sports uppercase">Marcador en vivo: {match.home_score ?? 0} - {match.away_score ?? 0}</span>
+                  <span className="text-[9px] sm:text-xs text-wc-red animate-pulse font-bold tracking-wider font-sports uppercase text-center">En Vivo: {match.home_score ?? 0}-{match.away_score ?? 0}</span>
                 )}
                 {match.status === 'finished' && (
-                  <span className="text-xs text-wc-green font-bold tracking-wider font-sports uppercase">Resultado final: {match.home_score} - {match.away_score}</span>
+                  <span className="text-[9px] sm:text-xs text-wc-green font-bold tracking-wider font-sports uppercase text-center">Final: {match.home_score}-{match.away_score}</span>
                 )}
               </div>
 
               {/* Away Team */}
-              <div className="flex-1 w-full text-center md:text-left">
-                <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-3">
-                  {getTeamFlagUrl(match.away_team) && (
-                    <img
-                      src={getTeamFlagUrl(match.away_team)!}
-                      alt={match.away_team}
-                      className="w-9 h-6 object-cover rounded shadow border border-slate-700/50 shrink-0"
-                    />
-                  )}
-                  <span className="font-bold text-white text-base sm:text-lg font-sports tracking-wide uppercase">
-                    {match.away_team}
-                  </span>
-                </div>
+              <div className="flex-1 min-w-0 flex flex-col items-center text-center">
+                {getTeamFlagUrl(match.away_team) && (
+                  <img
+                    src={getTeamFlagUrl(match.away_team)!}
+                    alt={match.away_team}
+                    className="w-10 h-7 object-cover rounded shadow border border-slate-700/50 shrink-0"
+                  />
+                )}
+                <span className="font-extrabold text-white text-xs sm:text-base font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full">
+                  {match.away_team}
+                </span>
               </div>
             </div>
           </div>
@@ -410,8 +406,8 @@ export default function LivePredictions() {
                                   {pred.predicted_home} - {pred.predicted_away}
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 text-[10px] bg-slate-800/60 px-2.5 py-1 rounded text-slate-450 border border-slate-700/50">
-                                  🔒 Oculto
+                                <span className="inline-flex items-center gap-1.5 text-[10px] bg-slate-800/60 px-2.5 py-1 rounded text-slate-450 border border-slate-700/50">
+                                  <Lock className="w-3 h-3 text-slate-500 shrink-0" strokeWidth={2.5} /> Oculto
                                 </span>
                               )
                             ) : (

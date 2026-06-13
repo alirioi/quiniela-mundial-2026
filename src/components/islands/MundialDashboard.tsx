@@ -564,7 +564,7 @@ export default function MundialDashboard({ matches }: Props) {
                             <span>{match.away_score}</span>
                           </div>
                         ) : match.status === 'live' ? (
-                          <div className="bg-red-950/40 border border-red-500/30 px-3 py-1.5 rounded-lg flex gap-3 text-xl font-sports font-bold text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                          <div className="bg-wc-red/10 border border-wc-red/30 px-3 py-1.5 rounded-lg flex gap-3 text-xl font-sports font-bold text-wc-red shadow-md shadow-wc-red/10">
                             <span>{match.home_score ?? 0}</span>
                             <span className="animate-pulse">-</span>
                             <span>{match.away_score ?? 0}</span>

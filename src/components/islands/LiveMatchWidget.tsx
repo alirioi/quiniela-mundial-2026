@@ -443,6 +443,17 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
             {/* Sección de Pronóstico */}
             {renderPredictionSection(match)}
 
+            {/* Botón Ver Pronósticos */}
+            <div className="mt-3">
+              <a
+                href="/dashboard/live"
+                className="w-full py-2 px-4 rounded-xl bg-wc-dark hover:bg-wc-card text-wc-gold border border-wc-border hover:text-white transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center justify-center gap-1.5"
+              >
+                <Activity className="w-4 h-4 text-wc-gold" />
+                <span>Ver pronósticos del partido</span>
+              </a>
+            </div>
+
             {/* Footer: Grupo */}
             {match.group_name && (
               <div className="text-[10px] text-slate-500 font-bold text-center mt-3 pt-2.5 border-t border-wc-border/30 font-sports tracking-wider uppercase">
@@ -515,6 +526,17 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
 
         {/* Sección de Pronóstico */}
         {renderPredictionSection(nextMatch)}
+
+        {/* Botón Ver Pronósticos */}
+        <div className="mt-3 w-full">
+          <a
+            href="/dashboard/live"
+            className="w-full py-2 px-4 rounded-xl bg-wc-dark hover:bg-wc-card text-wc-gold border border-wc-border hover:text-white transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center justify-center gap-1.5"
+          >
+            <Activity className="w-4 h-4 text-wc-gold" />
+            <span>Ver pronósticos del partido</span>
+          </a>
+        </div>
 
         {/* Countdown / Fecha */}
         <div className="mt-4 pt-3 border-t border-wc-border/30 flex flex-col items-center gap-1.5">

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase-browser';
-import { Trophy, Lock, BarChart3, AlertTriangle } from 'lucide-react';
+import { Trophy, Lock, BarChart3, AlertTriangle, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 
 interface StandingEntry {
   id: number;
   display_name: string;
   total_points: number;
   created_at: string;
+  previous_rank: number | null;
 }
 
 interface StandingsTableProps {
@@ -189,11 +190,17 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
     );
   }
 
-  // Pre-calcular posiciones globales del ranking secuencialmente
-  const rankedStandings = standings.map((entry, index) => ({
-    ...entry,
-    rank: index + 1
-  }));
+  const rankedStandings: (StandingEntry & { rank: number })[] = [];
+  let currentRank = 1;
+  for (let i = 0; i < standings.length; i++) {
+    if (i > 0 && standings[i].total_points !== standings[i - 1].total_points) {
+      currentRank = i + 1;
+    }
+    rankedStandings.push({
+      ...standings[i],
+      rank: currentRank
+    });
+  }
 
 
   // Filtrar cupos propios
@@ -222,24 +229,43 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
                 {myRankedEntries.map((entry) => {
                   const position = entry.rank;
                   let medal: React.ReactNode = null;
-                  let posColor = 'text-slate-350';
+                  let posColor = 'text-slate-355';
                   if (position === 1) {
                     medal = <Trophy className="w-4.5 h-4.5 text-wc-gold fill-wc-gold/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-wc-gold font-bold';
-                  } else if (position === 2) {
-                    posColor = 'text-slate-300 font-bold';
-                  } else if (position === 3) {
-                    posColor = 'text-amber-600 font-bold';
                   }
 
                   return (
                     <tr key={entry.id} className="bg-wc-gold/5 border-l-4 border-l-wc-gold">
                       <td className="p-3.5 w-16 text-center">
-                        {medal ? (
-                          <div className="flex justify-center">{medal}</div>
-                        ) : (
-                          <span className={`font-sports text-xs sm:text-sm ${posColor}`}>{position}</span>
-                        )}
+                        <div className="flex items-center justify-center gap-1.5">
+                          {medal ? (
+                            <div className="flex justify-center">{medal}</div>
+                          ) : (
+                            <span className={`font-sports text-xs sm:text-sm ${posColor}`}>{position}</span>
+                          )}
+
+                           {/* Rank movement trend indicator */}
+                          <span className="flex items-center text-[10px] font-bold select-none gap-0.5" title={`Posición anterior: ${entry.previous_rank || 'Ninguna'}`}>
+                            {entry.previous_rank !== null && entry.previous_rank !== undefined ? (
+                              position < entry.previous_rank ? (
+                                <>
+                                  <ArrowUp className="w-3 h-3 text-green-500 animate-bounce" strokeWidth={3} />
+                                  <span className="text-green-500 font-sports">{entry.previous_rank - position}</span>
+                                </>
+                              ) : position > entry.previous_rank ? (
+                                <>
+                                  <ArrowDown className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
+                                  <span className="text-red-500 font-sports">{position - entry.previous_rank}</span>
+                                </>
+                              ) : (
+                                <Minus className="w-3.5 h-3.5 text-slate-500" strokeWidth={3} />
+                              )
+                            ) : (
+                              <Minus className="w-3.5 h-3.5 text-slate-500" strokeWidth={3} />
+                            )}
+                          </span>
+                        </div>
                       </td>
                       <td className="p-3.5">
                         <span className="font-bold text-wc-gold">{entry.display_name}</span>
@@ -291,10 +317,6 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
                   if (position === 1) {
                     medal = <Trophy className="w-4.5 h-4.5 text-wc-gold fill-wc-gold/10 mx-auto" strokeWidth={2.5} />;
                     posColor = 'text-wc-gold font-bold';
-                  } else if (position === 2) {
-                    posColor = 'text-slate-300 font-bold';
-                  } else if (position === 3) {
-                    posColor = 'text-amber-600 font-bold';
                   }
 
                   return (
@@ -307,11 +329,34 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
                       }`}
                     >
                       <td className="p-4 text-center">
-                        {medal ? (
-                          <div className="flex justify-center">{medal}</div>
-                        ) : (
-                          <span className={`font-sports text-sm ${posColor}`}>{position}</span>
-                        )}
+                        <div className="flex items-center justify-center gap-1.5">
+                          {medal ? (
+                            <div className="flex justify-center">{medal}</div>
+                          ) : (
+                            <span className={`font-sports text-sm ${posColor}`}>{position}</span>
+                          )}
+                          
+                          {/* Rank movement trend indicator */}
+                          <span className="flex items-center text-[10px] font-bold select-none gap-0.5" title={`Posición anterior: ${entry.previous_rank || 'Ninguna'}`}>
+                            {entry.previous_rank !== null && entry.previous_rank !== undefined ? (
+                              position < entry.previous_rank ? (
+                                <>
+                                  <ArrowUp className="w-3 h-3 text-green-500 animate-bounce" strokeWidth={3} />
+                                  <span className="text-green-500 font-sports">{entry.previous_rank - position}</span>
+                                </>
+                              ) : position > entry.previous_rank ? (
+                                <>
+                                  <ArrowDown className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
+                                  <span className="text-red-500 font-sports">{position - entry.previous_rank}</span>
+                                </>
+                              ) : (
+                                <Minus className="w-3.5 h-3.5 text-slate-500" strokeWidth={3} />
+                              )
+                            ) : (
+                              <Minus className="w-3.5 h-3.5 text-slate-500" strokeWidth={3} />
+                            )}
+                          </span>
+                        </div>
                       </td>
                       <td className="p-4 flex items-center gap-2">
                         <span className={isMyEntry ? 'font-bold text-wc-gold' : 'text-slate-200 font-medium'}>

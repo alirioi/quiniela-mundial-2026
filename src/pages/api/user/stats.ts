@@ -98,17 +98,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
           }
         }
       } else {
-        // Mientras no entre en acción el pronóstico de oro, y están empatados en el primer lugar
-        if (a.total_points === maxPoints) {
-          return a.display_name.localeCompare(b.display_name, 'es');
-        }
-      }
-
-      // Fallback final: Fecha de registro (created_at Ascendente, el que se registró primero queda arriba)
-      const aTime = new Date(a.created_at).getTime();
-      const bTime = new Date(b.created_at).getTime();
-      if (aTime !== bTime) {
-        return aTime - bTime;
+        // Mientras no entre en acción el pronóstico de oro, y están empatados en cualquier posición, se ordena por orden alfabético
+        return a.display_name.localeCompare(b.display_name, 'es');
       }
 
       return a.id - b.id;

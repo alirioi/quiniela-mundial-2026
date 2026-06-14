@@ -57,17 +57,29 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     let query = supabaseAdmin
       .from('entries')
-      .select('id, display_name, total_points, created_at, predicted_champion, predicted_champion_goals, predicted_final_goals')
+      .select('id, display_name, total_points, created_at, predicted_champion, predicted_champion_goals, predicted_final_goals, previous_rank')
       .eq('status', 'approved');
 
     if (adminIds.length > 0) {
       query = query.not('user_id', 'in', `(${adminIds.join(',')})`);
     }
 
-    const { data: standings, error } = await query;
+    let { data: standings, error } = await query;
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 400 });
+      // Fallback in case previous_rank doesn't exist yet on remote db
+      let fallbackQuery = supabaseAdmin
+        .from('entries')
+        .select('id, display_name, total_points, created_at, predicted_champion, predicted_champion_goals, predicted_final_goals')
+        .eq('status', 'approved');
+      if (adminIds.length > 0) {
+        fallbackQuery = fallbackQuery.not('user_id', 'in', `(${adminIds.join(',')})`);
+      }
+      const fallbackRes = await fallbackQuery;
+      if (fallbackRes.error) {
+        return new Response(JSON.stringify({ error: fallbackRes.error.message }), { status: 400 });
+      }
+      standings = fallbackRes.data?.map(s => ({ ...s, previous_rank: null })) || [];
     }
 
     const maxPoints = standings && standings.length > 0 ? Math.max(...standings.map(s => s.total_points)) : 0;
@@ -112,17 +124,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
           }
         }
       } else {
-        // Mientras no entre en acción el pronóstico de oro, y están empatados en el primer lugar
-        if (a.total_points === maxPoints) {
-          return a.display_name.localeCompare(b.display_name, 'es');
-        }
-      }
-
-      // Fallback final: Fecha de registro (created_at Ascendente, el que se registró primero queda arriba)
-      const aTime = new Date(a.created_at).getTime();
-      const bTime = new Date(b.created_at).getTime();
-      if (aTime !== bTime) {
-        return aTime - bTime;
+        // Mientras no entre en acción el pronóstico de oro, y están empatados en cualquier posición, se ordena por orden alfabético
+        return a.display_name.localeCompare(b.display_name, 'es');
       }
 
       return a.id - b.id;

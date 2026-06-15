@@ -35,7 +35,7 @@ export default function AdminMatchResults() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(null);
+  const [selectedPhaseId, setSelectedPhaseId] = useState<number | 'today' | null>(null);
   const [editStates, setEditStates] = useState<Record<number, MatchEditState>>({});
   const [savingId, setSavingId] = useState<number | null>(null);
 
@@ -146,7 +146,27 @@ export default function AdminMatchResults() {
   };
 
   const activePhase = phases.find((p) => p.id === selectedPhaseId);
-  const filteredMatches = matches.filter((m) => m.phase_id === selectedPhaseId);
+  const filteredMatches = selectedPhaseId === 'today'
+    ? matches.filter((m) => {
+        const matchDate = new Date(m.match_time);
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        const isToday =
+          matchDate.getDate() === today.getDate() &&
+          matchDate.getMonth() === today.getMonth() &&
+          matchDate.getFullYear() === today.getFullYear();
+
+        const isTomorrowMidnight =
+          matchDate.getDate() === tomorrow.getDate() &&
+          matchDate.getMonth() === tomorrow.getMonth() &&
+          matchDate.getFullYear() === tomorrow.getFullYear() &&
+          matchDate.getHours() === 0;
+
+        return isToday || isTomorrowMidnight;
+      })
+    : matches.filter((m) => m.phase_id === selectedPhaseId);
 
   return (
     <div className="space-y-6">
@@ -154,6 +174,17 @@ export default function AdminMatchResults() {
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
         <div className="flex flex-wrap items-center gap-2 relative z-10">
+          <button
+            onClick={() => setSelectedPhaseId('today')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border flex items-center gap-1.5 font-sports relative z-10 ${
+              selectedPhaseId === 'today'
+                ? 'bg-wc-gold/10 border-wc-gold/30 text-wc-gold shadow-md shadow-wc-gold/5'
+                : 'bg-wc-dark/40 border-wc-border hover:border-slate-700 text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span>Partidos de Hoy</span>
+          </button>
+
           {phases.map((phase) => (
             <button
               key={phase.id}
@@ -230,9 +261,6 @@ export default function AdminMatchResults() {
                 {/* Header de la tarjeta */}
                 <div className="flex justify-between items-center text-xs text-slate-400 mb-3.5 border-b border-wc-border pb-2 relative z-10 font-medium">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono bg-wc-dark px-2.5 py-0.5 rounded-lg text-xs font-bold text-slate-350 border border-wc-border font-sports tracking-wider uppercase">
-                      Partido #{match.match_number}
-                    </span>
                     {match.group_name && (
                       <span className="font-bold text-slate-400 font-sports tracking-wider uppercase">{match.group_name}</span>
                     )}

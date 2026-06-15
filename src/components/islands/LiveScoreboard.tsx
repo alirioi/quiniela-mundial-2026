@@ -111,11 +111,7 @@ export default function LiveScoreboard() {
               )}
 
               {/* Header: Número y hora */}
-              <div className="flex justify-between items-center text-xs text-slate-500 mb-2.5">
-                <span className="font-sports tracking-wide bg-wc-dark px-2 py-0.5 rounded border border-wc-border text-slate-400">
-                  M#{match.match_number}
-                </span>
-
+              <div className="flex justify-end items-center text-xs text-slate-500 mb-2.5">
                 {isLive ? (
                   <span className="px-2 py-0.5 rounded bg-wc-red/15 text-wc-red border border-wc-red/25 font-bold uppercase tracking-wider flex items-center gap-1 animate-pulse font-sports">
                     <span className="w-1.5 h-1.5 rounded-full bg-wc-red"></span>

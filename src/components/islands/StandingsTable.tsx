@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase-browser';
-import { Trophy, Lock, BarChart3, AlertTriangle, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { Trophy, Lock, BarChart3, AlertTriangle, ArrowUp, ArrowDown, Minus, X } from 'lucide-react';
 
 interface StandingEntry {
   id: number;
@@ -484,7 +484,7 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
                 onClick={closeHistoryModal}
                 className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all"
               >
-                <span className="font-bold text-sm font-sans px-1">X</span>
+                <X className="w-4.5 h-4.5" strokeWidth={2.5} />
               </button>
             </div>
 

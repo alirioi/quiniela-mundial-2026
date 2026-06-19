@@ -43,6 +43,11 @@ export default function PredictionsDashboard({ userEntries }: PredictionsDashboa
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [historyPage, setHistoryPage] = useState(1);
+
+  useEffect(() => {
+    setHistoryPage(1);
+  }, [selectedEntryId]);
 
   useEffect(() => {
     if (!selectedEntryId) return;
@@ -254,53 +259,85 @@ export default function PredictionsDashboard({ userEntries }: PredictionsDashboa
       </div>
 
       {/* Historial de predicciones */}
-      {!loading && stats && stats.history.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300 font-sports">Historial de Predicciones</h2>
-          <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-card/30 backdrop-blur-md">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="border-b border-wc-border bg-wc-dark/30 text-slate-450 font-sports tracking-wider uppercase">
-                    <th className="p-4">Partido</th>
-                    <th className="p-4 text-center">Tu Pronóstico</th>
-                    <th className="p-4 text-center">Resultado Real</th>
-                    <th className="p-4 text-center">Puntos Ganados</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-wc-border/50 text-slate-200">
-                  {stats.history.map((item) => (
-                    <tr key={item.matchId} className="hover:bg-wc-card/50 transition-colors">
-                      <td className="p-4 font-medium">
-                        {item.homeTeam} vs {item.awayTeam}
-                      </td>
-                      <td className="p-4 text-center font-mono font-bold">
-                        {item.predictedHome} - {item.predictedAway}
-                      </td>
-                      <td className="p-4 text-center font-mono font-bold text-slate-400">
-                        {item.actualHome} - {item.actualAway}
-                      </td>
-                      <td className="p-4 text-center">
-                        <span
-                          className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold font-sports ${
-                            item.pointsEarned === 3
-                              ? 'bg-wc-green/10 text-wc-green border border-wc-green/20'
-                              : item.pointsEarned === 1
-                              ? 'bg-wc-blue/10 text-wc-blue border border-wc-blue/20'
-                              : 'bg-slate-800 text-slate-500'
-                          }`}
-                        >
-                          +{item.pointsEarned} pt
-                        </span>
-                      </td>
+      {!loading && stats && stats.history.length > 0 && (() => {
+        const itemsPerPage = 10;
+        const totalPages = Math.ceil(stats.history.length / itemsPerPage);
+        const activePage = Math.min(historyPage, totalPages);
+        const paginatedHistory = stats.history.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
+
+        return (
+          <div className="space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300 font-sports font-sports">Historial de Predicciones</h2>
+            <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-card/30 backdrop-blur-md">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-wc-border bg-wc-dark/30 text-slate-450 font-sports tracking-wider uppercase">
+                      <th className="p-4">Partido</th>
+                      <th className="p-4 text-center">Tu Pronóstico</th>
+                      <th className="p-4 text-center">Resultado Real</th>
+                      <th className="p-4 text-center">Puntos Ganados</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-wc-border/50 text-slate-200">
+                    {paginatedHistory.map((item) => (
+                      <tr key={item.matchId} className="hover:bg-wc-card/50 transition-colors">
+                        <td className="p-4 font-medium">
+                          {item.homeTeam} vs {item.awayTeam}
+                        </td>
+                        <td className="p-4 text-center font-mono font-bold">
+                          {item.predictedHome} - {item.predictedAway}
+                        </td>
+                        <td className="p-4 text-center font-mono font-bold text-slate-400">
+                          {item.actualHome} - {item.actualAway}
+                        </td>
+                        <td className="p-4 text-center">
+                          <span
+                            className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold font-sports ${
+                              item.pointsEarned === 3
+                                ? 'bg-wc-green/10 text-wc-green border border-wc-green/20'
+                                : item.pointsEarned === 1
+                                ? 'bg-wc-blue/10 text-wc-blue border border-wc-blue/20'
+                                : 'bg-slate-800 text-slate-500'
+                            }`}
+                          >
+                            +{item.pointsEarned} pt
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Paginador del Historial */}
+              {totalPages > 1 && (
+                <div className="px-5 py-4 border-t border-wc-border bg-wc-dark/40 flex items-center justify-between gap-4 text-xs font-sports tracking-wider uppercase select-none">
+                  <button
+                    type="button"
+                    onClick={() => setHistoryPage(prev => Math.max(1, prev - 1))}
+                    disabled={activePage === 1}
+                    className="px-3.5 py-1.5 rounded-lg border border-wc-border hover:border-wc-gold text-slate-450 hover:text-wc-gold disabled:opacity-40 disabled:hover:text-slate-450 disabled:hover:border-wc-border transition-all cursor-pointer font-bold"
+                  >
+                    Anterior
+                  </button>
+                  <span className="text-slate-455 text-[10px] sm:text-xs">
+                    Página <strong className="text-white font-sans text-xs sm:text-sm">{activePage}</strong> de <strong className="text-white font-sans text-xs sm:text-sm">{totalPages}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setHistoryPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={activePage === totalPages}
+                    className="px-3.5 py-1.5 rounded-lg border border-wc-border hover:border-wc-gold text-slate-450 hover:text-wc-gold disabled:opacity-40 disabled:hover:text-slate-450 disabled:hover:border-wc-border transition-all cursor-pointer font-bold"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

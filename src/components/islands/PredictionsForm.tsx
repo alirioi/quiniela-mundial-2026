@@ -596,9 +596,10 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    // Set today at 00:00:00 to filter matches strictly from today onwards
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
 
     const dateList: { key: string; label: string }[] = [];
     const seen = new Set<string>();
@@ -606,7 +607,13 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
     const sorted = [...matches].sort((a, b) => new Date(a.match_time).getTime() - new Date(b.match_time).getTime());
 
     sorted.forEach((m) => {
-      const dateKey = new Date(m.match_time).toLocaleDateString('es-ES', {
+      const matchDate = new Date(m.match_time);
+      // Solo mostrar los días desde hoy en adelante
+      if (matchDate.getTime() < todayStart.getTime()) {
+        return;
+      }
+
+      const dateKey = matchDate.toLocaleDateString('es-ES', {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -622,8 +629,6 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
           label = `Hoy (${label})`;
         } else if (dateKey === tomorrowStr) {
           label = `Mañana (${label})`;
-        } else if (dateKey === yesterdayStr) {
-          label = `Ayer (${label})`;
         }
         
         dateList.push({ key: dateKey, label });
@@ -635,26 +640,17 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
 
   // Inicializar activeDate dinámicamente
   useEffect(() => {
-    if (viewMode === 'fechas' && dateTabs.length > 0 && !activeDate) {
+    if (viewMode === 'fechas' && dateTabs.length > 0) {
       const todayStr = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
       const hasToday = dateTabs.find(d => d.key === todayStr);
       if (hasToday) {
         setActiveDate(hasToday.key);
       } else {
-        const nextMatch = matches.find(m => m.status !== 'finished');
-        if (nextMatch) {
-          const nextMatchDateKey = new Date(nextMatch.match_time).toLocaleDateString('es-ES', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-          });
-          setActiveDate(nextMatchDateKey);
-        } else {
-          setActiveDate(dateTabs[0].key);
-        }
+        // Si no hay partidos de "hoy", seleccionar la primera pestaña disponible (que será el día más cercano del futuro)
+        setActiveDate(dateTabs[0].key);
       }
     }
-  }, [viewMode, dateTabs, activeDate, matches]);
+  }, [viewMode, dateTabs]);
 
   // Filtrar partidos por grupo si estamos en fase de grupos o aplicar orden cronológico / fechas
   const filteredMatches = useMemo(() => {

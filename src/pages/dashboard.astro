@@ -103,7 +103,7 @@ const approvedEntries = entries
 
       <!-- Tabla Principal (Desktop: cols 1-2, rows 1 to 4. Mobile: 3rd) -->
       <div class="lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:row-span-4 flex flex-col gap-6">
-        <StandingsTable client:visible myEntryIds={approvedEntryIds} />
+        <StandingsTable client:visible myEntryIds={approvedEntryIds} isAdmin={profile?.role === 'admin'} />
       </div>
 
       <!-- Tarjeta de Reglas de Puntuación (Desktop: col 3, row 3. Mobile: 4th) -->

@@ -8,13 +8,17 @@ interface StandingEntry {
   total_points: number;
   created_at: string;
   previous_rank: number | null;
+  predicted_champion?: string;
+  predicted_champion_goals?: number;
+  predicted_final_goals?: number;
 }
 
 interface StandingsTableProps {
   myEntryIds: number[];
+  isAdmin?: boolean;
 }
 
-export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
+export default function StandingsTable({ myEntryIds, isAdmin = false }: StandingsTableProps) {
   const [standings, setStandings] = useState<StandingEntry[]>([]);
   const [tournamentStarted, setTournamentStarted] = useState(true);
   const [firstMatchTime, setFirstMatchTime] = useState<string | null>(null);
@@ -299,85 +303,107 @@ export default function StandingsTable({ myEntryIds }: StandingsTableProps) {
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-card shadow-xl">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
-                  <th className="p-4 w-16 text-center">Pos</th>
-                  <th className="p-4">Participante / Cupo</th>
-                  <th className="p-4 text-right w-24">Puntos</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-wc-border/50 text-sm font-medium">
-                {paginatedStandings.map((entry) => {
-                  const isMyEntry = myEntryIds.includes(entry.id);
-                  const position = entry.rank;
-                  
-                  let medal: React.ReactNode = null;
-                  let posColor = 'text-slate-450';
-                  if (position === 1) {
-                    medal = <Trophy className="w-4.5 h-4.5 text-wc-gold fill-wc-gold/10 mx-auto" strokeWidth={2.5} />;
-                    posColor = 'text-wc-gold font-bold';
-                  }
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
+                    <th className="p-4 w-16 text-center">Pos</th>
+                    <th className="p-4">Participante</th>
+                    <th className="p-4 text-center w-24">Puntos</th>
+                    {isAdmin && (
+                      <>
+                        <th className="p-4 text-center text-[10px] border-l border-wc-border/30">Campeón Pred.</th>
+                        <th className="p-4 text-center text-[10px]">Goles Camp.</th>
+                        <th className="p-4 text-center text-[10px]">Goles Final</th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-wc-border/50 text-sm font-medium">
+                  {paginatedStandings.map((entry) => {
+                    const isMyEntry = myEntryIds.includes(entry.id);
+                    const position = entry.rank;
+                    
+                    let medal: React.ReactNode = null;
+                    let posColor = 'text-slate-450';
+                    if (position === 1) {
+                      medal = <Trophy className="w-4.5 h-4.5 text-wc-gold fill-wc-gold/10 mx-auto" strokeWidth={2.5} />;
+                      posColor = 'text-wc-gold font-bold';
+                    }
 
-                  return (
-                    <tr
-                      key={entry.id}
-                      className={`transition-all duration-200 hover:bg-wc-dark/30 ${
-                        isMyEntry
-                          ? 'bg-wc-gold/5 hover:bg-wc-gold/10 border-l-4 border-l-wc-gold'
-                          : ''
-                      }`}
-                    >
-                      <td className="p-4 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          {medal ? (
-                            <div className="flex justify-center">{medal}</div>
-                          ) : (
-                            <span className={`font-sports text-sm ${posColor}`}>{position}</span>
-                          )}
-                          
-                          {/* Rank movement trend indicator */}
-                          <span className="flex items-center text-[10px] font-bold select-none gap-0.5" title={`Posición anterior: ${entry.previous_rank || 'Ninguna'}`}>
-                            {entry.previous_rank !== null && entry.previous_rank !== undefined ? (
-                              position < entry.previous_rank ? (
-                                <>
-                                  <ArrowUp className="w-3 h-3 text-green-500 animate-bounce" strokeWidth={3} />
-                                  <span className="text-green-500 font-sports">{entry.previous_rank - position}</span>
-                                </>
-                              ) : position > entry.previous_rank ? (
-                                <>
-                                  <ArrowDown className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
-                                  <span className="text-red-500 font-sports">{position - entry.previous_rank}</span>
-                                </>
+                    return (
+                      <tr
+                        key={entry.id}
+                        className={`transition-all duration-200 hover:bg-wc-dark/30 ${
+                          isMyEntry
+                            ? 'bg-wc-gold/5 hover:bg-wc-gold/10 border-l-4 border-l-wc-gold'
+                            : ''
+                        }`}
+                      >
+                        <td className="p-4 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            {medal ? (
+                              <div className="flex justify-center">{medal}</div>
+                            ) : (
+                              <span className={`font-sports text-sm ${posColor}`}>{position}</span>
+                            )}
+                            
+                            {/* Rank movement trend indicator */}
+                            <span className="flex items-center text-[10px] font-bold select-none gap-0.5" title={`Posición anterior: ${entry.previous_rank || 'Ninguna'}`}>
+                              {entry.previous_rank !== null && entry.previous_rank !== undefined ? (
+                                position < entry.previous_rank ? (
+                                  <>
+                                    <ArrowUp className="w-3 h-3 text-green-500 animate-bounce" strokeWidth={3} />
+                                    <span className="text-green-500 font-sports">{entry.previous_rank - position}</span>
+                                  </>
+                                ) : position > entry.previous_rank ? (
+                                  <>
+                                    <ArrowDown className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
+                                    <span className="text-red-500 font-sports">{position - entry.previous_rank}</span>
+                                  </>
+                                ) : (
+                                  <Minus className="w-3.5 h-3.5 text-slate-500" strokeWidth={3} />
+                                )
                               ) : (
                                 <Minus className="w-3.5 h-3.5 text-slate-500" strokeWidth={3} />
-                              )
-                            ) : (
-                              <Minus className="w-3.5 h-3.5 text-slate-500" strokeWidth={3} />
-                            )}
+                              )}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-4 flex items-center gap-2">
+                          <span className={isMyEntry ? 'font-bold text-wc-gold' : 'text-slate-200 font-medium'}>
+                            {entry.display_name}
                           </span>
-                        </div>
-                      </td>
-                      <td className="p-4 flex items-center gap-2">
-                        <span className={isMyEntry ? 'font-bold text-wc-gold' : 'text-slate-200 font-medium'}>
-                          {entry.display_name}
-                        </span>
-                        {isMyEntry && (
-                          <span className="px-2 py-0.5 rounded bg-wc-gold/15 text-wc-gold text-[9px] font-bold uppercase border border-wc-gold/20 font-sports tracking-wider">
-                            Tú
-                          </span>
+                          {isMyEntry && (
+                            <span className="px-2 py-0.5 rounded bg-wc-gold/15 text-wc-gold text-[9px] font-bold uppercase border border-wc-gold/20 font-sports tracking-wider">
+                              Tú
+                            </span>
+                          )}
+                        </td>
+                        <td className={`p-4 text-center font-sports text-sm sm:text-base tracking-wider ${
+                          isMyEntry ? 'text-wc-gold font-bold' : 'text-slate-250 font-medium'
+                        }`}>
+                          {entry.total_points}
+                        </td>
+                        {isAdmin && (
+                          <>
+                            <td className="p-4 text-center text-xs text-slate-300 font-medium border-l border-wc-border/30 capitalize">
+                              {entry.predicted_champion || <span className="text-slate-500 font-normal italic">Sin pred.</span>}
+                            </td>
+                            <td className="p-4 text-center text-xs font-sports text-wc-gold">
+                              {entry.predicted_champion_goals !== undefined && entry.predicted_champion_goals !== null ? entry.predicted_champion_goals : <span className="text-slate-500 font-sans font-normal italic">-</span>}
+                            </td>
+                            <td className="p-4 text-center text-xs font-sports text-wc-blue">
+                              {entry.predicted_final_goals !== undefined && entry.predicted_final_goals !== null ? entry.predicted_final_goals : <span className="text-slate-500 font-sans font-normal italic">-</span>}
+                            </td>
+                          </>
                         )}
-                      </td>
-                      <td className={`p-4 text-right font-sports text-sm sm:text-base tracking-wider ${
-                        isMyEntry ? 'text-wc-gold font-bold' : 'text-slate-250 font-medium'
-                      }`}>
-                        {entry.total_points}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
             {/* Paginador */}
             {totalPages > 1 && (

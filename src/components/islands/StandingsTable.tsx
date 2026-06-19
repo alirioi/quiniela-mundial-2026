@@ -26,6 +26,38 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
   const [error, setError] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedHistoryEntryId, setSelectedHistoryEntryId] = useState<number | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyData, setHistoryData] = useState<{ displayName: string; history: any[] } | null>(null);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+
+  const fetchHistory = async (entryId: number) => {
+    setHistoryLoading(true);
+    setHistoryError(null);
+    try {
+      const response = await fetch(`/api/predictions/history?entryId=${entryId}`);
+      if (!response.ok) {
+        throw new Error('Error al cargar el historial de predicciones');
+      }
+      const data = await response.json();
+      setHistoryData(data);
+    } catch (err: any) {
+      setHistoryError(err.message || 'Error de conexión');
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const openHistoryModal = (entryId: number) => {
+    setSelectedHistoryEntryId(entryId);
+    fetchHistory(entryId);
+  };
+
+  const closeHistoryModal = () => {
+    setSelectedHistoryEntryId(null);
+    setHistoryData(null);
+    setHistoryError(null);
+  };
 
   const fetchStandings = async () => {
     try {
@@ -243,7 +275,7 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
                     <tr key={entry.id} className="bg-wc-gold/5 border-l-4 border-l-wc-gold">
                       <td className="p-3.5 w-16 text-center">
                         <div className="flex items-center justify-center gap-1.5">
-                          {medal ? (
+                           {medal ? (
                             <div className="flex justify-center">{medal}</div>
                           ) : (
                             <span className={`font-sports text-xs sm:text-sm ${posColor}`}>{position}</span>
@@ -272,7 +304,7 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
                         </div>
                       </td>
                       <td className="p-3.5">
-                        <span className="font-bold text-wc-gold">{entry.display_name}</span>
+                        <span className="font-bold text-wc-gold cursor-pointer hover:underline" onClick={() => openHistoryModal(entry.id)}>{entry.display_name}</span>
                       </td>
                       <td className="p-3.5 text-right font-sports text-sm sm:text-base tracking-wider text-wc-gold font-bold w-24">
                         {entry.total_points} Pts
@@ -371,7 +403,7 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
                           </div>
                         </td>
                         <td className="p-4 flex items-center gap-2">
-                          <span className={isMyEntry ? 'font-bold text-wc-gold' : 'text-slate-200 font-medium'}>
+                          <span className={`cursor-pointer hover:underline ${isMyEntry ? 'font-bold text-wc-gold' : 'text-slate-200 font-medium'}`} onClick={() => openHistoryModal(entry.id)}>
                             {entry.display_name}
                           </span>
                           {isMyEntry && (
@@ -416,7 +448,7 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
                 >
                   Anterior
                 </button>
-                <span className="text-slate-450 text-[10px] sm:text-xs">
+                <span className="text-slate-455 text-[10px] sm:text-xs">
                   Página <strong className="text-white font-sans text-xs sm:text-sm">{activePage}</strong> de <strong className="text-white font-sans text-xs sm:text-sm">{totalPages}</strong>
                 </span>
                 <button
@@ -432,6 +464,134 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
           </div>
         )}
       </div>
+
+      {/* MODAL HISTORIAL DE PREDICCIONES */}
+      {selectedHistoryEntryId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 py-8 sm:py-12 bg-slate-950/80 backdrop-blur-sm transition-all duration-300">
+          <div className="w-full max-w-4xl bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-y-auto overflow-x-hidden custom-scrollbar max-h-full flex flex-col gap-6">
+            
+            {/* Header modal */}
+            <div className="flex justify-between items-start border-b border-wc-border/50 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-white font-sports tracking-wider uppercase">
+                  Historial de Predicciones
+                </h3>
+                <p className="text-xs text-wc-gold font-bold uppercase tracking-wider font-sports mt-1">
+                  Participante: {historyData?.displayName || 'Cargando...'}
+                </p>
+              </div>
+              <button
+                onClick={closeHistoryModal}
+                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all"
+              >
+                <span className="font-bold text-sm font-sans px-1">X</span>
+              </button>
+            </div>
+
+            {historyLoading ? (
+              <div className="flex flex-col items-center justify-center p-12 space-y-4">
+                <div className="w-8 h-8 border-3 border-wc-gold border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-slate-400 text-xs font-sports uppercase tracking-wider">Cargando historial...</p>
+              </div>
+            ) : historyError ? (
+              <div className="p-4 rounded-xl bg-wc-red/10 border border-wc-red/20 text-center text-xs text-red-200">
+                <span>{historyError}</span>
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-dark/30 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/80 font-sports">
+                        <th className="p-4">Partido</th>
+                        <th className="p-4 text-center">Tu Pronóstico</th>
+                        <th className="p-4 text-center">Resultado Real</th>
+                        <th className="p-4 text-right">Puntos Ganados</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-wc-border/40 text-xs font-medium">
+                      {historyData?.history.map((item: any) => {
+                        const isFinished = item.status === 'finished';
+                        const isLive = item.status === 'live';
+                        const isScheduled = item.status === 'scheduled';
+                        
+                        let predText = '-';
+                        if (item.prediction) {
+                          if (item.prediction.hidden) {
+                            predText = 'Oculto';
+                          } else {
+                            predText = `${item.prediction.predicted_home} - ${item.prediction.predicted_away}`;
+                          }
+                        }
+
+                        let resultText = '-';
+                        if (isFinished || isLive) {
+                          resultText = `${item.home_score ?? 0} - ${item.away_score ?? 0}`;
+                        }
+
+                        let pointsBadge = null;
+                        if (item.prediction && !item.prediction.hidden && (isFinished || isLive)) {
+                          const pts = item.prediction.points_earned;
+                          let ptsColorClass = 'bg-slate-800/40 text-slate-500 border border-slate-700/40';
+                          if (pts === 3) ptsColorClass = 'bg-green-500/10 text-green-400 border border-green-500/20';
+                          else if (pts === 1) ptsColorClass = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                          
+                          pointsBadge = (
+                            <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold font-mono tracking-wider ${ptsColorClass}`}>
+                              +{pts} pt{pts !== 1 ? 's' : ''}
+                            </span>
+                          );
+                        } else if (item.prediction && item.prediction.hidden) {
+                          pointsBadge = <span className="text-slate-500">-</span>;
+                        } else if (isFinished || isLive) {
+                          pointsBadge = (
+                            <span className="px-2.5 py-1 rounded-md text-[10px] font-bold font-mono tracking-wider bg-slate-800/40 text-slate-500 border border-slate-700/40">
+                              +0 pts
+                            </span>
+                          );
+                        } else {
+                          pointsBadge = <span className="text-slate-500 font-sports uppercase text-[9px]">Programado</span>;
+                        }
+
+                        return (
+                          <tr key={item.match_id} className="hover:bg-wc-dark/20 transition-colors">
+                            <td className="p-4">
+                              <div className="flex flex-col">
+                                <span className="text-slate-200 font-semibold text-sm">{item.home_team} vs {item.away_team}</span>
+                                {item.group_name && (
+                                  <span className="text-[10px] text-slate-400 font-sports uppercase tracking-wider mt-0.5">{item.group_name}</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-4 text-center font-mono text-sm font-bold text-white">
+                              {predText === 'Oculto' ? (
+                                <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-500 text-[10px] font-sans font-normal border border-slate-700">Oculto</span>
+                              ) : (
+                                predText
+                              )}
+                            </td>
+                            <td className="p-4 text-center font-mono text-sm font-bold text-white">
+                              {resultText}
+                              {isLive && (
+                                <span className="ml-1.5 px-1.5 py-0.5 rounded text-[8px] bg-red-500/10 text-red-500 font-bold border border-red-500/20 uppercase font-sans animate-pulse">Vivo</span>
+                              )}
+                            </td>
+                            <td className="p-4 text-right">
+                              {pointsBadge}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+

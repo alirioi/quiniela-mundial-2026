@@ -500,13 +500,12 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
             ) : (
               <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-dark/30 max-h-[60vh] overflow-y-auto custom-scrollbar">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[500px] sm:min-w-0">
+                  <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-wc-border text-[10px] sm:text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/80 font-sports">
                         <th className="p-2 sm:p-4">Partido</th>
-                        <th className="p-2 sm:p-4 text-center w-24 sm:w-32">Pronóstico</th>
-                        <th className="p-2 sm:p-4 text-center w-24 sm:w-32">Real</th>
-                        <th className="p-2 sm:p-4 text-right w-24 sm:w-32">Puntos</th>
+                        <th className="p-2 sm:p-4 text-center w-20 sm:w-28">Tu Pronóstico</th>
+                        <th className="p-2 sm:p-4 text-center w-20 sm:w-28">Resultado Real</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-wc-border/40 text-[11px] sm:text-xs font-medium">
@@ -537,7 +536,7 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
                           else if (pts === 1) ptsColorClass = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
                           
                           pointsBadge = (
-                            <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[9px] sm:text-[10px] font-bold font-mono tracking-wider ${ptsColorClass}`}>
+                            <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-bold font-mono tracking-wider ${ptsColorClass}`}>
                               +{pts} pt{pts !== 1 ? 's' : ''}
                             </span>
                           );
@@ -545,12 +544,12 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
                           pointsBadge = <span className="text-slate-500">-</span>;
                         } else if (isFinished || isLive) {
                           pointsBadge = (
-                            <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[9px] sm:text-[10px] font-bold font-mono tracking-wider bg-slate-800/40 text-slate-500 border border-slate-700/40">
+                            <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-bold font-mono tracking-wider bg-slate-800/40 text-slate-500 border border-slate-700/40">
                               +0 pts
                             </span>
                           );
                         } else {
-                          pointsBadge = <span className="text-slate-500 font-sports uppercase text-[8px] sm:text-[9px]">Programado</span>;
+                          pointsBadge = <span className="text-slate-500 font-sports uppercase text-[9px]">Programado</span>;
                         }
 
                         return (
@@ -558,9 +557,9 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
                             <td className="p-2 sm:p-4">
                               <div className="flex flex-col min-w-0">
                                 <span className="text-slate-200 font-semibold text-xs sm:text-sm break-words leading-tight">{item.home_team} vs {item.away_team}</span>
-                                {item.group_name && (
-                                  <span className="text-[9px] sm:text-[10px] text-slate-450 font-sports uppercase tracking-wider mt-0.5">{item.group_name}</span>
-                                )}
+                                <div className="flex items-center mt-1.5">
+                                  {pointsBadge}
+                                </div>
                               </div>
                             </td>
                             <td className="p-2 sm:p-4 text-center font-mono text-xs sm:text-sm font-bold text-white whitespace-nowrap">
@@ -575,9 +574,6 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
                               {isLive && (
                                 <span className="ml-1 px-1 py-0.2 rounded text-[7px] sm:text-[8px] bg-red-500/10 text-red-500 font-bold border border-red-500/20 uppercase font-sans animate-pulse">Vivo</span>
                               )}
-                            </td>
-                            <td className="p-2 sm:p-4 text-right whitespace-nowrap">
-                              {pointsBadge}
                             </td>
                           </tr>
                         );

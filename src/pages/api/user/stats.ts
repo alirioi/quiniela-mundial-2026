@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   // Verificar que el cupo pertenece al usuario o es administrador
   const { data: entry, error: entryError } = await supabaseAdmin
     .from('entries')
-    .select('id, display_name, total_points, user_id, status')
+    .select('id, display_name, total_points, user_id, status, predicted_champion, predicted_champion_goals, predicted_final_goals')
     .eq('id', entryId)
     .single();
 
@@ -168,7 +168,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
       correctPredictions,
       exactPredictions,
       accuracyRate,
-      history
+      history,
+      predictedChampion: entry.predicted_champion,
+      predictedChampionGoals: entry.predicted_champion_goals,
+      predictedFinalGoals: entry.predicted_final_goals
     }), { status: 200 });
 
   } catch (e) {

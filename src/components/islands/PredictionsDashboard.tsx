@@ -29,6 +29,9 @@ interface StatsData {
   exactPredictions: number;
   accuracyRate: number;
   history: HistoryItem[];
+  predictedChampion?: string | null;
+  predictedChampionGoals?: number | null;
+  predictedFinalGoals?: number | null;
 }
 
 interface PredictionsDashboardProps {
@@ -214,28 +217,40 @@ export default function PredictionsDashboard({ userEntries }: PredictionsDashboa
           </div>
         </a>
 
-        {/* CARD 3: Pronóstico de Oro */}
-        <a
-          href={`/predictions/oro?entry=${selectedEntryId}`}
-          className="group p-8 rounded-3xl bg-wc-card border border-wc-border hover:border-wc-gold/45 transition-all duration-300 flex flex-col justify-between hover:shadow-[0_0_20px_rgba(212,175,55,0.08)] relative overflow-hidden"
-        >
-          <div className="absolute -top-12 -right-12 w-36 h-36 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none group-hover:bg-wc-gold/10 transition-all duration-300"></div>
+        {/* CARD 3: Pronóstico de Oro (Solo lectura) */}
+        <div className="p-8 rounded-3xl bg-wc-card border border-wc-border relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute -top-12 -right-12 w-36 h-36 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-wc-gold/10 border border-wc-gold/20 flex items-center justify-center text-wc-gold mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-12 h-12 rounded-2xl bg-wc-gold/10 border border-wc-gold/20 flex items-center justify-center text-wc-gold mb-5">
               <Award className="w-6 h-6" strokeWidth={2} />
             </div>
             <h3 className="text-2xl font-bold text-white font-sports uppercase tracking-wide">Pronóstico de Oro</h3>
             <p className="text-xs sm:text-sm text-slate-450 mt-3 leading-relaxed">
-              Criterio clave de desempate: pronostica el Campeón del Mundo, sus goles y los de la final. Debe llenarse antes de comenzar el torneo.
+              Criterio de desempate guardado para este cupo.
             </p>
-          </div>
-          <div className="mt-8 flex items-center justify-between">
-            <span className="text-xs font-bold text-wc-gold uppercase tracking-wider font-sports">Ir al Desempate</span>
-            <div className="w-8 h-8 rounded-xl bg-wc-dark flex items-center justify-center text-wc-gold border border-wc-border group-hover:translate-x-1.5 transition-transform">
-              <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+
+            <div className="mt-5 space-y-3.5 border-t border-wc-border/50 pt-5 text-sm font-sans">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">Campeón:</span>
+                <span className="font-bold text-white capitalize">
+                  {stats?.predictedChampion || <span className="text-slate-500 italic font-normal">Sin predicción</span>}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">Goles de Campeón:</span>
+                <span className="font-bold text-wc-gold font-sports text-base tracking-wide">
+                  {stats?.predictedChampionGoals !== undefined && stats?.predictedChampionGoals !== null ? stats.predictedChampionGoals : <span className="text-slate-500 italic font-normal font-sans text-sm">-</span>}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">Goles en la Final:</span>
+                <span className="font-bold text-wc-blue font-sports text-base tracking-wide">
+                  {stats?.predictedFinalGoals !== undefined && stats?.predictedFinalGoals !== null ? stats.predictedFinalGoals : <span className="text-slate-500 italic font-normal font-sans text-sm">-</span>}
+                </span>
+              </div>
             </div>
           </div>
-        </a>
+        </div>
       </div>
 
       {/* Historial de predicciones */}

@@ -233,12 +233,11 @@ const profile = Astro.locals.profile;
               <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
                 <div class="px-6 pb-6 text-sm md:text-base text-slate-300 leading-relaxed space-y-4 border-t border-wc-border pt-4">
                   <p>El <strong>100% del pote acumulado de premios</strong> (los 15.00 USDT de cada cupo registrado y aprobado) se entregará a un único ganador en el primer lugar de la tabla de posiciones general.</p>
-                  <p><strong>Regla de Desempate (Pronóstico de Oro):</strong> Para asegurar que exista <strong>un único ganador absoluto</strong> y evitar el reparto del premio, en caso de empate de puntos al finalizar el último partido del mundial, el sistema aplicará los siguientes criterios de desempate en estricto orden de prioridad:</p>
+                  <p><strong>Regla de Desempate (Pronóstico de Oro):</strong> Para asegurar que exista <strong>un único ganador absoluto</strong> y evitar el reparto del premio, en caso de empate de puntos al finalizar el último partido del mundial, el sistema evaluará y aplicará los siguientes criterios de desempate en estricto orden secuencial. <em>Si un criterio no logra romper el empate (por ejemplo, si ninguno de los empatados acertó el campeón), se procederá a evaluar el siguiente criterio:</em></p>
                   <ol class="list-decimal pl-5 space-y-2">
                     <li><strong>Criterio 1 (Campeón Exacto):</strong> Se posiciona arriba quien haya acertado textualmente al país que termine ganando la Copa del Mundo.</li>
                     <li><strong>Criterio 2 (Goles del Campeón):</strong> Quien tenga la menor diferencia absoluta (hacia arriba o hacia abajo) respecto a la cantidad de goles totales que anote el campeón a lo largo de todo el torneo (ej. si el campeón hace 14 goles y tu pronóstico fue 15, tu diferencia es 1).</li>
                     <li><strong>Criterio 3 (Goles en la Final):</strong> Quien tenga la menor diferencia absoluta respecto a la cantidad total de goles anotados en el partido de la Gran Final (considerando 90 o 120 minutos, excluyendo penales).</li>
-                    <li><strong>Fecha de Registro:</strong> Si tras aplicar los tres criterios anteriores persiste el empate matemático, el premio se otorgará al cupo que se haya registrado primero en la plataforma (según la fecha de creación de la transacción).</li>
                   </ol>
                 </div>
               </div>

@@ -58,15 +58,15 @@ export const GET: APIRoute = async ({ url, locals }) => {
     const now = Date.now();
     const isOwnEntry = entry.user_id === user.id || locals.profile?.role === 'admin';
 
-    // 4. Mapear partidos con la predicción correspondiente aplicando la regla de visibilidad (lock de 30 mins)
+    // 4. Mapear partidos con la predicción correspondiente aplicando la regla de visibilidad (lock de 5 mins)
     const history = matches
       .map((match) => {
         const pred = predictionsMap.get(match.id);
         const matchTimeMs = new Date(match.match_time).getTime();
-        const lockTimeMs = matchTimeMs - 30 * 60 * 1000;
+        const lockTimeMs = matchTimeMs - 5 * 60 * 1000;
         const isLocked = now >= lockTimeMs;
 
-        // Un partido se puede ver si ya está bloqueado (<30m del inicio), si está en vivo, si ya finalizó, o si es el propio cupo del usuario.
+        // Un partido se puede ver si ya está bloqueado (<5m del inicio), si está en vivo, si ya finalizó, o si es el propio cupo del usuario.
         const canSee = isLocked || match.status === 'live' || match.status === 'finished' || isOwnEntry;
 
         return {

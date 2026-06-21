@@ -136,7 +136,7 @@ export default function GoldPredictionForm({ userEntries, isLocked, firstMatchTi
           <div>
             <p className="font-bold">Pronóstico Cerrado</p>
             <p className="mt-0.5 text-slate-300">
-              El mundial ha comenzado (o faltan menos de 30 minutos para el primer partido). Las predicciones de desempate se encuentran estrictamente bloqueadas y no admiten más modificaciones.
+              El mundial ha comenzado (o faltan menos de 5 minutos para el primer partido). Las predicciones de desempate se encuentran estrictamente bloqueadas y no admiten más modificaciones.
             </p>
           </div>
         </div>

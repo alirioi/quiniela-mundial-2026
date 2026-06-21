@@ -198,7 +198,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
 
   const isLocked = (matchTimeStr: string) => {
     const matchTime = new Date(matchTimeStr).getTime();
-    const lockTime = matchTime - 30 * 60 * 1000;
+    const lockTime = matchTime - 5 * 60 * 1000;
     return Date.now() >= lockTime;
   };
 

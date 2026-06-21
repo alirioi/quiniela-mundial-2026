@@ -115,7 +115,7 @@ export const GET: APIRoute = async ({ locals }) => {
 
     const matchTimeMs = new Date(match.match_time).getTime();
     const nowMs = Date.now();
-    const lockTimeMs = matchTimeMs - 30 * 60 * 1000; // 30 minutos antes del partido
+    const lockTimeMs = matchTimeMs - 5 * 60 * 1000; // 5 minutos antes del partido
     const isLocked = nowMs >= lockTimeMs;
 
     const isMatchScheduled = match.status === 'scheduled';
@@ -125,7 +125,7 @@ export const GET: APIRoute = async ({ locals }) => {
       const pred = predictionsMap.get(entry.id);
       const isOwnEntry = userEntryIds.has(entry.id);
       
-      // Ocultar pronósticos si el partido no ha iniciado, no está bloqueado (<30m) y no es su propio cupo
+      // Ocultar pronósticos si el partido no ha iniciado, no está bloqueado (<5m) y no es su propio cupo
       const hidePrediction = isMatchScheduled && !isLocked && !isOwnEntry;
 
       return {

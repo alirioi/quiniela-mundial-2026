@@ -49,7 +49,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // 3. Realizar Upsert en la base de datos
-    // Supabase intentará hacer insert. Si un partido de la lista está a menos de 30 minutos de jugarse,
+    // Supabase intentará hacer insert. Si un partido de la lista está a menos de 5 minutos de jugarse,
     // el trigger "enforce_prediction_lock" abortará la operación.
     const upsertData = validPredictions.map((p: any) => ({
       entry_id: entryId,
@@ -64,8 +64,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .upsert(upsertData, { onConflict: 'entry_id,match_id' });
 
     if (upsertError) {
-      // Capturar si el error es debido al trigger del lock de 30 minutos (o 2 horas previo)
+      // Capturar si el error es debido al trigger del lock de 5 minutos (o 2 horas previo)
       if (
+        upsertError.message.includes('5 minutes') ||
+        upsertError.message.includes('5 minutos') ||
         upsertError.message.includes('30 minutes') ||
         upsertError.message.includes('30 minutos') ||
         upsertError.message.includes('2 hours') ||
@@ -73,7 +75,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       ) {
         return new Response(
           JSON.stringify({
-            error: 'No se pudieron guardar las predicciones. Uno o más partidos de esta lista ya están bloqueados (faltan menos de 30 minutos para su inicio).',
+            error: 'No se pudieron guardar las predicciones. Uno o más partidos de esta lista ya están bloqueados (faltan menos de 5 minutos para su inicio).',
           }),
           { status: 400 }
         );

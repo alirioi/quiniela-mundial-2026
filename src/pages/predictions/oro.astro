@@ -14,7 +14,7 @@ if (approvedEntries.length === 0 && profile?.role !== 'admin') {
   return Astro.redirect('/pending');
 }
 
-// Validar fecha límite de modificaciones (30 minutos antes del primer partido del mundial)
+// Validar fecha límite de modificaciones (5 minutos antes del primer partido del mundial)
 const { data: firstMatch } = await supabaseAdmin
   .from('matches')
   .select('match_time')
@@ -27,7 +27,7 @@ let firstMatchTimeStr = '';
 if (firstMatch) {
   firstMatchTimeStr = firstMatch.match_time;
   const firstMatchTime = new Date(firstMatch.match_time).getTime();
-  const limitTime = firstMatchTime - 30 * 60 * 1000; // 30 minutos antes en ms
+  const limitTime = firstMatchTime - 5 * 60 * 1000; // 5 minutos antes en ms
   isLocked = Date.now() >= limitTime;
 }
 ---

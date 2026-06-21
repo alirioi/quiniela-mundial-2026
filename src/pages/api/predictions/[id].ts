@@ -43,7 +43,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     }
 
     // 2. Intentar actualizar la predicción
-    // El trigger "enforce_prediction_lock" en Supabase validará que falten >= 30 minutos para el inicio del partido.
+    // El trigger "enforce_prediction_lock" en Supabase validará que falten >= 5 minutos para el inicio del partido.
     const { error: updateError } = await supabaseAdmin
       .from('predictions')
       .update({
@@ -53,8 +53,10 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
       .eq('id', id);
 
     if (updateError) {
-      // Capturar si el error es debido al trigger del lock de 30 minutos (o 2 horas previo)
+      // Capturar si el error es debido al trigger del lock de 5 minutos (o 2 horas previo)
       if (
+        updateError.message.includes('5 minutes') ||
+        updateError.message.includes('5 minutos') ||
         updateError.message.includes('30 minutes') ||
         updateError.message.includes('30 minutos') ||
         updateError.message.includes('2 hours') ||
@@ -62,7 +64,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
       ) {
         return new Response(
           JSON.stringify({
-            error: 'No se pudo guardar la predicción. Este partido ya está bloqueado (faltan menos de 30 minutos para su inicio).',
+            error: 'No se pudo guardar la predicción. Este partido ya está bloqueado (faltan menos de 5 minutos para su inicio).',
           }),
           { status: 400 }
         );

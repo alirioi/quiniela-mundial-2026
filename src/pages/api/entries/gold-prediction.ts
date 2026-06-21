@@ -41,7 +41,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: 'El cupo debe estar aprobado para registrar el Pronóstico de Oro' }), { status: 403 });
     }
 
-    // 2. Validar fecha límite de modificaciones (30 minutos antes del primer partido del mundial)
+    // 2. Validar fecha límite de modificaciones (5 minutos antes del primer partido del mundial)
     const { data: firstMatch } = await supabaseAdmin
       .from('matches')
       .select('match_time')
@@ -51,10 +51,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     if (firstMatch) {
       const firstMatchTime = new Date(firstMatch.match_time).getTime();
-      const limitTime = firstMatchTime - 30 * 60 * 1000; // 30 minutos antes en ms
+      const limitTime = firstMatchTime - 5 * 60 * 1000; // 5 minutos antes en ms
       if (Date.now() >= limitTime) {
         return new Response(
-          JSON.stringify({ error: 'El Pronóstico de Oro ya se encuentra bloqueado porque faltan menos de 30 minutos para el inicio del mundial.' }),
+          JSON.stringify({ error: 'El Pronóstico de Oro ya se encuentra bloqueado porque faltan menos de 5 minutos para el inicio del mundial.' }),
           { status: 400 }
         );
       }

@@ -44,7 +44,7 @@ export default function PhaseReminderEmail({
           )}
           {missingFirstMatch && (
             <li style={{ marginBottom: '8px' }}>
-              ⚽ <strong>Primer Partido del Mundial:</strong> Recuerda pronosticar el partido inaugural. Las predicciones de cada partido se bloquean automáticamente <strong>30 minutos antes</strong> de su inicio.
+              ⚽ <strong>Primer Partido del Mundial:</strong> Recuerda pronosticar el partido inaugural. Las predicciones de cada partido se bloquean automáticamente <strong>5 minutos antes</strong> de su inicio.
             </li>
           )}
         </ul>

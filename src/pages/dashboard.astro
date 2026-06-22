@@ -106,44 +106,13 @@ const approvedEntries = entries
         <StandingsTable client:visible myEntryIds={approvedEntryIds} isAdmin={profile?.role === 'admin'} />
       </div>
 
-      <!-- Tarjeta de Reglas de Puntuación (Desktop: col 3, row 3. Mobile: 4th) -->
-      <div class="lg:col-span-1 lg:col-start-3 lg:row-start-3 p-5 rounded-2xl bg-wc-card border border-wc-border backdrop-blur-sm space-y-4">
-        <h3 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 border-b border-wc-border pb-2.5 font-sports">
-          <Info className="w-5 h-5 text-wc-gold" strokeWidth={2.5} /> Reglas de Puntuación
-        </h3>
-        
-        <ul class="space-y-3 text-xs md:text-sm leading-relaxed text-slate-300">
-          <li class="flex items-start gap-2.5">
-            <span class="text-wc-gold font-bold font-sports text-sm md:text-base mt-0.5 w-12 shrink-0 text-left">3 pts</span>
-            <div>
-              <strong class="text-slate-200 text-xs md:text-sm">Resultado Exacto</strong>
-              <p class="text-xs md:text-sm text-slate-400 mt-0.5">Acertaste la cantidad de goles de ambos equipos (ej. pronóstico 2-1, resultado 2-1).</p>
-            </div>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <span class="text-wc-blue font-bold font-sports text-sm md:text-base mt-0.5 w-12 shrink-0 text-left">1 pt</span>
-            <div>
-              <strong class="text-slate-200 text-xs md:text-sm">Resultado Parcial</strong>
-              <p class="text-xs md:text-sm text-slate-400 mt-0.5">Acertaste el ganador o empate, pero no los goles exactos (ej. pronóstico 3-1, resultado 2-0).</p>
-            </div>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <span class="text-slate-500 font-bold font-sports text-sm md:text-base mt-0.5 w-12 shrink-0 text-left">0 pts</span>
-            <div>
-              <strong class="text-slate-300 text-xs md:text-sm">Fallo</strong>
-              <p class="text-xs md:text-sm text-slate-400 mt-0.5">No acertaste el ganador ni el empate del partido.</p>
-            </div>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Tarjeta de Estadísticas del Mundial (Desktop: col 3, row 4. Mobile: 5th) -->
-      <div class="lg:col-span-1 lg:col-start-3 lg:row-start-4 p-5 rounded-2xl bg-wc-card border border-wc-border backdrop-blur-sm space-y-3.5 relative overflow-hidden">
+      <!-- Tarjeta de Estadísticas del Mundial (Desktop: col 3, row 3. Mobile: 4th) -->
+      <div class="lg:col-span-1 lg:col-start-3 lg:row-start-3 p-5 rounded-2xl bg-wc-card border border-wc-border backdrop-blur-sm space-y-3.5 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-20 h-20 bg-wc-gold/5 rounded-full blur-xl pointer-events-none"></div>
         <h3 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 border-b border-wc-border pb-2.5 font-sports">
           <BarChart3 className="w-5 h-5 text-wc-gold" strokeWidth={2.5} /> Estadísticas en Vivo
         </h3>
-        <p class="text-xs md:text-sm text-slate-350 leading-relaxed">
+        <p class="text-xs md:text-sm text-slate-355 leading-relaxed">
           Sigue en vivo la tabla de goleadores, goles marcados por selección y rendimiento de los equipos para monitorear tu <strong class="text-wc-gold font-bold">Pronóstico de Oro</strong>.
         </p>
         <a

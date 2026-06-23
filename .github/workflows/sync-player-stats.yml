@@ -62,7 +62,9 @@ jobs:
 
       # ── 4. Install only production dependencies ────────────────────────────
       - name: Install dependencies
-        run: pnpm install --prod --frozen-lockfile --ignore-scripts
+        run: |
+          pnpm config set ignore-scripts true
+          pnpm install --prod --frozen-lockfile
 
       # ── 5. Run the sync script ─────────────────────────────────────────────
       # Secrets are injected as environment variables — never written to disk

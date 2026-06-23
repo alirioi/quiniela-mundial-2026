@@ -44,12 +44,11 @@ jobs:
     # if: ${{ github.event_name == 'workflow_dispatch' || (startsWith(github.event.schedule, '0') && '2026-06-11' <= '2026-07-20') }}
 
     steps:
-      # ── 1. Checkout code (shallow clone — we only need the script file) ────
+      # ── 1. Checkout code (shallow clone — fast but includes all root files) ─
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          sparse-checkout: scripts/
-          sparse-checkout-cone-mode: false
+          depth: 1
 
       # ── 2. Set up Node.js (matches production environment) ────────────────
       - name: Set up Node.js

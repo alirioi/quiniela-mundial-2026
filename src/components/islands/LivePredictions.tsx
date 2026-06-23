@@ -34,19 +34,28 @@ interface Tendencies {
 }
 
 export default function LivePredictions() {
-  const [match, setMatch] = useState<Match | null>(null);
-  const [predictions, setPredictions] = useState<Prediction[]>([]);
-  const [tendencies, setTendencies] = useState<Tendencies | null>(null);
+  const [matches, setMatches] = useState<{
+    match: Match;
+    predictions: Prediction[];
+    tendencies: Tendencies | null;
+  }[]>([]);
+  const [selectedMatchIndex, setSelectedMatchIndex] = useState<number>(0);
+  const [simScores, setSimScores] = useState<Record<number, { home: string; away: string }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Simulation score states
-  const [simHome, setSimHome] = useState<string>('');
-  const [simAway, setSimAway] = useState<string>('');
   
   // Filter/sort states
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'points' | 'name'>('points');
+
+  const activeMatchData = matches[selectedMatchIndex];
+  const match = activeMatchData?.match || null;
+  const predictions = activeMatchData?.predictions || [];
+  const tendencies = activeMatchData?.tendencies || null;
+
+  const currentSim = match ? (simScores[match.id] || { home: '0', away: '0' }) : { home: '0', away: '0' };
+  const simHome = currentSim.home;
+  const simAway = currentSim.away;
 
   const fetchData = async () => {
     setLoading(true);
@@ -58,13 +67,20 @@ export default function LivePredictions() {
         throw new Error(errorData.error || `Error (${response.status}) al obtener los pronósticos`);
       }
       const data = await response.json();
-      setMatch(data.match);
-      setPredictions(data.predictions);
-      setTendencies(data.tendencies || null);
+      const fetchedMatches = data.matches || [];
+      setMatches(fetchedMatches);
       
-      if (data.match) {
-        setSimHome(data.match.home_score !== null ? String(data.match.home_score) : '0');
-        setSimAway(data.match.away_score !== null ? String(data.match.away_score) : '0');
+      const newSims: Record<number, { home: string; away: string }> = {};
+      fetchedMatches.forEach((item: any) => {
+        newSims[item.match.id] = {
+          home: item.match.home_score !== null ? String(item.match.home_score) : '0',
+          away: item.match.away_score !== null ? String(item.match.away_score) : '0'
+        };
+      });
+      setSimScores(newSims);
+      
+      if (selectedMatchIndex >= fetchedMatches.length) {
+        setSelectedMatchIndex(0);
       }
     } catch (err: any) {
       setError(err.message || 'Error de conexión');
@@ -78,9 +94,15 @@ export default function LivePredictions() {
   }, []);
 
   const handleSimScoreChange = (field: 'home' | 'away', val: string) => {
+    if (!match) return;
     if (val !== '' && !/^\d+$/.test(val)) return;
-    if (field === 'home') setSimHome(val);
-    else setSimAway(val);
+    setSimScores(prev => ({
+      ...prev,
+      [match.id]: {
+        ...prev[match.id] || { home: '0', away: '0' },
+        [field]: val
+      }
+    }));
   };
 
   // Point calculation matching trigger logic
@@ -189,6 +211,46 @@ export default function LivePredictions() {
         </div>
       ) : (
         <>
+          {/* Selector de partidos cuando hay más de uno en simultáneo */}
+          {matches.length > 1 && (
+            <div className="flex flex-wrap gap-2 mb-2 p-2 bg-wc-card/35 rounded-2xl border border-wc-border/50">
+              {matches.map((item, idx) => {
+                const isSelected = selectedMatchIndex === idx;
+                const m = item.match;
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => setSelectedMatchIndex(idx)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? 'bg-wc-gold text-wc-dark shadow-md shadow-wc-gold/15'
+                        : 'bg-wc-dark/50 hover:bg-wc-dark text-slate-400 hover:text-white border border-wc-border/30'
+                    }`}
+                  >
+                    {getTeamFlagUrl(m.home_team) && (
+                      <img
+                        src={getTeamFlagUrl(m.home_team)!}
+                        alt={m.home_team}
+                        className="w-4 h-3 object-cover rounded shadow-sm border border-slate-700/30"
+                      />
+                    )}
+                    <span>{m.home_team} vs {m.away_team}</span>
+                    {getTeamFlagUrl(m.away_team) && (
+                      <img
+                        src={getTeamFlagUrl(m.away_team)!}
+                        alt={m.away_team}
+                        className="w-4 h-3 object-cover rounded shadow-sm border border-slate-700/30"
+                      />
+                    )}
+                    {m.status === 'live' && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-wc-red animate-pulse"></span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {/* Hero Match Details & Simulation Tool */}
           <div className="p-6 bg-wc-card border border-wc-border rounded-2xl relative overflow-hidden shadow-xl shadow-black/20">
             <div className="absolute top-0 right-0 w-64 h-64 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>

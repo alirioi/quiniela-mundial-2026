@@ -60,7 +60,7 @@ jobs:
       # The scraping script only depends on Supabase. We install it directly via
       # npm to keep the workflow lightning-fast and avoid pnpm build-script policies.
       - name: Install dependencies
-        run: npm install @supabase/supabase-js@^2.106.1
+        run: npm install @supabase/supabase-js@^2.106.1 --no-save --legacy-peer-deps
 
       # ── 5. Run the sync script ─────────────────────────────────────────────
       # Secrets are injected as environment variables — never written to disk

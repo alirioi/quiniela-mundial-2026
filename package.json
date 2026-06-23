@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "sync:stats": "bun run scripts/sync-player-stats.js"
   },
   "dependencies": {
     "@astrojs/netlify": "^7.0.10",

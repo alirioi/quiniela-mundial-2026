@@ -1,0 +1,88 @@
+name: Sync Player Stats
+
+# ─── Triggers ────────────────────────────────────────────────────────────────
+on:
+  # Runs automatically every 3 hours during the World Cup (Jun–Jul 2026).
+  # The tournament plays 3–4 matches per day; 3-hour windows ensure we catch
+  # stats within a reasonable time after each final whistle.
+  #
+  # Estimated usage: 8 runs/day × 32 days ≈ 256 runs/month
+  # Each run takes ~1-2 min → ~384 min/month (well under the 2,000 min free limit).
+  schedule:
+    - cron: '0 */3 * * *'   # Every 3 hours, on the hour (UTC)
+
+  # Always allow a manual trigger from the GitHub Actions UI for on-demand syncs.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (print unprocessed matches, do not update DB)'
+        required: false
+        default: 'false'
+        type: boolean
+
+# ─── Permissions ─────────────────────────────────────────────────────────────
+# Minimal permissions: this workflow only needs to read the repo code
+# and call the external Supabase API. No write access to repo contents.
+permissions:
+  contents: read
+
+# ─── Concurrency guard ───────────────────────────────────────────────────────
+# Prevents two sync runs from overlapping (e.g. a manual trigger + scheduled run).
+# The in-progress run is kept; any later queued run is cancelled.
+concurrency:
+  group: sync-player-stats
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync Player Stats from Wikipedia
+    runs-on: ubuntu-latest
+
+    # Only run during the World Cup window.
+    # Adjust end date if the tournament extends.
+    # Comment this out after the tournament to keep the workflow harmless.
+    # if: ${{ github.event_name == 'workflow_dispatch' || (startsWith(github.event.schedule, '0') && '2026-06-11' <= '2026-07-20') }}
+
+    steps:
+      # ── 1. Checkout code (shallow clone — we only need the script file) ────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/
+          sparse-checkout-cone-mode: false
+
+      # ── 2. Set up Bun runtime (matches local dev environment) ──────────────
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # ── 3. Install only production dependencies ────────────────────────────
+      # --frozen-lockfile ensures no accidental dependency changes in CI.
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --production
+        env:
+          # Disable Bun telemetry in CI
+          DO_NOT_TRACK: 1
+
+      # ── 4. Run the sync script ─────────────────────────────────────────────
+      # Secrets are injected as environment variables — never written to disk
+      # or logged. The script validates they are present before connecting.
+      - name: Run player stats sync
+        run: bun run scripts/sync-player-stats.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Tell the script if this is a dry run (manual trigger option)
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        timeout-minutes: 10    # Hard cap: prevents runaway jobs consuming minutes
+
+      # ── 5. Summary ────────────────────────────────────────────────────────
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## 🌍 Player Stats Sync" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by:** \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run at:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY

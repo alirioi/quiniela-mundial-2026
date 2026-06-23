@@ -56,15 +56,11 @@ jobs:
         with:
           node-version: '22'
 
-      # ── 3. Set up pnpm ────────────────────────────────────────────────────
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-
-      # ── 4. Install only production dependencies ────────────────────────────
+      # ── 3. Install dependencies ────────────────────────────────────────────
+      # The scraping script only depends on Supabase. We install it directly via
+      # npm to keep the workflow lightning-fast and avoid pnpm build-script policies.
       - name: Install dependencies
-        run: |
-          pnpm config set ignore-scripts true
-          pnpm install --prod --frozen-lockfile
+        run: npm install @supabase/supabase-js@^2.106.1
 
       # ── 5. Run the sync script ─────────────────────────────────────────────
       # Secrets are injected as environment variables — never written to disk

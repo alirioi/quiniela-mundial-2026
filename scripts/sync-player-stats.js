@@ -93,6 +93,58 @@ const TEAM_TRANSLATION = {
   'Panama': 'Panamá',
 };
 
+// ─── FIFA Country Code to DB Spanish Name Mapping ──────────────────────────────
+const FIFA_CODE_MAP = {
+  'ARG': 'Argentina',
+  'AUS': 'Australia',
+  'AUT': 'Austria',
+  'BEL': 'Bélgica',
+  'BIH': 'Bosnia y Herzegovina',
+  'BRA': 'Brasil',
+  'CAN': 'Canadá',
+  'CPV': 'Cabo Verde',
+  'COL': 'Colombia',
+  'CIV': 'Costa de Marfil',
+  'CRO': 'Croacia',
+  'CZE': 'Chequia',
+  'COD': 'RD Congo',
+  'ECU': 'Ecuador',
+  'EGY': 'Egipto',
+  'ENG': 'Inglaterra',
+  'FRA': 'Francia',
+  'GER': 'Alemania',
+  'GHA': 'Ghana',
+  'HAI': 'Haití',
+  'IRN': 'Irán',
+  'IRQ': 'Irak',
+  'JPN': 'Japón',
+  'JOR': 'Jordania',
+  'MAR': 'Marruecos',
+  'MEX': 'México',
+  'NED': 'Países Bajos',
+  'NZL': 'Nueva Zelanda',
+  'NOR': 'Noruega',
+  'PAN': 'Panamá',
+  'PAR': 'Paraguay',
+  'POR': 'Portugal',
+  'QAT': 'Qatar',
+  'KSA': 'Arabia Saudita',
+  'SCO': 'Escocia',
+  'SEN': 'Senegal',
+  'RSA': 'Sudáfrica',
+  'KOR': 'Corea del Sur',
+  'ESP': 'España',
+  'SWE': 'Suecia',
+  'SUI': 'Suiza',
+  'TUN': 'Túnez',
+  'TUR': 'Turquía',
+  'URU': 'Uruguay',
+  'USA': 'Estados Unidos',
+  'UZB': 'Uzbekistán',
+  'CUW': 'Curazao',
+  'ALG': 'Argelia',
+};
+
 function translateTeam(englishName) {
   return TEAM_TRANSLATION[englishName] ?? englishName;
 }
@@ -151,66 +203,234 @@ async function fetchWikiText(title) {
   return page?.revisions?.[0]?.slots?.main?.content ?? null;
 }
 
-/**
- * Parse goalscorers and assists from a Wikipedia match section wikitext.
- *
- * Wikipedia wikitext for World Cup matches typically has a "football box" template
- * with goal and assist information structured like:
- *
- *   |goals1 = {{football player|Player Name|23'}} {{football player|Another|45'}}
- *   |goals2 = {{football player|Away Player|67'}}
- *   |assist1 = {{football player|Assister|23'}}
- *
- * The templates {{goal}} / {{football player}} / {{flagicon}} vary by editor.
- * We use multiple regex strategies with a fallback.
- */
+/** Extract all football box blocks in wikitext, respecting nested templates. */
+function extractFootballBoxes(wikitext) {
+  const boxes = [];
+  const regex = /\{\{\s*(?:#invoke:\s*football\s*box|football\s*box|footballbox)\b/ig;
+  let match;
+  while ((match = regex.exec(wikitext)) !== null) {
+    const startIndex = match.index;
+    let braceCount = 2;
+    let i = startIndex + match[0].length;
+    while (i < wikitext.length && braceCount > 0) {
+      if (wikitext[i] === '{' && wikitext[i+1] === '{') {
+        braceCount += 2;
+        i += 2;
+      } else if (wikitext[i] === '}' && wikitext[i+1] === '}') {
+        braceCount -= 2;
+        i += 2;
+      } else if (wikitext[i] === '{') {
+        braceCount++;
+        i++;
+      } else if (wikitext[i] === '}') {
+        braceCount--;
+        i++;
+      } else {
+        i++;
+      }
+    }
+    const boxContent = wikitext.substring(startIndex, i);
+    boxes.push(boxContent);
+  }
+  return boxes;
+}
+
+/** Safely extract a template parameter value, respecting nested templates. */
+function getTemplateParam(templateText, paramName) {
+  const regex = new RegExp(`\\|\\s*${paramName}\\s*=`, 'i');
+  const match = regex.exec(templateText);
+  if (!match) return null;
+  
+  let i = match.index + match[0].length;
+  let braceCount = 0;
+  let bracketCount = 0;
+  const start = i;
+  while (i < templateText.length) {
+    const char = templateText[i];
+    if (char === '{') braceCount++;
+    else if (char === '}') {
+      if (braceCount === 0) break; // End of template
+      braceCount--;
+    }
+    else if (char === '[') bracketCount++;
+    else if (char === ']') bracketCount--;
+    else if (char === '|' && braceCount === 0 && bracketCount === 0) {
+      break; // Next parameter
+    }
+    i++;
+  }
+  return templateText.substring(start, i).trim();
+}
+
+/** Parse team name from team parameter (uses FIFA code or text match). */
+function getTeamFromParam(paramValue) {
+  if (!paramValue) return null;
+  
+  const fifaMatch = paramValue.match(/\|([A-Z]{3})\b/);
+  if (fifaMatch) {
+    const code = fifaMatch[1];
+    if (FIFA_CODE_MAP[code]) {
+      return FIFA_CODE_MAP[code];
+    }
+  }
+  
+  const valLower = paramValue.toLowerCase();
+  for (const [en, es] of Object.entries(TEAM_TRANSLATION)) {
+    if (valLower.includes(en.toLowerCase()) || valLower.includes(es.toLowerCase())) {
+      return es;
+    }
+  }
+  
+  return null;
+}
+
+/** Find the specific football box block that corresponds to the match. */
+function findMatchFootballBox(wikitext, homeTeamEs, awayTeamEs) {
+  const boxes = extractFootballBoxes(wikitext);
+  
+  // Try parameter-based matching (most reliable)
+  for (const box of boxes) {
+    const team1Param = getTemplateParam(box, 'team1');
+    const team2Param = getTemplateParam(box, 'team2');
+    
+    const team1 = getTeamFromParam(team1Param);
+    const team2 = getTeamFromParam(team2Param);
+    
+    if (team1 && team2) {
+      const matchNormal = (team1.toLowerCase() === homeTeamEs.toLowerCase() && team2.toLowerCase() === awayTeamEs.toLowerCase());
+      const matchSwapped = (team2.toLowerCase() === homeTeamEs.toLowerCase() && team1.toLowerCase() === awayTeamEs.toLowerCase());
+      if (matchNormal || matchSwapped) {
+        return { box, swapped: matchSwapped };
+      }
+    }
+  }
+  
+  // Fallback: match via section header
+  const sections = wikitext.split(/(====*[^=]+====*)/);
+  for (let i = 0; i < sections.length; i++) {
+    const part = sections[i];
+    if (part.startsWith('==')) {
+      const heading = part.replace(/={2,}/g, '').trim().toLowerCase();
+      const cleanStr = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const hClean = cleanStr(heading);
+      const homeClean = cleanStr(homeTeamEs);
+      const awayClean = cleanStr(awayTeamEs);
+      
+      let homeEn = homeTeamEs;
+      let awayEn = awayTeamEs;
+      for (const [en, es] of Object.entries(TEAM_TRANSLATION)) {
+        if (es.toLowerCase() === homeTeamEs.toLowerCase()) homeEn = en;
+        if (es.toLowerCase() === awayTeamEs.toLowerCase()) awayEn = en;
+      }
+      const homeEnClean = cleanStr(homeEn);
+      const awayEnClean = cleanStr(awayEn);
+      
+      const containsHome = hClean.includes(homeClean) || hClean.includes(homeEnClean);
+      const containsAway = hClean.includes(awayClean) || hClean.includes(awayEnClean);
+      
+      if (containsHome && containsAway) {
+        const nextContent = sections[i + 1] || '';
+        const boxesInSection = extractFootballBoxes(nextContent);
+        if (boxesInSection.length > 0) {
+          return { box: boxesInSection[0], swapped: false };
+        }
+      }
+    }
+  }
+  
+  return null;
+}
+
+/** Parses a goals or assists list into an array of { name, count }. */
+function parsePlayerList(rawStr) {
+  if (!rawStr) return [];
+  const players = [];
+
+  const lines = rawStr.split(/(?:\*|\n)/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (trimmed.toLowerCase().includes('o.g.') || trimmed.toLowerCase().includes('own goal')) {
+      continue; // Skip own goals
+    }
+
+    let name = null;
+    let count = 0;
+
+    const templateMatch = trimmed.match(/\{\{(?:football player|goal|assist|player)\s*\|\s*([^|}]+)/i);
+    if (templateMatch) {
+      name = templateMatch[1].trim();
+      const minuteMatches = trimmed.match(/\|\s*\d{1,3}(?:\+\d+)?'?/g) || [];
+      count = minuteMatches.length;
+      if (count === 0) {
+        const plainMinutes = trimmed.match(/\b\d{1,3}(?:\+\d+)?'/g) || [];
+        count = plainMinutes.length;
+      }
+    } else {
+      const linkMatch = trimmed.match(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/);
+      if (linkMatch) {
+        name = linkMatch[1].trim();
+      } else {
+        const nameMatch = trimmed.match(/^([A-ZÀ-Ö][a-zà-öø-ÿ]+(?:\s+[A-ZÀ-Öa-zà-öø-ÿ'-]+){0,4})/);
+        if (nameMatch) {
+          name = nameMatch[1].trim();
+        }
+      }
+      const minuteMatches = trimmed.match(/\b\d{1,3}(?:\+\d+)?'/g) || [];
+      count = minuteMatches.length;
+    }
+
+    if (name) {
+      name = name.replace(/\s*\([^)]+\)/g, '').trim();
+      if (count === 0) count = 1;
+      players.push({ name, count });
+    }
+  }
+
+  return players;
+}
+
+/** Parse goalscorers and assists from a Wikipedia match wikitext. */
 function parseMatchStats(wikitext, homeTeam, awayTeam) {
   const stats = []; // { name, team, goals, assists }
-
-  // ── Strategy 1: Parse "football box" template (most common in FIFA WC articles)
-  // Matches: |goals1 = ... or |goal1 = ...
-  const homeGoalMatch = wikitext.match(/\|goals?1\s*=\s*([^\|<\n]+)/i);
-  const awayGoalMatch = wikitext.match(/\|goals?2\s*=\s*([^\|<\n]+)/i);
-  const homeAssistMatch = wikitext.match(/\|assist(?:s)?1\s*=\s*([^\|<\n]+)/i);
-  const awayAssistMatch = wikitext.match(/\|assist(?:s)?2\s*=\s*([^\|<\n]+)/i);
 
   const spanishHome = translateTeam(homeTeam);
   const spanishAway = translateTeam(awayTeam);
 
-  function extractPlayerNames(rawStr) {
-    if (!rawStr) return [];
-    const names = [];
-    // Match {{football player|Name|time}} or {{goal|Name|time}} or similar
-    const templateRe = /\{\{[^|{}]+\|([^|{}]+)\|[^{}]*\}\}/g;
-    let m;
-    while ((m = templateRe.exec(rawStr)) !== null) {
-      const candidate = m[1].trim();
-      // Skip if it's a flag template or empty
-      if (candidate && !candidate.startsWith('flag') && candidate.length > 1) {
-        names.push(candidate);
-      }
-    }
-
-    // Fallback: plain names before a minute marker like "Name 45'" or "Name 45+2'"
-    if (names.length === 0) {
-      const plainRe = /([A-ZÀ-Ö][a-zà-öø-ÿ]+(?:\s+[A-ZÀ-Öa-zà-öø-ÿ'-]+){0,4})\s+\d{1,3}(?:\+\d+)?'/g;
-      while ((m = plainRe.exec(rawStr)) !== null) {
-        names.push(m[1].trim());
-      }
-    }
-
-    return [...new Set(names)]; // deduplicate
+  const matchBoxResult = findMatchFootballBox(wikitext, spanishHome, spanishAway);
+  if (!matchBoxResult) {
+    return stats;
   }
 
-  const homeGoals = extractPlayerNames(homeGoalMatch?.[1]);
-  const awayGoals = extractPlayerNames(awayGoalMatch?.[1]);
-  const homeAssists = extractPlayerNames(homeAssistMatch?.[1]);
-  const awayAssists = extractPlayerNames(awayAssistMatch?.[1]);
+  const { box, swapped } = matchBoxResult;
 
-  for (const name of homeGoals) stats.push({ name, team: spanishHome, goals: 1, assists: 0 });
-  for (const name of awayGoals) stats.push({ name, team: spanishAway, goals: 1, assists: 0 });
-  for (const name of homeAssists) stats.push({ name, team: spanishHome, goals: 0, assists: 1 });
-  for (const name of awayAssists) stats.push({ name, team: spanishAway, goals: 0, assists: 1 });
+  const goals1Raw = getTemplateParam(box, 'goals1') || getTemplateParam(box, 'goal1');
+  const goals2Raw = getTemplateParam(box, 'goals2') || getTemplateParam(box, 'goal2');
+  const assists1Raw = getTemplateParam(box, 'assist1') || getTemplateParam(box, 'assists1');
+  const assists2Raw = getTemplateParam(box, 'assist2') || getTemplateParam(box, 'assists2');
+
+  const homeGoalsRaw = swapped ? goals2Raw : goals1Raw;
+  const awayGoalsRaw = swapped ? goals1Raw : goals2Raw;
+  const homeAssistsRaw = swapped ? assists2Raw : assists1Raw;
+  const awayAssistsRaw = swapped ? assists1Raw : assists2Raw;
+
+  const homeGoals = parsePlayerList(homeGoalsRaw);
+  const awayGoals = parsePlayerList(awayGoalsRaw);
+  const homeAssists = parsePlayerList(homeAssistsRaw);
+  const awayAssists = parsePlayerList(awayAssistsRaw);
+
+  for (const { name, count } of homeGoals) {
+    stats.push({ name, team: spanishHome, goals: count, assists: 0 });
+  }
+  for (const { name, count } of awayGoals) {
+    stats.push({ name, team: spanishAway, goals: count, assists: 0 });
+  }
+  for (const { name, count } of homeAssists) {
+    stats.push({ name, team: spanishHome, goals: 0, assists: count });
+  }
+  for (const { name, count } of awayAssists) {
+    stats.push({ name, team: spanishAway, goals: 0, assists: count });
+  }
 
   return stats;
 }
@@ -235,8 +455,6 @@ function aggregateStats(events) {
 /**
  * Upsert player stats: if the player already exists (name + team), increment
  * their counters; otherwise insert a new row.
- * Uses the 'id' returned from SELECT to do targeted UPDATEs, which respects RLS
- * even though we're using the service-role key here.
  */
 async function upsertPlayerStats(statsMap) {
   if (statsMap.size === 0) return { inserted: 0, updated: 0, errors: 0 };
@@ -316,10 +534,7 @@ async function main() {
   console.log('[sync-player-stats] Starting run at', new Date().toISOString());
 
   // 1. Fetch unprocessed finished matches
-  // First attempt: use stats_processed column (requires migration 020 to be applied).
-  // Fall back gracefully if the column does not yet exist.
   let matches;
-  let columnExists = true;
 
   const { data: matchesWithFlag, error: matchErr } = await supabase
     .from('matches')
@@ -330,20 +545,9 @@ async function main() {
 
   if (matchErr) {
     if (matchErr.message.includes('stats_processed')) {
-      columnExists = false;
       console.warn(
         '[sync-player-stats] ⚠️  Column "stats_processed" does not exist on the matches table.'
       );
-      console.warn(
-        '[sync-player-stats] ⚠️  Please apply migration 020 in the Supabase SQL Editor:'
-      );
-      console.warn('');
-      console.warn('    ALTER TABLE public.matches');
-      console.warn('    ADD COLUMN IF NOT EXISTS stats_processed boolean NOT NULL DEFAULT false;');
-      console.warn('');
-      console.warn('    UPDATE public.matches SET stats_processed = true WHERE status = \'finished\';');
-      console.warn('');
-      console.warn('[sync-player-stats] Aborting until migration is applied.');
       process.exit(1);
     }
     console.error('[sync-player-stats] Error fetching matches:', matchErr.message);
@@ -400,9 +604,12 @@ async function main() {
     // Parse stats from wikitext
     const events = parseMatchStats(wikiText, home_team, away_team);
 
-    if (events.length === 0) {
+    const expectedGoals = (match.home_score ?? 0) + (match.away_score ?? 0);
+    const parsedGoals = events.filter(e => e.goals > 0).reduce((sum, e) => sum + e.goals, 0);
+
+    if (expectedGoals > 0 && parsedGoals === 0) {
       console.warn(
-        `[sync] Could not parse any player events for ${label}. ` +
+        `[sync] Match ${id} expected ${expectedGoals} goals, but parsed 0 goals. ` +
         `Wikipedia article may not yet have scorer data. Skipping.`
       );
       skipped++;
@@ -422,8 +629,7 @@ async function main() {
     totalUpdated += updated;
     totalErrors += errors;
 
-    // Mark match as processed even if some player rows errored,
-    // to avoid endless re-processing of partially-done matches.
+    // Mark match as processed
     await markMatchProcessed(id);
   }
 

@@ -51,31 +51,32 @@ jobs:
           sparse-checkout: scripts/
           sparse-checkout-cone-mode: false
 
-      # ── 2. Set up Bun runtime (matches local dev environment) ──────────────
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      # ── 2. Set up Node.js (matches production environment) ────────────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: '22'
 
-      # ── 3. Install only production dependencies ────────────────────────────
-      # --frozen-lockfile ensures no accidental dependency changes in CI.
+      # ── 3. Set up pnpm ────────────────────────────────────────────────────
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      # ── 4. Install only production dependencies ────────────────────────────
       - name: Install dependencies
-        run: bun install --frozen-lockfile --production
-        env:
-          # Disable Bun telemetry in CI
-          DO_NOT_TRACK: 1
+        run: pnpm install --prod --frozen-lockfile
 
-      # ── 4. Run the sync script ─────────────────────────────────────────────
+      # ── 5. Run the sync script ─────────────────────────────────────────────
       # Secrets are injected as environment variables — never written to disk
       # or logged. The script validates they are present before connecting.
       - name: Run player stats sync
-        run: bun run scripts/sync-player-stats.js
+        run: node scripts/sync-player-stats.js
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          # Tell the script if this is a dry run (manual trigger option)
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
-        timeout-minutes: 10    # Hard cap: prevents runaway jobs consuming minutes
+        timeout-minutes: 10
 
       # ── 5. Summary ────────────────────────────────────────────────────────
       - name: Write job summary

@@ -28,6 +28,7 @@ interface LiveMatchWidgetProps {
 export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidgetProps) {
   const [liveMatches, setLiveMatches] = useState<Match[]>([]);
   const [nextMatch, setNextMatch] = useState<Match | null>(null);
+  const [nextMatches, setNextMatches] = useState<Match[]>([]);
   const [timeLeft, setTimeLeft] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -43,9 +44,9 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
   const activeMatchIds = React.useMemo(() => {
     const ids: number[] = [];
     liveMatches.forEach(m => ids.push(m.id));
-    if (nextMatch) ids.push(nextMatch.id);
+    nextMatches.forEach(m => ids.push(m.id));
     return ids;
-  }, [liveMatches, nextMatch]);
+  }, [liveMatches, nextMatches]);
 
   const fetchMatchesData = async () => {
     try {
@@ -55,6 +56,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
       const data = await response.json();
       setLiveMatches(data.liveMatches || []);
       setNextMatch(data.nextMatch || null);
+      setNextMatches(data.nextMatches || (data.nextMatch ? [data.nextMatch] : []));
     } catch (e) {
       console.error('Error al cargar datos del widget de partidos:', e);
     } finally {
@@ -206,7 +208,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
     const input = inputs[matchId];
     if (!input || input.home === '' || input.away === '') return;
 
-    const match = liveMatches.find(m => m.id === matchId) || (nextMatch?.id === matchId ? nextMatch : null);
+    const match = liveMatches.find(m => m.id === matchId) || nextMatches.find(m => m.id === matchId) || (nextMatch?.id === matchId ? nextMatch : null);
     if (!match || isLocked(match.match_time)) {
       showAlert.warning('Advertencia', 'Este partido ya está bloqueado para predicciones.');
       return;
@@ -469,6 +471,8 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
   // Caso 2: No hay partidos en vivo pero hay un siguiente partido programado
   if (nextMatch) {
     const nextMatchTime = new Date(nextMatch.match_time);
+    const matchesToRender = nextMatches.length > 0 ? nextMatches : [nextMatch];
+
     return (
       <div className="p-5 rounded-2xl bg-wc-card border border-wc-border backdrop-blur-sm relative overflow-hidden shadow-lg shadow-black/5 flex flex-col justify-between">
         {/* Decoración de fondo */}
@@ -479,7 +483,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
         <div className="flex justify-between items-center border-b border-wc-border/50 pb-2.5 mb-4">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-355 flex items-center gap-1.5 font-sports">
             <Calendar className="w-4 h-4 text-wc-gold" strokeWidth={2.5} />
-            Siguiente Partido
+            {matchesToRender.length > 1 ? 'Siguientes Partidos' : 'Siguiente Partido'}
           </h3>
           <span className="px-2 py-0.5 rounded bg-wc-dark text-slate-450 border border-wc-border font-bold uppercase tracking-wider text-[10px] font-sports">
             Próximamente
@@ -487,45 +491,59 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
         </div>
 
         {/* Contenido Principal: Equipos */}
-        <div className="flex items-center justify-between gap-4 my-2">
-          {/* Local */}
-          <div className="flex-1 flex flex-col items-center text-center min-w-0">
-            {getTeamFlagUrl(nextMatch.home_team) && (
-              <img
-                src={getTeamFlagUrl(nextMatch.home_team)!}
-                alt={`Bandera de ${nextMatch.home_team}`}
-                className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60"
-              />
-            )}
-            <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={nextMatch.home_team}>
-              {nextMatch.home_team}
-            </span>
-          </div>
+        <div className="space-y-4 relative z-10">
+          {matchesToRender.map((match, idx) => (
+            <div key={match.id} className={idx > 0 ? "border-t border-wc-border/30 pt-4" : ""}>
+              {/* Info de Grupo */}
+              {match.group_name && (
+                <div className="text-[10px] text-slate-500 font-bold mb-2 font-sports tracking-wider uppercase">
+                  {match.group_name}
+                </div>
+              )}
 
-          {/* VS */}
-          <div className="flex flex-col items-center justify-center flex-shrink-0">
-            <span className="text-white font-sports font-black text-sm uppercase px-3 py-1 bg-wc-dark rounded-xl border border-wc-border">
-              VS
-            </span>
-          </div>
+              {/* Equipos */}
+              <div className="flex items-center justify-between gap-4 my-2">
+                {/* Local */}
+                <div className="flex-1 flex flex-col items-center text-center min-w-0">
+                  {getTeamFlagUrl(match.home_team) && (
+                    <img
+                      src={getTeamFlagUrl(match.home_team)!}
+                      alt={`Bandera de ${match.home_team}`}
+                      className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60"
+                    />
+                  )}
+                  <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={match.home_team}>
+                    {match.home_team}
+                  </span>
+                </div>
 
-          {/* Visitante */}
-          <div className="flex-1 flex flex-col items-center text-center min-w-0">
-            {getTeamFlagUrl(nextMatch.away_team) && (
-              <img
-                src={getTeamFlagUrl(nextMatch.away_team)!}
-                alt={`Bandera de ${nextMatch.away_team}`}
-                className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60"
-              />
-            )}
-            <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={nextMatch.away_team}>
-              {nextMatch.away_team}
-            </span>
-          </div>
+                {/* VS */}
+                <div className="flex flex-col items-center justify-center flex-shrink-0">
+                  <span className="text-white font-sports font-black text-sm uppercase px-3 py-1 bg-wc-dark rounded-xl border border-wc-border">
+                    VS
+                  </span>
+                </div>
+
+                {/* Visitante */}
+                <div className="flex-1 flex flex-col items-center text-center min-w-0">
+                  {getTeamFlagUrl(match.away_team) && (
+                    <img
+                      src={getTeamFlagUrl(match.away_team)!}
+                      alt={`Bandera de ${match.away_team}`}
+                      className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60"
+                    />
+                  )}
+                  <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={match.away_team}>
+                    {match.away_team}
+                  </span>
+                </div>
+              </div>
+
+              {/* Sección de Pronóstico */}
+              {renderPredictionSection(match)}
+            </div>
+          ))}
         </div>
-
-        {/* Sección de Pronóstico */}
-        {renderPredictionSection(nextMatch)}
 
         {/* Botón Ver Pronósticos */}
         <div className="mt-3 w-full">
@@ -534,7 +552,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
             className="w-full py-2 px-4 rounded-xl bg-wc-dark hover:bg-wc-card text-wc-gold border border-wc-border hover:text-white transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center justify-center gap-1.5"
           >
             <Activity className="w-4 h-4 text-wc-gold" />
-            <span>Ver pronósticos del partido</span>
+            <span>{matchesToRender.length > 1 ? 'Ver pronósticos de los partidos' : 'Ver pronósticos del partido'}</span>
           </a>
         </div>
 

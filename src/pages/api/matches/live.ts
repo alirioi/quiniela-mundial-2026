@@ -20,7 +20,7 @@ export const GET: APIRoute = async ({ locals }) => {
       return new Response(JSON.stringify({ error: liveError.message }), { status: 400 });
     }
 
-    let nextMatch = null;
+    let nextMatches: any[] = [];
 
     // 2. Si no hay partidos en vivo, buscar el siguiente programado
     if (!liveMatches || liveMatches.length === 0) {
@@ -37,13 +37,26 @@ export const GET: APIRoute = async ({ locals }) => {
       }
 
       if (nextData && nextData.length > 0) {
-        nextMatch = nextData[0];
+        const firstMatchTime = nextData[0].match_time;
+        const { data: simultaneousData, error: simError } = await supabaseAdmin
+          .from('matches')
+          .select('*')
+          .eq('status', 'scheduled')
+          .eq('match_time', firstMatchTime)
+          .order('match_number', { ascending: true });
+
+        if (simError) {
+          return new Response(JSON.stringify({ error: simError.message }), { status: 400 });
+        }
+
+        nextMatches = simultaneousData || [];
       }
     }
 
     return new Response(JSON.stringify({
       liveMatches: liveMatches || [],
-      nextMatch
+      nextMatch: nextMatches[0] || null,
+      nextMatches
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }

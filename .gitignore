@@ -40,6 +40,7 @@ scratch/
 # Agent skills and lockfiles (local only)
 .agents/
 skills-lock.json
+AGENTS.md
 
 # Supabase temp directory
 supabase/.temp/

@@ -34,27 +34,68 @@ const approvedEntries = entries
   .map(e => ({ id: e.id, display_name: e.display_name }));
 
 // Obtener todos los partidos para calcular la tabla del grupo activo
-const { data: matches, error: matchesError } = await supabaseAdmin
-  .from('matches')
-  .select(`
-    id,
-    phase_id,
-    home_team,
-    away_team,
-    match_time,
-    home_score,
-    away_score,
-    status,
-    group_name,
-    match_number
-  `)
-  .order('match_time', { ascending: true });
+const [matchesRes, playersRes, goldEntriesRes] = await Promise.all([
+  supabaseAdmin
+    .from('matches')
+    .select(`
+      id,
+      phase_id,
+      home_team,
+      away_team,
+      match_time,
+      home_score,
+      away_score,
+      status,
+      group_name,
+      match_number
+    `)
+    .order('match_time', { ascending: true }),
+  supabaseAdmin
+    .from('player_stats')
+    .select('id, name, team, goals, assists')
+    .order('goals', { ascending: false })
+    .order('assists', { ascending: false })
+    .order('name', { ascending: true })
+    .limit(5),
+  supabaseAdmin
+    .from('entries')
+    .select('predicted_champion, profiles!inner(role)')
+    .eq('status', 'approved')
+    .neq('profiles.role', 'admin')
+]);
 
-if (matchesError) {
-  console.error('Error al obtener partidos para el widget del dashboard:', matchesError);
+if (matchesRes.error) {
+  console.error('Error al obtener partidos para el widget del dashboard:', matchesRes.error);
+}
+if (playersRes.error) {
+  console.error('Error al obtener goleadores para el widget del dashboard:', playersRes.error);
 }
 
-const matchData = matches || [];
+const matchData = matchesRes.data || [];
+const playerData = playersRes.data || [];
+
+// Procesar el top 6 de equipos del Pronóstico de Oro
+const counts: Record<string, number> = {};
+goldEntriesRes.data?.forEach((e: any) => {
+  if (e.predicted_champion) {
+    const team = e.predicted_champion.trim();
+    counts[team] = (counts[team] || 0) + 1;
+  }
+});
+
+const top6GoldTeams = Object.entries(counts)
+  .map(([team, count]) => ({ team, count }))
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 6)
+  .map(item => item.team);
+
+const fallbackTeams = ["Argentina", "Brasil", "Francia", "Alemania", "España", "Inglaterra"];
+const goldTeamsSet = new Set(top6GoldTeams);
+for (const fallback of fallbackTeams) {
+  if (goldTeamsSet.size >= 6) break;
+  goldTeamsSet.add(fallback);
+}
+const finalGoldTeams = Array.from(goldTeamsSet);
 ---
 
 <MainLayout title="Dashboard" userProfile={profile}>
@@ -133,7 +174,12 @@ const matchData = matches || [];
 
       <!-- Tarjeta de Estadísticas del Mundial (Desktop: col 3, row 3. Mobile: 4th) -->
       <div class="lg:col-span-1 lg:col-start-3 lg:row-start-3">
-        <LiveGroupStandingsWidget client:load initialMatches={matchData} />
+        <LiveGroupStandingsWidget 
+          client:load 
+          initialMatches={matchData} 
+          initialPlayers={playerData}
+          goldTeams={finalGoldTeams}
+        />
       </div>
     </div>
 

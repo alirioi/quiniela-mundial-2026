@@ -357,15 +357,11 @@ function parsePlayerList(rawStr) {
     let name = null;
     let count = 0;
 
-    const templateMatch = trimmed.match(/\{\{(?:football player|goal|assist|player)\s*\|\s*([^|}]+)/i);
+    // Only match templates that actually contain the player's name (e.g. {{football player|Name|...}})
+    // Do NOT match {{goal|minute}} or {{assist|minute}} as they only contain minutes, not names.
+    const templateMatch = trimmed.match(/\{\{(?:football\s*player|player)\s*\|\s*([^|}]+)/i);
     if (templateMatch) {
       name = templateMatch[1].trim();
-      const minuteMatches = trimmed.match(/\|\s*\d{1,3}(?:\+\d+)?'?/g) || [];
-      count = minuteMatches.length;
-      if (count === 0) {
-        const plainMinutes = trimmed.match(/\b\d{1,3}(?:\+\d+)?'/g) || [];
-        count = plainMinutes.length;
-      }
     } else {
       const linkMatch = trimmed.match(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/);
       if (linkMatch) {
@@ -376,8 +372,26 @@ function parsePlayerList(rawStr) {
           name = nameMatch[1].trim();
         }
       }
-      const minuteMatches = trimmed.match(/\b\d{1,3}(?:\+\d+)?'/g) || [];
-      count = minuteMatches.length;
+    }
+
+    // Extract any goal/assist/football player templates on this line to count their minute values
+    const allTemplates = trimmed.match(/\{\{[^}]+\}\}/g) || [];
+    for (const temp of allTemplates) {
+      if (temp.toLowerCase().includes('goal') || temp.toLowerCase().includes('assist') || temp.toLowerCase().includes('player')) {
+        const params = temp.split('|').slice(1);
+        for (const p of params) {
+          const cleanP = p.replace('}}', '').trim();
+          if (/^\d{1,3}(?:\+\d+)?'?$/.test(cleanP)) {
+            count++;
+          }
+        }
+      }
+    }
+
+    // If no templates with minutes were found, look for plain minutes on the line (e.g. 6', 39')
+    if (count === 0) {
+      const plainMinutes = trimmed.match(/\b\d{1,3}(?:\+\d+)?'/g) || [];
+      count = plainMinutes.length;
     }
 
     if (name) {
@@ -389,6 +403,7 @@ function parsePlayerList(rawStr) {
 
   return players;
 }
+
 
 /** Parse goalscorers and assists from a Wikipedia match wikitext. */
 function parseMatchStats(wikitext, homeTeam, awayTeam) {

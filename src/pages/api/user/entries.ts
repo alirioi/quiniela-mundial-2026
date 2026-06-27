@@ -27,12 +27,15 @@ export const GET: APIRoute = async ({ request, locals }) => {
     if (activePhaseIds.length > 0) {
       const { data: activeMatches, error: matchesError } = await supabaseAdmin
         .from('matches')
-        .select('id')
+        .select('id, match_number, phase_id')
         .in('phase_id', activePhaseIds);
 
       if (!matchesError && activeMatches) {
-        activeMatchesCount = activeMatches.length;
-        activeMatchIds = activeMatches.map((m) => m.id);
+        const filtered = activeMatches.filter(
+          (m) => m.phase_id !== 2 || m.match_number <= 88
+        );
+        activeMatchesCount = filtered.length;
+        activeMatchIds = filtered.map((m) => m.id);
       }
     }
 

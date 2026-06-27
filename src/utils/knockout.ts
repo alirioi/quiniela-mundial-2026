@@ -46,6 +46,7 @@ export interface KnockoutBracketData {
   qf: Record<number, KnockoutMatch>;  // Cuartos de final
   sf: Record<number, KnockoutMatch>;  // Semifinales
   finalMatch: KnockoutMatch;          // Gran Final
+  thirdPlaceMatch: KnockoutMatch;     // Tercer Lugar
 }
 
 const allowedOpponents: Record<string, string[]> = {
@@ -110,7 +111,8 @@ export interface KnockoutPrediction {
 export function calculateKnockoutBracket(
   groupStandings: Record<string, TeamStats[]>,
   thirdPlaces: TeamStats[],
-  predictionsMap?: Record<number, KnockoutPrediction>
+  predictionsMap?: Record<number, KnockoutPrediction>,
+  dbMatches?: any[]
 ): KnockoutBracketData {
   // 1. Get Winners and Runners-up from each group A-L
   const winners: Record<string, string> = {};
@@ -303,18 +305,26 @@ export function calculateKnockoutBracket(
     }
   };
 
+  // Overwrite R32 matches with DB matches if provided
+  if (dbMatches && dbMatches.length > 0) {
+    dbMatches.forEach(dbMatch => {
+      const num = dbMatch.match_number || dbMatch.matchNumber;
+      if (num && r32[num]) {
+        // Only override if we have a real team or specific placeholder from the DB
+        if (dbMatch.home_team) r32[num].homeTeam = dbMatch.home_team;
+        if (dbMatch.away_team) r32[num].awayTeam = dbMatch.away_team;
+        if (dbMatch.home_score !== undefined) r32[num].homeScore = dbMatch.home_score;
+        if (dbMatch.away_score !== undefined) r32[num].awayScore = dbMatch.away_score;
+        if (dbMatch.winner) r32[num].winner = dbMatch.winner;
+        else if (dbMatch.status === 'finished' && dbMatch.home_score !== null && dbMatch.away_score !== null) {
+          r32[num].winner = dbMatch.home_score > dbMatch.away_score ? dbMatch.home_team : dbMatch.away_team;
+        }
+      }
+    });
+  }
+
   // Helper to dynamically get winners of R32
   const getWinnerName = (match: KnockoutMatch): string => {
-    // Check user prediction first
-    const pred = predictionsMap?.[match.matchNumber];
-    if (pred && pred.predicted_home !== undefined && pred.predicted_home !== null && pred.predicted_away !== undefined && pred.predicted_away !== null) {
-      if (pred.predicted_home > pred.predicted_away) return match.homeTeam;
-      if (pred.predicted_away > pred.predicted_home) return match.awayTeam;
-      if (pred.predicted_home === pred.predicted_away && pred.predicted_winner) {
-        return pred.predicted_winner;
-      }
-    }
-
     // If the match has a simulated or real winner, return that team name.
     // If team name starts with placeholders, return "Ganador M[number]"
     if (match.winner) return match.winner;
@@ -466,7 +476,20 @@ export function calculateKnockoutBracket(
     }
   };
 
-  // Build the Final Match (Match 103 / Final)
+  // Helper to dynamically get losers of semifinals/r32
+  const getLoserName = (match: KnockoutMatch): string => {
+    if (match.winner) {
+      return match.winner === match.homeTeam ? match.awayTeam : match.homeTeam;
+    }
+    if (match.homeTeam && !match.homeTeam.startsWith('1º') && !match.homeTeam.startsWith('2º') && !match.homeTeam.startsWith('3º')) {
+      if (match.homeScore !== undefined && match.homeScore !== null && match.awayScore !== undefined && match.awayScore !== null) {
+        return match.homeScore > match.awayScore ? match.awayTeam : match.homeTeam;
+      }
+    }
+    return `Perdedor M${match.matchNumber}`;
+  };
+
+  // Build the Final Match (Match 104 / Final)
   const finalMatch: KnockoutMatch = {
     matchNumber: 104, // 104 matches total in 2026 World Cup
     homeTeam: getWinnerName(sf[101]),
@@ -477,5 +500,16 @@ export function calculateKnockoutBracket(
     venue: 'Nueva York / Nueva Jersey'
   };
 
-  return { r32, r16, qf, sf, finalMatch };
+  // Build the Third Place Match (Match 103)
+  const thirdPlaceMatch: KnockoutMatch = {
+    matchNumber: 103,
+    homeTeam: getLoserName(sf[101]),
+    awayTeam: getLoserName(sf[102]),
+    placeholderHome: 'Perdedor M101',
+    placeholderAway: 'Perdedor M102',
+    dateStr: '18 JUL',
+    venue: 'Miami'
+  };
+
+  return { r32, r16, qf, sf, finalMatch, thirdPlaceMatch };
 }

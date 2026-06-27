@@ -599,7 +599,7 @@ export default function MundialDashboard({ matches }: Props) {
 
       {activeTab === 'llave' && (
         <div className="animate-fade-in">
-          <KnockoutBracket groupStandings={groupStandings} thirdPlaces={thirdPlaces} />
+          <KnockoutBracket groupStandings={groupStandings} thirdPlaces={thirdPlaces} dbMatches={matches} />
         </div>
       )}
 

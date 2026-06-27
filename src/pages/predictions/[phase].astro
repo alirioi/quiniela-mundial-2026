@@ -87,7 +87,7 @@ if (phase !== 'grupos') {
   const statsByGroup: Record<string, Record<string, TeamStats>> = {};
 
   matchData.forEach(match => {
-    if (!match.group_name) return; // Solo fase de grupos
+    if (!match.group_name || match.phase_id !== 1) return; // Solo fase de grupos
     const group = match.group_name;
     
     if (!statsByGroup[group]) statsByGroup[group] = {};

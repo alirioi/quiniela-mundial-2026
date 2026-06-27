@@ -106,6 +106,26 @@ const finalGoldTeams = Array.from(goldTeamsSet);
       <PredictionWarningBanner client:load />
     </div>
 
+    <!-- Aviso de Fase Eliminatoria (Empieza mañana) -->
+    <div class="bg-gradient-to-r from-wc-gold/25 via-amber-500/10 to-transparent border border-wc-gold/40 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+      <div class="flex items-start sm:items-center gap-3.5 w-full">
+        <div class="p-3 bg-wc-gold/15 rounded-xl border border-wc-gold/30 text-wc-gold shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div>
+          <h4 class="font-sports font-black text-sm uppercase tracking-wider text-wc-gold">
+            ¡La Fase Eliminatoria empieza mañana!
+          </h4>
+          <p class="text-xs sm:text-sm text-slate-200 mt-1.5 leading-relaxed">
+            Ya conocemos los primeros clasificados y los partidos confirmados de 16vos de final. Puedes ir llenando tus pronósticos de la fase eliminatoria ahora mismo.
+          </p>
+        </div>
+      </div>
+    </div>
+
+
     <!-- Bienvenida y Accesos Rápidos -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 bg-wc-card/90 rounded-2xl border border-wc-border backdrop-blur-sm relative overflow-hidden">
       <div class="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
@@ -125,12 +145,6 @@ const finalGoldTeams = Array.from(goldTeamsSet);
           class="px-5 py-3 bg-gradient-to-r from-wc-gold to-amber-500 hover:from-amber-400 hover:to-wc-gold text-slate-950 rounded-xl text-sm font-bold tracking-wide transition-all shadow-lg shadow-wc-gold/20 hover:-translate-y-0.5 flex items-center gap-2 font-sports cursor-pointer"
         >
           <Edit3 className="w-5 h-5 text-slate-950" strokeWidth={2.5} /> Llenar Pronósticos
-        </a>
-        <a
-          href="/my-entries"
-          class="px-5 py-3 bg-wc-dark hover:bg-wc-border/50 text-white rounded-xl text-sm font-bold tracking-wide border border-wc-border transition-all hover:-translate-y-0.5 flex items-center gap-2 font-sports cursor-pointer"
-        >
-          <CreditCard className="w-5 h-5 text-slate-300" strokeWidth={2.5} /> Comprar Más Cupos
         </a>
         {profile?.role === 'admin' && (
           <a

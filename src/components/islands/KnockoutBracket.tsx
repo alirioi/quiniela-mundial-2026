@@ -8,24 +8,25 @@ interface Props {
   groupStandings: Record<string, TeamStats[]>;
   thirdPlaces: TeamStats[];
   isSimulation?: boolean;
+  dbMatches?: any[];
 }
 
 type RoundType = 'r32' | 'r16' | 'qf' | 'sf' | 'final';
 
-export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulation = false }: Props) {
+export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulation = false, dbMatches = [] }: Props) {
   const [activeRound, setActiveRound] = useState<RoundType>('r32');
   const [hoveredTeam, setHoveredTeam] = useState<string | null>(null);
 
   const bracketData = useMemo(() => {
-    return calculateKnockoutBracket(groupStandings, thirdPlaces);
-  }, [groupStandings, thirdPlaces]);
+    return calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, dbMatches);
+  }, [groupStandings, thirdPlaces, dbMatches]);
 
   const roundsInfo = [
     { id: 'r32' as RoundType, label: 'Dieciseisavos', count: 16 },
     { id: 'r16' as RoundType, label: 'Octavos', count: 8 },
     { id: 'qf' as RoundType, label: 'Cuartos', count: 4 },
     { id: 'sf' as RoundType, label: 'Semifinal', count: 2 },
-    { id: 'final' as RoundType, label: 'Final', count: 1 }
+    { id: 'final' as RoundType, label: 'Final / 3er Puesto', count: 2 }
   ];
 
   const getRoundMatches = (round: RoundType): KnockoutMatch[] => {
@@ -39,7 +40,7 @@ export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulat
       case 'sf':
         return Object.values(bracketData.sf);
       case 'final':
-        return [bracketData.finalMatch];
+        return [bracketData.finalMatch, bracketData.thirdPlaceMatch].filter(Boolean);
       default:
         return [];
     }
@@ -71,7 +72,13 @@ export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulat
       >
         {/* Top Info */}
         <div className="flex items-center justify-between text-[11px] font-sports uppercase tracking-wider text-slate-500 mb-3 border-b border-wc-border/30 pb-2">
-          <span>Match {match.matchNumber}</span>
+          {match.matchNumber === 104 ? (
+            <span className="text-wc-gold font-black tracking-widest bg-wc-gold/15 px-1.5 py-0.5 rounded border border-wc-gold/25">Gran Final</span>
+          ) : match.matchNumber === 103 ? (
+            <span className="text-wc-blue font-black tracking-widest bg-wc-blue/15 px-1.5 py-0.5 rounded border border-wc-blue/25">3er Puesto</span>
+          ) : (
+            <span>Match {match.matchNumber}</span>
+          )}
           <span className="text-wc-gold font-bold">{match.dateStr}</span>
         </div>
 

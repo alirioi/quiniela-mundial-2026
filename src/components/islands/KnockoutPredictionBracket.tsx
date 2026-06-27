@@ -62,6 +62,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
   // Predictions states
   const [predictionsMap, setPredictionsMap] = useState<Record<number, KnockoutPrediction>>({});
   const [matchIdMap, setMatchIdMap] = useState<Record<number, number>>({}); // match_number -> match_id
+  const [dbMatches, setDbMatches] = useState<any[]>([]);
   const [phaseActive, setPhaseActive] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
@@ -82,6 +83,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
       const data = await response.json();
       
       setPhaseActive(data.phase?.is_active || false);
+      setDbMatches(data.matches || []);
 
       const initialPredictions: Record<number, KnockoutPrediction> = {};
       const initialMatchIdMap: Record<number, number> = {};
@@ -204,8 +206,8 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
   };
 
   const bracketData = useMemo(() => {
-    return calculateKnockoutBracket(groupStandings, thirdPlaces, predictionsMap);
-  }, [groupStandings, thirdPlaces, predictionsMap]);
+    return calculateKnockoutBracket(groupStandings, thirdPlaces, predictionsMap, dbMatches);
+  }, [groupStandings, thirdPlaces, predictionsMap, dbMatches]);
 
   const roundsInfo = [
     { id: 'r32' as RoundType, label: '16avos', count: 16 },
@@ -282,7 +284,19 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
       >
         {/* Header */}
         <div className="flex items-center justify-between text-[10px] font-sports uppercase tracking-wider text-slate-450 mb-2 border-b border-wc-border pb-1.5">
-          <span>Match {match.matchNumber}</span>
+          {match.matchNumber === 104 ? (
+            <>
+              <span className="xl:hidden text-wc-gold font-black tracking-widest bg-wc-gold/15 px-1.5 py-0.5 rounded border border-wc-gold/25">Gran Final</span>
+              <span className="hidden xl:inline text-slate-500 font-bold">Partido {match.matchNumber}</span>
+            </>
+          ) : match.matchNumber === 103 ? (
+            <>
+              <span className="xl:hidden text-wc-blue font-black tracking-widest bg-wc-blue/15 px-1.5 py-0.5 rounded border border-wc-blue/25">3er Puesto</span>
+              <span className="hidden xl:inline text-slate-500 font-bold">Partido {match.matchNumber}</span>
+            </>
+          ) : (
+            <span className="text-slate-500 font-bold">Partido {match.matchNumber}</span>
+          )}
           <span className="text-wc-gold font-bold">{formatMatchDateTime(match.dateStr, match.venue)}</span>
         </div>
 
@@ -568,7 +582,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
               {activeRound === 'r16' && [...leftMatches.r16, ...rightMatches.r16].map(renderMatchCard)}
               {activeRound === 'qf' && [...leftMatches.qf, ...rightMatches.qf].map(renderMatchCard)}
               {activeRound === 'sf' && [...leftMatches.sf, ...rightMatches.sf].map(renderMatchCard)}
-              {activeRound === 'final' && [bracketData.finalMatch, { ...bracketData.finalMatch, matchNumber: 103, venue: 'Miami', dateStr: '18 JUL' }].map(renderMatchCard)}
+              {activeRound === 'final' && [bracketData.finalMatch, bracketData.thirdPlaceMatch].filter(Boolean).map(renderMatchCard)}
             </div>
           </div>
 
@@ -620,15 +634,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
 
                   <div className="w-full">
                     <span className="text-[9px] font-sports text-slate-500 uppercase tracking-widest text-center block mb-2 font-bold">3er Puesto</span>
-                    {renderMatchCard({
-                      matchNumber: 103,
-                      homeTeam: 'Perdedor M101',
-                      awayTeam: 'Perdedor M102',
-                      placeholderHome: 'Perdedor M101',
-                      placeholderAway: 'Perdedor M102',
-                      dateStr: '18 JUL',
-                      venue: 'Miami'
-                    })}
+                    {renderMatchCard(bracketData.thirdPlaceMatch)}
                   </div>
                 </div>
 

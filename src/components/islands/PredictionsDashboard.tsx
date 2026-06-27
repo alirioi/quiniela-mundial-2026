@@ -204,17 +204,14 @@ export default function PredictionsDashboard({ userEntries }: PredictionsDashboa
             </div>
             <h3 className="text-2xl font-bold text-white font-sports uppercase tracking-wide flex items-center gap-2">
               Fase Eliminatoria
-              <span className="text-[10px] bg-wc-gold/15 text-wc-gold border border-wc-gold/25 px-2 py-0.5 rounded-full uppercase tracking-widest font-sports font-black">
-                Prev
-              </span>
             </h3>
             <p className="text-xs sm:text-sm text-slate-450 mt-3 leading-relaxed">
-              Visualiza el cuadro de emparejamientos y el camino al trofeo. Esta fase se encuentra bloqueada en previsualización de ejemplo y abrirá al finalizar la fase de grupos.
+              Visualiza el cuadro de emparejamientos, llena tus predicciones para los partidos confirmados de la fase eliminatoria y sigue tu camino al trofeo.
             </p>
           </div>
           <div className="mt-8 flex items-center justify-between">
             <span className="text-xs font-bold text-sky-400 uppercase tracking-wider font-sports group-hover:text-sky-300 transition-colors">
-              Previsualizar Llave
+              Pronosticar Eliminatoria
             </span>
             <div className="w-8 h-8 rounded-xl bg-wc-dark flex items-center justify-center text-sky-400 border border-wc-border group-hover:border-sky-500/30 group-hover:translate-x-1.5 transition-all">
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />

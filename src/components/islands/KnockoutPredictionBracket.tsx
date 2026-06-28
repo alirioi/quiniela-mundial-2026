@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Trophy, CheckCircle2, AlertTriangle, HelpCircle, Loader2, Save, MapPin } from 'lucide-react';
 import { getTeamFlagUrl } from '../../utils/flags';
 import { calculateKnockoutBracket } from '../../utils/knockout';
@@ -79,6 +80,11 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
   const [viewMode, setViewMode] = useState<'llave' | 'fase' | 'fechas' | 'cronologico'>('llave');
   const [cronologicoTab, setCronologicoTab] = useState<'todos' | 'por-jugar' | 'sin-pronostico'>('todos');
   const [activeDate, setActiveDate] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const todayStrShort = useMemo(() => {
     return new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -156,6 +162,8 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
             throw new Error();
           }
 
+          // Silent refresh of match data to update dbMatches and remove card pulse animation
+          await fetchMatchesAndPredictions(true);
           setAutosaveStatus('saved');
           setHasUnsavedChanges(false);
 
@@ -196,9 +204,9 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
   }, [predictionsMap]);
 
   // Fetch matches and predictions
-  const fetchMatchesAndPredictions = async () => {
+  const fetchMatchesAndPredictions = async (silent = false) => {
     if (!selectedEntryId || !phaseSlug) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     setErrorMsg(null);
     try {
       const response = await fetch(`/api/matches/${phaseSlug}?entryId=${selectedEntryId}`);
@@ -226,14 +234,16 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
         });
       }
 
-      setPredictionsMap(initialPredictions);
+      if (!silent) {
+        setPredictionsMap(initialPredictions);
+      }
       setMatchIdMap(initialMatchIdMap);
-      setHasUnsavedChanges(false);
+      if (!silent) setHasUnsavedChanges(false);
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -1138,34 +1148,37 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
         </button>
       )}
 
-      {/* Toast de Autoguardado */}
-      {autosaveStatus !== 'idle' && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 animate-fade-in w-auto max-w-[90vw] shrink-0">
-          <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl bg-wc-card/95 ${
-            autosaveStatus === 'saved'
-              ? 'border-wc-green/70 text-wc-green'
-              : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending'
-              ? 'border-wc-gold/70 text-wc-gold'
-              : 'border-wc-red/70 text-wc-red'
-          }`}>
-            {autosaveStatus === 'saved' ? (
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-wc-green shrink-0 animate-bounce" strokeWidth={2.5} />
-                <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Pronósticos guardados</span>
-              </div>
-            ) : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending' ? (
-              <div className="flex items-center gap-3 animate-pulse">
-                <Loader2 className="w-5 h-5 text-wc-gold shrink-0 animate-spin" strokeWidth={2.5} />
-                <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Guardando...</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-5 h-5 text-wc-red shrink-0" strokeWidth={2.5} />
-                <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Error al guardar</span>
-              </div>
-            )}
+      {/* Toast de Autoguardado con Portal y centrado Flex robusto */}
+      {mounted && autosaveStatus !== 'idle' && createPortal(
+        <div className="fixed top-6 left-0 right-0 z-[9999] flex justify-center pointer-events-none px-4">
+          <div className="pointer-events-auto w-auto max-w-[90vw] transition-all duration-300 animate-fade-in shrink-0">
+            <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl bg-wc-card/95 ${
+              autosaveStatus === 'saved'
+                ? 'border-wc-green/70 text-wc-green'
+                : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending'
+                ? 'border-wc-gold/70 text-wc-gold'
+                : 'border-wc-red/70 text-wc-red'
+            }`}>
+              {autosaveStatus === 'saved' ? (
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-wc-green shrink-0 animate-bounce" strokeWidth={2.5} />
+                  <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Pronósticos guardados</span>
+                </div>
+              ) : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending' ? (
+                <div className="flex items-center gap-3 animate-pulse">
+                  <Loader2 className="w-5 h-5 text-wc-gold shrink-0 animate-spin" strokeWidth={2.5} />
+                  <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Guardando...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="w-5 h-5 text-wc-red shrink-0" strokeWidth={2.5} />
+                  <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Error al guardar</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

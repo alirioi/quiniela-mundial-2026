@@ -62,6 +62,18 @@ export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulat
     const homeFlag = isHomePlaceholder ? null : getTeamFlagUrl(match.homeTeam);
     const awayFlag = isAwayPlaceholder ? null : getTeamFlagUrl(match.awayTeam);
 
+    const formatMatchDateTime = (m: KnockoutMatch) => {
+      const dbMatch = dbMatches.find(dbM => dbM.match_number === m.matchNumber);
+      if (dbMatch && dbMatch.match_time) {
+        const matchTime = new Date(dbMatch.match_time);
+        const day = matchTime.getDate();
+        const monthStr = matchTime.toLocaleDateString('es-ES', { month: 'short' }).toUpperCase().replace('.', '');
+        const timeStr = matchTime.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit', hour12: true });
+        return `${day} ${monthStr} • ${timeStr}`;
+      }
+      return m.dateStr;
+    };
+
     const isHoveredHome = hoveredTeam && hoveredTeam === match.homeTeam;
     const isHoveredAway = hoveredTeam && hoveredTeam === match.awayTeam;
 
@@ -79,7 +91,7 @@ export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulat
           ) : (
             <span>Match {match.matchNumber}</span>
           )}
-          <span className="text-wc-gold font-bold">{match.dateStr}</span>
+          <span className="text-wc-gold font-bold">{formatMatchDateTime(match)}</span>
         </div>
 
         {/* Teams & Scores */}

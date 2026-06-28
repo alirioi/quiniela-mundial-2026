@@ -74,6 +74,37 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
   const isInitialMount = useRef(true);
   const prevEntryId = useRef<number | null>(null);
 
+  // Visualization modes
+  const [viewMode, setViewMode] = useState<'llave' | 'fase' | 'fechas' | 'por-jugar'>('llave');
+  const [activeDate, setActiveDate] = useState<string>('');
+
+  const todayStrShort = useMemo(() => {
+    return new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  }, []);
+
+  const tomorrowStrShort = useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1280 && viewMode === 'llave') {
+        setViewMode('fase');
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', handleResize);
+      handleResize();
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, [viewMode]);
+
   // Trigger autosave when changes occur
   const triggerAutosave = () => {
     if (!selectedEntryId) return;
@@ -314,6 +345,128 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
     sf: [bracketData.sf[102]]
   }), [bracketData]);
 
+  const allCalculatedMatches = useMemo(() => {
+    const list: KnockoutMatch[] = [];
+    if (bracketData.r32) Object.values(bracketData.r32).forEach(m => list.push(m));
+    if (bracketData.r16) Object.values(bracketData.r16).forEach(m => list.push(m));
+    if (bracketData.qf) Object.values(bracketData.qf).forEach(m => list.push(m));
+    if (bracketData.sf) Object.values(bracketData.sf).forEach(m => list.push(m));
+    if (bracketData.thirdPlaceMatch) list.push(bracketData.thirdPlaceMatch);
+    if (bracketData.finalMatch) list.push(bracketData.finalMatch);
+    
+    return list.sort((a, b) => {
+      const dbA = dbMatches.find(m => m.match_number === a.matchNumber);
+      const dbB = dbMatches.find(m => m.match_number === b.matchNumber);
+      if (dbA && dbB) {
+        return new Date(dbA.match_time).getTime() - new Date(dbB.match_time).getTime();
+      }
+      return a.matchNumber - b.matchNumber;
+    });
+  }, [bracketData, dbMatches]);
+
+  const dateTabs = useMemo(() => {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const dateList: { key: string; label: string }[] = [];
+    const seen = new Set<string>();
+
+    const sorted = [...dbMatches].sort((a, b) => new Date(a.match_time).getTime() - new Date(b.match_time).getTime());
+
+    sorted.forEach((m) => {
+      if (!m.match_time) return;
+      const matchDate = new Date(m.match_time);
+      if (matchDate.getTime() < todayStart.getTime()) {
+        return;
+      }
+
+      const dateKey = matchDate.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
+      if (!seen.has(dateKey)) {
+        seen.add(dateKey);
+        let label = dateKey;
+        label = label.charAt(0).toUpperCase() + label.slice(1);
+        
+        if (dateKey === todayStrShort) {
+          label = `Hoy (${label})`;
+        } else if (dateKey === tomorrowStrShort) {
+          label = `Mañana (${label})`;
+        }
+        
+        dateList.push({ key: dateKey, label });
+      }
+    });
+    
+    return dateList;
+  }, [dbMatches, todayStrShort, tomorrowStrShort]);
+
+  useEffect(() => {
+    if (viewMode === 'fechas' && dateTabs.length > 0) {
+      const hasToday = dateTabs.find(d => d.key === todayStrShort);
+      if (hasToday) {
+        setActiveDate(hasToday.key);
+      } else {
+        setActiveDate(dateTabs[0].key);
+      }
+    }
+  }, [viewMode, dateTabs, todayStrShort]);
+
+  const fechaMatches = useMemo(() => {
+    return allCalculatedMatches.filter(m => {
+      const dbMatch = dbMatches.find(dbM => dbM.match_number === m.matchNumber);
+      if (!dbMatch || !dbMatch.match_time) return false;
+      const dateKey = new Date(dbMatch.match_time).toLocaleDateString('es-ES', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
+      return dateKey === activeDate;
+    });
+  }, [allCalculatedMatches, dbMatches, activeDate]);
+
+  const porJugarMatches = useMemo(() => {
+    return allCalculatedMatches.filter(m => {
+      const pred = predictionsMap[m.matchNumber];
+      const hasScore = pred && pred.predicted_home !== null && pred.predicted_away !== null &&
+                       pred.predicted_home !== undefined && pred.predicted_away !== undefined;
+      return !hasScore;
+    });
+  }, [allCalculatedMatches, predictionsMap]);
+
+  const sortChronologically = (matchesList: KnockoutMatch[]) => {
+    return [...matchesList].sort((a, b) => {
+      const dbA = dbMatches.find(m => m.match_number === a.matchNumber);
+      const dbB = dbMatches.find(m => m.match_number === b.matchNumber);
+      if (dbA && dbB) {
+        return new Date(dbA.match_time).getTime() - new Date(dbB.match_time).getTime();
+      }
+      return a.matchNumber - b.matchNumber;
+    });
+  };
+
+  const getCountdownText = (matchTime: Date | null) => {
+    if (!matchTime) return '';
+    const now = new Date();
+    const diffMs = matchTime.getTime() - now.getTime();
+    
+    if (diffMs <= 0) {
+      return 'En juego / Finalizado';
+    }
+    
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+    if (diffHrs < 24) {
+      const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      return `Faltan ${diffHrs}h ${diffMins}m`;
+    }
+    
+    const diffDays = Math.floor(diffHrs / 24);
+    const remainingHrs = diffHrs % 24;
+    return `Faltan ${diffDays}d ${remainingHrs}h`;
+  };
+
   const isPlaceholder = (teamName: string) => {
     return !teamName ||
            teamName.startsWith('1º') ||
@@ -323,10 +476,18 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
            teamName.startsWith('Perdedor');
   };
 
-  const formatMatchDateTime = (dateStr: string, venue: string) => {
-    const isLateMatch = ['Los Ángeles', 'Seattle', 'Vancouver', 'San Francisco'].includes(venue);
+  const formatMatchDateTime = (match: KnockoutMatch) => {
+    const dbMatch = dbMatches.find(dbM => dbM.match_number === match.matchNumber);
+    if (dbMatch && dbMatch.match_time) {
+      const matchTime = new Date(dbMatch.match_time);
+      const day = matchTime.getDate();
+      const monthStr = matchTime.toLocaleDateString('es-ES', { month: 'short' }).toUpperCase().replace('.', '');
+      const timeStr = matchTime.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit', hour12: true });
+      return `${day} ${monthStr} • ${timeStr}`;
+    }
+    const isLateMatch = ['Los Ángeles', 'Seattle', 'Vancouver', 'San Francisco'].includes(match.venue);
     const timeFormatted = isLateMatch ? '08:00 PM' : '03:00 PM';
-    return `${dateStr} • ${timeFormatted}`;
+    return `${match.dateStr} • ${timeFormatted}`;
   };
 
   const checkGlow = (match1?: KnockoutMatch, match2?: KnockoutMatch, match3?: KnockoutMatch) => {
@@ -380,7 +541,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
           ) : (
             <span className="text-slate-500 font-bold">Partido {match.matchNumber}</span>
           )}
-          <span className="text-wc-gold font-bold">{formatMatchDateTime(match.dateStr, match.venue)}</span>
+          <span className="text-wc-gold font-bold">{formatMatchDateTime(match)}</span>
         </div>
 
         {/* Teams */}
@@ -455,10 +616,23 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-1 mt-2 pt-1.5 border-t border-wc-border text-[9px] text-slate-500">
-          <MapPin className="w-3 h-3 text-slate-600" />
-          <span className="truncate">{match.venue}</span>
-        </div>
+        {(() => {
+          const dbMatch = dbMatches.find(dbM => dbM.match_number === match.matchNumber);
+          const matchTime = dbMatch ? new Date(dbMatch.match_time) : null;
+          return (
+            <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-wc-border text-slate-400">
+              <div className="flex items-center gap-1 text-[10px] sm:text-xs min-w-0">
+                <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span className="truncate font-semibold">{match.venue}</span>
+              </div>
+              {matchTime && (
+                <span className="text-[8px] font-bold font-sports uppercase tracking-wider text-wc-gold/90 shrink-0 bg-wc-gold/10 px-1.5 py-0.5 rounded border border-wc-gold/15">
+                  {getCountdownText(matchTime)}
+                </span>
+              )}
+            </div>
+          );
+        })()}
       </div>
     );
   };
@@ -608,98 +782,209 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
         </div>
       ) : (
         <>
-          {/* Navigation/Rounds Tabs on Mobile */}
-          <div className="xl:hidden flex justify-center mb-6">
-            <div className="inline-flex rounded-xl bg-wc-dark p-1 border border-wc-border/50 max-w-full overflow-x-auto custom-scrollbar">
-              {roundsInfo.map((round) => (
+          {/* Selector de modo de visualización */}
+          <div className="flex items-center gap-3 border-l-2 border-wc-gold/45 pl-3 mb-6">
+            <span className="text-[10px] uppercase font-sports tracking-wider text-slate-500 font-bold hidden xs:inline">
+              Visualizar:
+            </span>
+            <div className="flex bg-wc-dark/95 border border-wc-border rounded-xl p-1 shadow-inner w-fit">
+              <button
+                type="button"
+                onClick={() => setViewMode('llave')}
+                className={`hidden xl:inline-flex px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                  viewMode === 'llave'
+                    ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Por Llave
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('fase')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                  viewMode === 'fase'
+                    ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Por Fase
+              </button>
+              {dateTabs.length > 0 && (
                 <button
-                  key={round.id}
-                  onClick={() => setActiveRound(round.id)}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer font-sports whitespace-nowrap ${
-                    activeRound === round.id
-                      ? 'bg-wc-card text-white shadow-md border border-wc-border/50'
-                      : 'text-slate-400 hover:text-slate-200'
+                  type="button"
+                  onClick={() => setViewMode('fechas')}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                    viewMode === 'fechas'
+                      ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <span className="block sm:inline">{round.label}</span>
-                  <span className="block sm:inline sm:ml-1 text-[9px] opacity-70">({round.count})</span>
+                  Por Fecha
                 </button>
-              ))}
+              )}
+              <button
+                type="button"
+                onClick={() => setViewMode('por-jugar')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                  viewMode === 'por-jugar'
+                    ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Por Jugar
+              </button>
             </div>
           </div>
 
-          {/* Mobile/Tablet Grid */}
-          <div className="xl:hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
-              {activeRound === 'r32' && [...leftMatches.r32, ...rightMatches.r32].map(renderMatchCard)}
-              {activeRound === 'r16' && [...leftMatches.r16, ...rightMatches.r16].map(renderMatchCard)}
-              {activeRound === 'qf' && [...leftMatches.qf, ...rightMatches.qf].map(renderMatchCard)}
-              {activeRound === 'sf' && [...leftMatches.sf, ...rightMatches.sf].map(renderMatchCard)}
-              {activeRound === 'final' && [bracketData.finalMatch, bracketData.thirdPlaceMatch].filter(Boolean).map(renderMatchCard)}
-            </div>
-          </div>
-
-          {/* Desktop Bracket */}
-          <div className="hidden xl:block overflow-x-auto py-8 custom-scrollbar">
-            <div className="flex flex-col gap-6 min-w-max select-none px-8">
-              
-              {/* Phase Labels Header */}
-              <div className="flex items-center gap-0 text-center font-sports text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-wc-border/30 pb-3">
-                <div className="w-48">Dieciseisavos</div>
-                <div className="w-8 shrink-0" />
-                <div className="w-48">Octavos</div>
-                <div className="w-8 shrink-0" />
-                <div className="w-48">Cuartos</div>
-                <div className="w-8 shrink-0" />
-                <div className="w-48">Semifinal</div>
-                <div className="w-8 shrink-0" />
-                <div className="w-56 shrink-0 text-wc-gold filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">Final / Campeón</div>
-                <div className="w-8 shrink-0" />
-                <div className="w-48">Semifinal</div>
-                <div className="w-8 shrink-0" />
-                <div className="w-48">Cuartos</div>
-                <div className="w-8 shrink-0" />
-                <div className="w-48">Octavos</div>
-                <div className="w-8 shrink-0" />
-                <div className="w-48">Dieciseisavos</div>
-              </div>
-
-              {/* Bracket Tree */}
-              <div className="flex items-center gap-0">
-                {/* LEFT HALF */}
-                {renderLeftTree()}
-
-                {/* Central connector left */}
-                <HorizontalLine glow={checkGlow(leftMatches.sf[0], bracketData.finalMatch)} />
-
-                {/* CENTER */}
-                <div className="flex flex-col items-center justify-center gap-5 px-3 w-56 shrink-0">
-                  <div className="flex flex-col items-center text-center p-5 bg-gradient-to-b from-wc-gold/10 to-transparent border border-wc-gold/20 rounded-3xl relative shadow-lg">
-                    <Trophy className="w-12 h-12 text-wc-gold filter drop-shadow-[0_0_15px_rgba(212,175,55,0.3)] animate-pulse mb-2" strokeWidth={1.5} />
-                    <span className="text-[9px] uppercase font-sports font-black tracking-widest text-wc-gold">Campeón del Mundo</span>
-                    <span className="text-sm font-black text-slate-100 uppercase font-sports tracking-wide mt-1 block">Mundial 2026</span>
-                  </div>
-
-                  <div className="w-full">
-                    <span className="text-[9px] font-sports text-slate-400 uppercase tracking-widest text-center block mb-2 font-black">Gran Final</span>
-                    {renderMatchCard(bracketData.finalMatch)}
-                  </div>
-
-                  <div className="w-full">
-                    <span className="text-[9px] font-sports text-slate-500 uppercase tracking-widest text-center block mb-2 font-bold">3er Puesto</span>
-                    {renderMatchCard(bracketData.thirdPlaceMatch)}
-                  </div>
+          {/* MODO LLAVE (Solo Desktop) */}
+          {viewMode === 'llave' && (
+            <div className="hidden xl:block overflow-x-auto py-8 custom-scrollbar">
+              <div className="flex flex-col gap-6 min-w-max select-none px-8">
+                {/* Phase Labels Header */}
+                <div className="flex items-center gap-0 text-center font-sports text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-wc-border/30 pb-3">
+                  <div className="w-48">Dieciseisavos</div>
+                  <div className="w-8 shrink-0" />
+                  <div className="w-48">Octavos</div>
+                  <div className="w-8 shrink-0" />
+                  <div className="w-48">Cuartos</div>
+                  <div className="w-8 shrink-0" />
+                  <div className="w-48">Semifinal</div>
+                  <div className="w-8 shrink-0" />
+                  <div className="w-56 shrink-0 text-wc-gold filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">Final / Campeón</div>
+                  <div className="w-8 shrink-0" />
+                  <div className="w-48">Semifinal</div>
+                  <div className="w-8 shrink-0" />
+                  <div className="w-48">Cuartos</div>
+                  <div className="w-8 shrink-0" />
+                  <div className="w-48">Octavos</div>
+                  <div className="w-8 shrink-0" />
+                  <div className="w-48">Dieciseisavos</div>
                 </div>
 
-                {/* Central connector right */}
-                <HorizontalLine glow={checkGlow(rightMatches.sf[0], bracketData.finalMatch)} />
+                {/* Bracket Tree */}
+                <div className="flex items-center gap-0">
+                  {/* LEFT HALF */}
+                  {renderLeftTree()}
 
-                {/* RIGHT HALF */}
-                {renderRightTree()}
+                  {/* Central connector left */}
+                  <HorizontalLine glow={checkGlow(leftMatches.sf[0], bracketData.finalMatch)} />
+
+                  {/* CENTER */}
+                  <div className="flex flex-col items-center justify-center gap-5 px-3 w-56 shrink-0">
+                    <div className="flex flex-col items-center text-center p-5 bg-gradient-to-b from-wc-gold/10 to-transparent border border-wc-gold/20 rounded-3xl relative shadow-lg">
+                      <Trophy className="w-12 h-12 text-wc-gold filter drop-shadow-[0_0_15px_rgba(212,175,55,0.3)] animate-pulse mb-2" strokeWidth={1.5} />
+                      <span className="text-[9px] uppercase font-sports font-black tracking-widest text-wc-gold">Campeón del Mundo</span>
+                      <span className="text-sm font-black text-slate-100 uppercase font-sports tracking-wide mt-1 block">Mundial 2026</span>
+                    </div>
+
+                    <div className="w-full">
+                      <span className="text-[9px] font-sports text-slate-400 uppercase tracking-widest text-center block mb-2 font-black">Gran Final</span>
+                      {renderMatchCard(bracketData.finalMatch)}
+                    </div>
+
+                    <div className="w-full">
+                      <span className="text-[9px] font-sports text-slate-500 uppercase tracking-widest text-center block mb-2 font-bold">3er Puesto</span>
+                      {renderMatchCard(bracketData.thirdPlaceMatch)}
+                    </div>
+                  </div>
+
+                  {/* Central connector right */}
+                  <HorizontalLine glow={checkGlow(rightMatches.sf[0], bracketData.finalMatch)} />
+
+                  {/* RIGHT HALF */}
+                  {renderRightTree()}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODO POR FASE */}
+          {viewMode === 'fase' && (
+            <div className="space-y-6">
+              {/* Navigation/Rounds Tabs */}
+              <div className="flex justify-center">
+                <div className="inline-flex rounded-xl bg-wc-dark p-1 border border-wc-border/50 max-w-full overflow-x-auto custom-scrollbar">
+                  {roundsInfo.map((round) => (
+                    <button
+                      key={round.id}
+                      type="button"
+                      onClick={() => setActiveRound(round.id)}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer font-sports whitespace-nowrap ${
+                        activeRound === round.id
+                          ? 'bg-wc-card text-white shadow-md border border-wc-border/50'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <span className="block sm:inline">{round.label}</span>
+                      <span className="block sm:inline sm:ml-1 text-[9px] opacity-70">({round.count})</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
+              {/* Grid de Partidos de la Fase (Cronológico) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
+                {activeRound === 'r32' && sortChronologically([...leftMatches.r32, ...rightMatches.r32]).map(renderMatchCard)}
+                {activeRound === 'r16' && sortChronologically([...leftMatches.r16, ...rightMatches.r16]).map(renderMatchCard)}
+                {activeRound === 'qf' && sortChronologically([...leftMatches.qf, ...rightMatches.qf]).map(renderMatchCard)}
+                {activeRound === 'sf' && sortChronologically([...leftMatches.sf, ...rightMatches.sf]).map(renderMatchCard)}
+                {activeRound === 'final' && sortChronologically([bracketData.finalMatch, bracketData.thirdPlaceMatch].filter(Boolean)).map(renderMatchCard)}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* MODO POR FECHA */}
+          {viewMode === 'fechas' && (
+            <div className="space-y-6">
+              {/* Horizontal sub-tabs for future dates starting from today */}
+              {dateTabs.length > 0 && (
+                <div className="flex items-center gap-2 overflow-x-auto pb-3 border-b border-wc-border/30 custom-scrollbar animate-fade-in">
+                  {dateTabs.map((dateObj) => (
+                    <button
+                      key={dateObj.key}
+                      type="button"
+                      onClick={() => setActiveDate(dateObj.key)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border whitespace-nowrap transition-all duration-200 font-sports cursor-pointer shrink-0 ${
+                        activeDate === dateObj.key
+                          ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 border-transparent shadow-md shadow-wc-gold/20'
+                          : 'bg-wc-dark border-wc-border text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                      }`}
+                    >
+                      {dateObj.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {fechaMatches.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
+                  {fechaMatches.map(renderMatchCard)}
+                </div>
+              ) : (
+                <div className="p-12 text-center bg-wc-card/30 rounded-2xl border border-wc-border/50 flex flex-col items-center justify-center gap-3 max-w-lg mx-auto">
+                  <HelpCircle className="w-10 h-10 text-slate-500" strokeWidth={1.5} />
+                  <p className="text-slate-400 font-medium text-sm">No hay partidos programados para esta fecha.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* MODO POR JUGAR */}
+          {viewMode === 'por-jugar' && (
+            <div className="space-y-6">
+              {porJugarMatches.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
+                  {porJugarMatches.map(renderMatchCard)}
+                </div>
+              ) : (
+                <div className="p-12 text-center bg-wc-card/30 rounded-2xl border border-wc-border/50 flex flex-col items-center justify-center gap-3 max-w-lg mx-auto">
+                  <CheckCircle2 className="w-10 h-10 text-wc-green animate-bounce" strokeWidth={1.5} />
+                  <p className="text-wc-green font-medium text-sm">¡Excelente! Has completado todos tus pronósticos pendientes.</p>
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
 

@@ -183,7 +183,7 @@ export function calculateKnockoutBracket(
       awayTeam: runnersUp['C'],
       placeholderHome: '1º Grupo F',
       placeholderAway: '2º Grupo C',
-      dateStr: '29 JUN',
+      dateStr: '30 JUN',
       venue: 'Monterrey'
     },
     76: {
@@ -219,7 +219,7 @@ export function calculateKnockoutBracket(
       awayTeam: getThirdPlaceOpponent('A'),
       placeholderHome: '1º Grupo A',
       placeholderAway: '3º C/E/F/H/I',
-      dateStr: '30 JUN',
+      dateStr: '1 JUL',
       venue: 'Ciudad de México'
     },
     80: {
@@ -238,7 +238,7 @@ export function calculateKnockoutBracket(
       placeholderHome: '1º Grupo D',
       placeholderAway: '3º B/E/F/I/J',
       dateStr: '1 JUL',
-      venue: 'San Francisco'
+      venue: 'Seattle'
     },
     82: {
       matchNumber: 82,
@@ -247,7 +247,7 @@ export function calculateKnockoutBracket(
       placeholderHome: '1º Grupo G',
       placeholderAway: '3º A/E/H/I/J',
       dateStr: '1 JUL',
-      venue: 'Seattle'
+      venue: 'San Francisco'
     },
     83: {
       matchNumber: 83,

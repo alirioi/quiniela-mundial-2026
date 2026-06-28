@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Trophy, MapPin, HelpCircle, Save, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Trophy, CheckCircle2, AlertTriangle, HelpCircle, Loader2, Save, MapPin } from 'lucide-react';
 import { getTeamFlagUrl } from '../../utils/flags';
 import { calculateKnockoutBracket } from '../../utils/knockout';
 import type { KnockoutMatch, TeamStats, KnockoutPrediction } from '../../utils/knockout';
+import { PredictionMatchCard } from './PredictionMatchCard';
 
 interface Props {
   groupStandings: Record<string, TeamStats[]>;
@@ -75,7 +76,8 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
   const prevEntryId = useRef<number | null>(null);
 
   // Visualization modes
-  const [viewMode, setViewMode] = useState<'llave' | 'fase' | 'fechas' | 'por-jugar'>('llave');
+  const [viewMode, setViewMode] = useState<'llave' | 'fase' | 'fechas' | 'cronologico'>('llave');
+  const [cronologicoTab, setCronologicoTab] = useState<'todos' | 'por-jugar'>('todos');
   const [activeDate, setActiveDate] = useState<string>('');
 
   const todayStrShort = useMemo(() => {
@@ -106,6 +108,13 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
   }, [viewMode]);
 
   // Trigger autosave when changes occur
+  const isLocked = (matchTimeStr: string | undefined | null) => {
+    if (!matchTimeStr) return false;
+    const matchTime = new Date(matchTimeStr).getTime();
+    const lockTime = matchTime - 5 * 60 * 1000;
+    return Date.now() >= lockTime;
+  };
+
   const triggerAutosave = () => {
     if (!selectedEntryId) return;
 
@@ -113,14 +122,16 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
       .map(([matchNumberStr, pred]) => {
         const matchNumber = parseInt(matchNumberStr, 10);
         const matchId = matchIdMap[matchNumber];
+        const dbMatch = dbMatches.find(m => m.id === matchId);
         return {
           matchId,
           predictedHome: pred.predicted_home,
           predictedAway: pred.predicted_away,
           predictedWinner: pred.predicted_winner,
+          isLocked: isLocked(dbMatch?.match_time)
         };
       })
-      .filter(p => p.matchId !== undefined && p.predictedHome !== null && p.predictedAway !== null);
+      .filter(p => p.matchId !== undefined && p.predictedHome !== null && p.predictedAway !== null && !p.isLocked);
 
     if (autosaveTimeoutRef.current) {
       clearTimeout(autosaveTimeoutRef.current);
@@ -242,14 +253,16 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
         .map(([matchNumberStr, pred]) => {
           const matchNumber = parseInt(matchNumberStr, 10);
           const matchId = matchIdMap[matchNumber];
+          const dbMatch = dbMatches.find(m => m.id === matchId);
           return {
             matchId,
             predictedHome: pred.predicted_home,
             predictedAway: pred.predicted_away,
             predictedWinner: pred.predicted_winner,
+            isLocked: isLocked(dbMatch?.match_time)
           };
         })
-        .filter(p => p.matchId !== undefined && p.predictedHome !== null && p.predictedAway !== null);
+        .filter(p => p.matchId !== undefined && p.predictedHome !== null && p.predictedAway !== null && !p.isLocked);
 
       if (formattedPredictions.length === 0) {
         throw new Error('No hay pronósticos válidos para guardar');
@@ -427,25 +440,28 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
     });
   }, [allCalculatedMatches, dbMatches, activeDate]);
 
+  const sortChronologically = (matchesList: KnockoutMatch[]) => {
+    return [...matchesList].sort((a, b) => {
+      const dbA = dbMatches.find(m => m.id === matchIdMap[a.matchNumber]);
+      const dbB = dbMatches.find(m => m.id === matchIdMap[b.matchNumber]);
+      if (!dbA || !dbB) return 0;
+      return new Date(dbA.match_time).getTime() - new Date(dbB.match_time).getTime();
+    });
+  };
+
+  const cronologicoMatches = useMemo(() => {
+    return sortChronologically(allCalculatedMatches);
+  }, [allCalculatedMatches, dbMatches]);
+
   const porJugarMatches = useMemo(() => {
-    return allCalculatedMatches.filter(m => {
+    const unplayed = allCalculatedMatches.filter(m => {
       const pred = predictionsMap[m.matchNumber];
       const hasScore = pred && pred.predicted_home !== null && pred.predicted_away !== null &&
                        pred.predicted_home !== undefined && pred.predicted_away !== undefined;
       return !hasScore;
     });
-  }, [allCalculatedMatches, predictionsMap]);
-
-  const sortChronologically = (matchesList: KnockoutMatch[]) => {
-    return [...matchesList].sort((a, b) => {
-      const dbA = dbMatches.find(m => m.match_number === a.matchNumber);
-      const dbB = dbMatches.find(m => m.match_number === b.matchNumber);
-      if (dbA && dbB) {
-        return new Date(dbA.match_time).getTime() - new Date(dbB.match_time).getTime();
-      }
-      return a.matchNumber - b.matchNumber;
-    });
-  };
+    return sortChronologically(unplayed);
+  }, [allCalculatedMatches, predictionsMap, dbMatches]);
 
   const getCountdownText = (matchTime: Date | null) => {
     if (!matchTime) return '';
@@ -741,6 +757,54 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
     );
   };
 
+  const renderLargeMatchCard = (match: KnockoutMatch) => {
+    if (!match) return null;
+    const isHomePH = isPlaceholder(match.homeTeam);
+    const isAwayPH = isPlaceholder(match.awayTeam);
+    const homeFlag = isHomePH ? null : getTeamFlagUrl(match.homeTeam);
+    const awayFlag = isAwayPH ? null : getTeamFlagUrl(match.awayTeam);
+
+    const dbMatch = dbMatches.find((m) => m.id === matchIdMap[match.matchNumber]);
+    const locked = isLocked(dbMatch?.match_time) || (dbMatch && dbMatch.status !== 'scheduled');
+
+    const pred = predictionsMap[match.matchNumber] || { predicted_home: null, predicted_away: null, predicted_winner: null };
+
+    const savedHome = dbMatch?.prediction ? String(dbMatch.prediction.predicted_home) : '';
+    const savedAway = dbMatch?.prediction ? String(dbMatch.prediction.predicted_away) : '';
+    const currentHomeStr = pred.predicted_home !== null ? String(pred.predicted_home) : '';
+    const currentAwayStr = pred.predicted_away !== null ? String(pred.predicted_away) : '';
+
+    const hasChanges = currentHomeStr !== savedHome || currentAwayStr !== savedAway;
+
+    // Countdown text (same logic as group phase)
+    const countdown = getCountdownText(dbMatch?.match_time ? new Date(dbMatch.match_time) : null);
+
+    return (
+      <PredictionMatchCard
+        key={match.matchNumber}
+        matchKey={match.matchNumber}
+        headerLabel={match.matchNumber === 104 ? 'Gran Final' : match.matchNumber === 103 ? '3er Puesto' : `Partido ${match.matchNumber}`}
+        matchStatus={dbMatch?.status as 'scheduled' | 'live' | 'finished' || 'scheduled'}
+        countdown={countdown}
+        locked={!!locked}
+        homeTeam={match.homeTeam || match.placeholderHome || ''}
+        awayTeam={match.awayTeam || match.placeholderAway || ''}
+        homeFlag={homeFlag}
+        awayFlag={awayFlag}
+        isPlaceholder={isHomePH || isAwayPH || !phaseActive}
+        currentHomeStr={currentHomeStr}
+        currentAwayStr={currentAwayStr}
+        onScoreChange={(side, val) => handleScoreChange(match.matchNumber, side, val)}
+        hasChanges={hasChanges}
+        hasSavedPrediction={!!dbMatch?.prediction}
+        realHomeScore={dbMatch?.home_score}
+        realAwayScore={dbMatch?.away_score}
+        pointsEarned={(dbMatch?.prediction as any)?.points_earned}
+      />
+    );
+  };
+
+
   return (
     <div className="space-y-6">
       {/* Entry Selector Bar */}
@@ -783,7 +847,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
       ) : (
         <>
           {/* Selector de modo de visualización */}
-          <div className="flex items-center gap-3 border-l-2 border-wc-gold/45 pl-3 mb-6">
+          <div className="flex items-center gap-3 border-l-2 border-wc-blue/45 pl-3 mb-6">
             <span className="text-[10px] uppercase font-sports tracking-wider text-slate-500 font-bold hidden xs:inline">
               Visualizar:
             </span>
@@ -793,7 +857,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                 onClick={() => setViewMode('llave')}
                 className={`hidden xl:inline-flex px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
                   viewMode === 'llave'
-                    ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                    ? 'bg-wc-blue text-slate-950 shadow-md font-extrabold'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -804,7 +868,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                 onClick={() => setViewMode('fase')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
                   viewMode === 'fase'
-                    ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                    ? 'bg-wc-blue text-slate-950 shadow-md font-extrabold'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -816,7 +880,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                   onClick={() => setViewMode('fechas')}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
                     viewMode === 'fechas'
-                      ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                      ? 'bg-wc-blue text-slate-950 shadow-md font-extrabold'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
@@ -825,14 +889,14 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
               )}
               <button
                 type="button"
-                onClick={() => setViewMode('por-jugar')}
+                onClick={() => setViewMode('cronologico')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
-                  viewMode === 'por-jugar'
-                    ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                  viewMode === 'cronologico'
+                    ? 'bg-wc-blue text-slate-950 shadow-md font-extrabold'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Por Jugar
+                Cronológico
               </button>
             </div>
           </div>
@@ -910,10 +974,10 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                       key={round.id}
                       type="button"
                       onClick={() => setActiveRound(round.id)}
-                      className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer font-sports whitespace-nowrap ${
+                      className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer font-sports whitespace-nowrap border shrink-0 ${
                         activeRound === round.id
-                          ? 'bg-wc-card text-white shadow-md border border-wc-border/50'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-wc-gold to-amber-500 text-slate-950 border-transparent shadow-md shadow-wc-gold/20'
+                          : 'bg-wc-dark border-wc-border text-slate-400 hover:text-slate-200 hover:border-slate-700'
                       }`}
                     >
                       <span className="block sm:inline">{round.label}</span>
@@ -924,12 +988,12 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
               </div>
 
               {/* Grid de Partidos de la Fase (Cronológico) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
-                {activeRound === 'r32' && sortChronologically([...leftMatches.r32, ...rightMatches.r32]).map(renderMatchCard)}
-                {activeRound === 'r16' && sortChronologically([...leftMatches.r16, ...rightMatches.r16]).map(renderMatchCard)}
-                {activeRound === 'qf' && sortChronologically([...leftMatches.qf, ...rightMatches.qf]).map(renderMatchCard)}
-                {activeRound === 'sf' && sortChronologically([...leftMatches.sf, ...rightMatches.sf]).map(renderMatchCard)}
-                {activeRound === 'final' && sortChronologically([bracketData.finalMatch, bracketData.thirdPlaceMatch].filter(Boolean)).map(renderMatchCard)}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in mt-4">
+                {activeRound === 'r32' && sortChronologically([...leftMatches.r32, ...rightMatches.r32]).map(renderLargeMatchCard)}
+                {activeRound === 'r16' && sortChronologically([...leftMatches.r16, ...rightMatches.r16]).map(renderLargeMatchCard)}
+                {activeRound === 'qf' && sortChronologically([...leftMatches.qf, ...rightMatches.qf]).map(renderLargeMatchCard)}
+                {activeRound === 'sf' && sortChronologically([...leftMatches.sf, ...rightMatches.sf]).map(renderLargeMatchCard)}
+                {activeRound === 'final' && sortChronologically([bracketData.finalMatch, bracketData.thirdPlaceMatch].filter(Boolean)).map(renderLargeMatchCard)}
               </div>
             </div>
           )}
@@ -958,8 +1022,8 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
               )}
 
               {fechaMatches.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
-                  {fechaMatches.map(renderMatchCard)}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+                  {fechaMatches.map(renderLargeMatchCard)}
                 </div>
               ) : (
                 <div className="p-12 text-center bg-wc-card/30 rounded-2xl border border-wc-border/50 flex flex-col items-center justify-center gap-3 max-w-lg mx-auto">
@@ -970,18 +1034,51 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
             </div>
           )}
 
-          {/* MODO POR JUGAR */}
-          {viewMode === 'por-jugar' && (
+          {/* MODO CRONOLOGICO */}
+          {viewMode === 'cronologico' && (
             <div className="space-y-6">
-              {porJugarMatches.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
-                  {porJugarMatches.map(renderMatchCard)}
+              <div className="flex bg-wc-dark/95 border border-wc-border rounded-xl p-1 shadow-inner w-fit mb-6">
+                <button
+                  type="button"
+                  onClick={() => setCronologicoTab('todos')}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                    cronologicoTab === 'todos'
+                      ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Todos
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCronologicoTab('por-jugar')}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                    cronologicoTab === 'por-jugar'
+                      ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Por Jugar
+                </button>
+              </div>
+
+              {cronologicoTab === 'todos' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+                  {cronologicoMatches.map(renderLargeMatchCard)}
                 </div>
-              ) : (
-                <div className="p-12 text-center bg-wc-card/30 rounded-2xl border border-wc-border/50 flex flex-col items-center justify-center gap-3 max-w-lg mx-auto">
-                  <CheckCircle2 className="w-10 h-10 text-wc-green animate-bounce" strokeWidth={1.5} />
-                  <p className="text-wc-green font-medium text-sm">¡Excelente! Has completado todos tus pronósticos pendientes.</p>
-                </div>
+              )}
+
+              {cronologicoTab === 'por-jugar' && (
+                porJugarMatches.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+                    {porJugarMatches.map(renderLargeMatchCard)}
+                  </div>
+                ) : (
+                  <div className="p-12 text-center bg-wc-card/30 rounded-2xl border border-wc-border/50 flex flex-col items-center justify-center gap-3 max-w-lg mx-auto">
+                    <CheckCircle2 className="w-10 h-10 text-wc-green animate-bounce" strokeWidth={1.5} />
+                    <p className="text-wc-green font-medium text-sm">¡Excelente! Has completado todos tus pronósticos pendientes.</p>
+                  </div>
+                )
               )}
             </div>
           )}

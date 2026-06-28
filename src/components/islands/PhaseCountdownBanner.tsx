@@ -23,7 +23,7 @@ export default function PhaseCountdownBanner() {
               Pronósticos Habilitados y Cruces Confirmados
             </p>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mt-2 max-w-3xl">
-              ¡La fase de eliminación directa ha comenzado! Ya puedes llenar y guardar tus marcadores para los partidos de 16vos de final que ya se encuentran confirmados. El resto de emparejamientos se irán habilitando automáticamente a medida que finalicen los grupos restantes. <strong className="text-wc-gold font-bold">¡Asegura tus pronósticos antes del cierre de cada encuentro!</strong>
+              ¡La fase de eliminación directa ha comenzado! Ya puedes llenar y guardar tus marcadores para todos los partidos de las llaves que se encuentran confirmados. <strong className="text-wc-gold font-bold">¡Asegura tus pronósticos al menos 5 minutos antes del inicio de cada encuentro!</strong>
             </p>
           </div>
         </div>

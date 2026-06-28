@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Trophy, MapPin, HelpCircle, Save, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Trophy, MapPin, HelpCircle, Save, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { getTeamFlagUrl } from '../../utils/flags';
 import { calculateKnockoutBracket } from '../../utils/knockout';
 import type { KnockoutMatch, TeamStats, KnockoutPrediction } from '../../utils/knockout';
@@ -69,6 +69,89 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [autosaveStatus, setAutosaveStatus] = useState<'idle' | 'saving-pending' | 'saving' | 'saved' | 'error'>('idle');
+  const autosaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialMount = useRef(true);
+  const prevEntryId = useRef<number | null>(null);
+
+  // Trigger autosave when changes occur
+  const triggerAutosave = () => {
+    if (!selectedEntryId) return;
+
+    const formattedPredictions = Object.entries(predictionsMap)
+      .map(([matchNumberStr, pred]) => {
+        const matchNumber = parseInt(matchNumberStr, 10);
+        const matchId = matchIdMap[matchNumber];
+        return {
+          matchId,
+          predictedHome: pred.predicted_home,
+          predictedAway: pred.predicted_away,
+          predictedWinner: pred.predicted_winner,
+        };
+      })
+      .filter(p => p.matchId !== undefined && p.predictedHome !== null && p.predictedAway !== null);
+
+    if (autosaveTimeoutRef.current) {
+      clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+
+    if (formattedPredictions.length > 0) {
+      setAutosaveStatus('saving-pending');
+      autosaveTimeoutRef.current = setTimeout(async () => {
+        setAutosaveStatus('saving');
+        try {
+          const response = await fetch('/api/predictions/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              entryId: selectedEntryId,
+              predictions: formattedPredictions,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error();
+          }
+
+          setAutosaveStatus('saved');
+          setHasUnsavedChanges(false);
+
+          setTimeout(() => {
+            setAutosaveStatus(current => current === 'saved' ? 'idle' : current);
+          }, 3000);
+        } catch (err) {
+          console.error('Autosave error:', err);
+          setAutosaveStatus('error');
+        }
+      }, 1500);
+    } else {
+      setAutosaveStatus(prev => prev === 'saving-pending' ? 'idle' : prev);
+    }
+  };
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      prevEntryId.current = selectedEntryId;
+      return;
+    }
+
+    if (prevEntryId.current !== selectedEntryId) {
+      prevEntryId.current = selectedEntryId;
+      return;
+    }
+
+    if (hasUnsavedChanges) {
+      triggerAutosave();
+    }
+
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        clearTimeout(autosaveTimeoutRef.current);
+      }
+    };
+  }, [predictionsMap]);
 
   // Fetch matches and predictions
   const fetchMatchesAndPredictions = async () => {
@@ -650,62 +733,51 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
         </>
       )}
 
-      {/* Unsaved Changes & Success Panel */}
-      {phaseActive && (hasUnsavedChanges || saving || saveSuccess || errorMsg) && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-lg animate-slide-up">
-          <div className="bg-slate-900/95 border border-wc-border rounded-2xl p-4 shadow-2xl backdrop-blur-md flex flex-col gap-3">
-            {errorMsg && (
-              <div className="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-2 rounded-xl flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>{errorMsg}</span>
-              </div>
+      {/* Botón flotante de guardar cambios */}
+      {phaseActive && hasUnsavedChanges && (
+        <button
+          onClick={handleSavePredictions}
+          disabled={saving}
+          className="fixed bottom-6 right-6 z-50 flex items-center justify-center bg-gradient-to-r from-wc-gold to-amber-500 hover:from-amber-400 hover:to-wc-gold text-slate-950 font-bold font-sports shadow-xl shadow-wc-gold/30 rounded-full md:rounded-xl md:px-5 md:py-3 w-12 h-12 md:w-auto md:h-auto transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer animate-fade-in"
+          title="Guardar Todo"
+        >
+          {saving ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>
+              <Save className="w-5 h-5 md:mr-2" strokeWidth={2.5} />
+              <span className="hidden md:inline">Guardar Cambios</span>
+            </>
+          )}
+        </button>
+      )}
+
+      {/* Toast de Autoguardado */}
+      {autosaveStatus !== 'idle' && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 md:left-auto md:right-6 md:translate-x-0 transition-all duration-300 animate-fade-in w-[90%] max-w-xs sm:max-w-sm">
+          <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl bg-wc-card/95 ${
+            autosaveStatus === 'saved'
+              ? 'border-wc-green/70 text-wc-green'
+              : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending'
+              ? 'border-wc-gold/70 text-wc-gold animate-pulse'
+              : 'border-wc-red/70 text-wc-red'
+          }`}>
+            {autosaveStatus === 'saved' ? (
+              <>
+                <CheckCircle2 className="w-5 h-5 text-wc-green shrink-0 animate-bounce" strokeWidth={2.5} />
+                <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Pronósticos guardados</span>
+              </>
+            ) : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending' ? (
+              <>
+                <Loader2 className="w-5 h-5 text-wc-gold shrink-0 animate-spin" strokeWidth={2.5} />
+                <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Guardando...</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="w-5 h-5 text-wc-red shrink-0" strokeWidth={2.5} />
+                <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Error al guardar</span>
+              </>
             )}
-
-            {saveSuccess && (
-              <div className="text-xs text-wc-green bg-wc-green/10 border border-wc-green/20 px-3 py-2 rounded-xl flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 shrink-0" />
-                <span>Pronósticos guardados exitosamente.</span>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between gap-4">
-              <div className="text-xs text-slate-300">
-                {hasUnsavedChanges ? (
-                  <span className="font-medium text-amber-500">Tienes cambios sin guardar en tu llave</span>
-                ) : (
-                  <span className="text-slate-400">Todos los pronósticos guardados</span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                {hasUnsavedChanges && (
-                  <button
-                    disabled={saving}
-                    onClick={fetchMatchesAndPredictions}
-                    className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 bg-wc-dark border border-wc-border hover:bg-slate-800 transition cursor-pointer"
-                  >
-                    Descartar
-                  </button>
-                )}
-                <button
-                  disabled={!hasUnsavedChanges || saving}
-                  onClick={handleSavePredictions}
-                  className="px-4 py-2 rounded-xl text-xs font-sports font-black uppercase tracking-wider text-slate-950 bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-450 hover:to-amber-550 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-wc-gold/10 flex items-center gap-1.5 cursor-pointer"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Guardando</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4" />
-                      <span>Guardar Cambios</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}

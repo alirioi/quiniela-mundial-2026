@@ -849,14 +849,6 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
             ))}
           </div>
         </div>
-
-        {/* Disclaimer / Warning Banner */}
-        {!phaseActive && !loading && (
-          <span className="text-xs text-wc-gold font-bold bg-wc-gold/10 border border-wc-gold/20 px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 max-w-md">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-wc-gold" strokeWidth={2.5} />
-            <span>Fase inactiva. Los pronósticos se abrirán inmediatamente al finalizar la fase de grupos.</span>
-          </span>
-        )}
       </div>
 
       {loading ? (

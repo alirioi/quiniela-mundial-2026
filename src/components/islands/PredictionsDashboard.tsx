@@ -176,16 +176,21 @@ export default function PredictionsDashboard({ userEntries }: PredictionsDashboa
         >
           <div className="absolute -top-12 -right-12 w-36 h-36 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none group-hover:bg-wc-gold/10 transition-all duration-300"></div>
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-wc-gold/10 border border-wc-gold/20 flex items-center justify-center text-wc-gold mb-6 group-hover:scale-110 transition-transform duration-300">
-              <Compass className="w-6 h-6" strokeWidth={2} />
+            <div className="flex justify-between items-start mb-6">
+              <div className="w-12 h-12 rounded-2xl bg-wc-gold/10 border border-wc-gold/20 flex items-center justify-center text-wc-gold group-hover:scale-110 transition-transform duration-300">
+                <Compass className="w-6 h-6" strokeWidth={2} />
+              </div>
+              <span className="text-[10px] bg-slate-800/85 text-slate-400 border border-wc-border px-2.5 py-1 rounded-full font-bold uppercase tracking-wider font-sports">
+                Finalizada
+              </span>
             </div>
             <h3 className="text-2xl font-bold text-white font-sports uppercase tracking-wide">Fase de Grupos</h3>
             <p className="text-xs sm:text-sm text-slate-450 mt-3 leading-relaxed">
-              Pronostica los 72 partidos de la fase inicial. Organiza tus marcadores de los grupos A al L y simula la tabla de posiciones en vivo.
+              Visualiza tus predicciones y puntajes de los 72 partidos de la fase inicial. (Solo Lectura)
             </p>
           </div>
           <div className="mt-8 flex items-center justify-between">
-            <span className="text-xs font-bold text-wc-gold uppercase tracking-wider font-sports">Ir a Pronosticar</span>
+            <span className="text-xs font-bold text-wc-gold uppercase tracking-wider font-sports">Ver Predicciones</span>
             <div className="w-8 h-8 rounded-xl bg-wc-dark flex items-center justify-center text-wc-gold border border-wc-border group-hover:translate-x-1.5 transition-transform">
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </div>

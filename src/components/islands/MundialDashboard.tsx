@@ -54,7 +54,7 @@ interface Props {
 }
 
 export default function MundialDashboard({ matches }: Props) {
-  const [activeTab, setActiveTab] = useState<'grupos' | 'terceros' | 'calendario' | 'llave' | 'estadisticas'>('grupos');
+  const [activeTab, setActiveTab] = useState<'grupos' | 'terceros' | 'calendario' | 'llave' | 'estadisticas'>('llave');
   const [filterGroup, setFilterGroup] = useState<string>('todos');
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
@@ -544,33 +544,33 @@ export default function MundialDashboard({ matches }: Props) {
                       <span className="text-wc-gold font-bold">{match.group_name || 'Fase Final'}</span>
                     </div>
                     
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       {/* Home Team */}
-                      <div className="flex items-center gap-3 flex-1">
+                      <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
                         {homeFlag ? (
-                          <img src={homeFlag} alt={match.home_team} className="w-8 h-6 sm:w-10 sm:h-7 object-cover rounded shadow-md" />
+                          <img src={homeFlag} alt={match.home_team} className="w-8 h-6 sm:w-10 sm:h-7 object-cover rounded shadow-md flex-shrink-0" />
                         ) : (
-                          <div className="w-8 h-6 sm:w-10 sm:h-7 bg-slate-800 rounded"></div>
+                          <div className="w-8 h-6 sm:w-10 sm:h-7 bg-slate-800 rounded flex-shrink-0"></div>
                         )}
-                        <span className="font-bold text-slate-200 text-sm sm:text-base">{match.home_team}</span>
+                        <span className="font-bold text-slate-200 text-xs sm:text-sm md:text-base truncate w-full text-center sm:text-left">{match.home_team}</span>
                       </div>
                       
                       {/* Score */}
-                      <div className="px-4 flex flex-col items-center">
+                      <div className="px-2 sm:px-4 flex flex-col items-center shrink-0">
                         {match.status === 'finished' ? (
-                          <div className="bg-wc-dark border border-wc-border px-3 py-1.5 rounded-lg flex gap-3 text-xl font-sports font-bold text-white shadow-inner">
+                          <div className="bg-wc-dark border border-wc-border px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg flex gap-2 sm:gap-3 text-lg sm:text-xl font-sports font-bold text-white shadow-inner">
                             <span>{match.home_score}</span>
                             <span className="text-slate-500">-</span>
                             <span>{match.away_score}</span>
                           </div>
                         ) : match.status === 'live' ? (
-                          <div className="bg-wc-red/10 border border-wc-red/30 px-3 py-1.5 rounded-lg flex gap-3 text-xl font-sports font-bold text-wc-red shadow-md shadow-wc-red/10">
+                          <div className="bg-wc-red/10 border border-wc-red/30 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg flex gap-2 sm:gap-3 text-lg sm:text-xl font-sports font-bold text-wc-red shadow-md shadow-wc-red/10">
                             <span>{match.home_score ?? 0}</span>
                             <span className="animate-pulse">-</span>
                             <span>{match.away_score ?? 0}</span>
                           </div>
                         ) : (
-                          <div className="bg-wc-dark border border-wc-border px-3 py-1 rounded-lg text-slate-500 font-sports font-bold tracking-widest text-lg">
+                          <div className="bg-wc-dark border border-wc-border px-3 py-1 rounded-lg text-slate-500 font-sports font-bold tracking-widest text-base sm:text-lg">
                             VS
                           </div>
                         )}
@@ -580,13 +580,13 @@ export default function MundialDashboard({ matches }: Props) {
                       </div>
 
                       {/* Away Team */}
-                      <div className="flex items-center gap-3 flex-1 justify-end">
-                        <span className="font-bold text-slate-200 text-sm sm:text-base text-right">{match.away_team}</span>
+                      <div className="flex flex-col sm:flex-row-reverse items-center gap-1.5 sm:gap-3 flex-1 min-w-0 justify-end">
                         {awayFlag ? (
-                          <img src={awayFlag} alt={match.away_team} className="w-8 h-6 sm:w-10 sm:h-7 object-cover rounded shadow-md" />
+                          <img src={awayFlag} alt={match.away_team} className="w-8 h-6 sm:w-10 sm:h-7 object-cover rounded shadow-md flex-shrink-0" />
                         ) : (
-                          <div className="w-8 h-6 sm:w-10 sm:h-7 bg-slate-800 rounded"></div>
+                          <div className="w-8 h-6 sm:w-10 sm:h-7 bg-slate-800 rounded flex-shrink-0"></div>
                         )}
+                        <span className="font-bold text-slate-200 text-xs sm:text-sm md:text-base text-center sm:text-right truncate w-full">{match.away_team}</span>
                       </div>
                     </div>
                   </div>

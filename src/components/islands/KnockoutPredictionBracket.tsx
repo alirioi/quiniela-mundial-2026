@@ -403,21 +403,6 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                 {match.homeTeam || match.placeholderHome}
               </span>
 
-              {/* Penalty shootout winner selector indicator */}
-              {isDraw && !isHomePH && (
-                <button
-                  disabled={!phaseActive}
-                  onClick={() => handleWinnerSelect(match.matchNumber, match.homeTeam)}
-                  className={`px-1 rounded text-[8px] font-extrabold uppercase transition-all shrink-0 cursor-pointer ${
-                    isHomeSelectedWinner
-                      ? 'bg-wc-gold text-slate-950 shadow-sm border border-transparent'
-                      : 'bg-wc-dark border border-wc-border text-slate-500 hover:text-slate-300'
-                  }`}
-                  title="Avanza en penales"
-                >
-                  {isHomeSelectedWinner ? 'Ganador PK' : 'Avanza'}
-                </button>
-              )}
             </div>
             
             <input
@@ -452,21 +437,6 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                 {match.awayTeam || match.placeholderAway}
               </span>
 
-              {/* Penalty shootout winner selector indicator */}
-              {isDraw && !isAwayPH && (
-                <button
-                  disabled={!phaseActive}
-                  onClick={() => handleWinnerSelect(match.matchNumber, match.awayTeam)}
-                  className={`px-1 rounded text-[8px] font-extrabold uppercase transition-all shrink-0 cursor-pointer ${
-                    isAwaySelectedWinner
-                      ? 'bg-wc-gold text-slate-950 shadow-sm border border-transparent'
-                      : 'bg-wc-dark border border-wc-border text-slate-500 hover:text-slate-300'
-                  }`}
-                  title="Avanza en penales"
-                >
-                  {isAwaySelectedWinner ? 'Ganador PK' : 'Avanza'}
-                </button>
-              )}
             </div>
 
             <input
@@ -754,29 +724,29 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
 
       {/* Toast de Autoguardado */}
       {autosaveStatus !== 'idle' && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 md:left-auto md:right-6 md:translate-x-0 transition-all duration-300 animate-fade-in w-[90%] max-w-xs sm:max-w-sm">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 animate-fade-in w-auto max-w-[90vw] shrink-0">
           <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl bg-wc-card/95 ${
             autosaveStatus === 'saved'
               ? 'border-wc-green/70 text-wc-green'
               : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending'
-              ? 'border-wc-gold/70 text-wc-gold animate-pulse'
+              ? 'border-wc-gold/70 text-wc-gold'
               : 'border-wc-red/70 text-wc-red'
           }`}>
             {autosaveStatus === 'saved' ? (
-              <>
+              <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-wc-green shrink-0 animate-bounce" strokeWidth={2.5} />
                 <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Pronósticos guardados</span>
-              </>
+              </div>
             ) : autosaveStatus === 'saving' || autosaveStatus === 'saving-pending' ? (
-              <>
+              <div className="flex items-center gap-3 animate-pulse">
                 <Loader2 className="w-5 h-5 text-wc-gold shrink-0 animate-spin" strokeWidth={2.5} />
                 <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Guardando...</span>
-              </>
+              </div>
             ) : (
-              <>
+              <div className="flex items-center gap-3">
                 <AlertTriangle className="w-5 h-5 text-wc-red shrink-0" strokeWidth={2.5} />
                 <span className="text-xs sm:text-sm font-bold font-sports uppercase tracking-wider">Error al guardar</span>
-              </>
+              </div>
             )}
           </div>
         </div>

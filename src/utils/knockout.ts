@@ -306,13 +306,26 @@ export function calculateKnockoutBracket(
   };
 
   // Overwrite R32 matches with DB matches if provided
+  const isPlaceholderName = (name?: string) => {
+    if (!name) return true;
+    return name.startsWith('1º') || 
+           name.startsWith('2º') || 
+           name.startsWith('3º') || 
+           name.startsWith('Ganador') ||
+           name.startsWith('Perdedor');
+  };
+
   if (dbMatches && dbMatches.length > 0) {
     dbMatches.forEach(dbMatch => {
       const num = dbMatch.match_number || dbMatch.matchNumber;
       if (num && r32[num]) {
-        // Only override if we have a real team or specific placeholder from the DB
-        if (dbMatch.home_team) r32[num].homeTeam = dbMatch.home_team;
-        if (dbMatch.away_team) r32[num].awayTeam = dbMatch.away_team;
+        // Solo sobrescribe si el equipo en la DB no es un placeholder genérico
+        if (dbMatch.home_team && !isPlaceholderName(dbMatch.home_team)) {
+          r32[num].homeTeam = dbMatch.home_team;
+        }
+        if (dbMatch.away_team && !isPlaceholderName(dbMatch.away_team)) {
+          r32[num].awayTeam = dbMatch.away_team;
+        }
         if (dbMatch.home_score !== undefined) r32[num].homeScore = dbMatch.home_score;
         if (dbMatch.away_score !== undefined) r32[num].awayScore = dbMatch.away_score;
         if (dbMatch.winner) r32[num].winner = dbMatch.winner;

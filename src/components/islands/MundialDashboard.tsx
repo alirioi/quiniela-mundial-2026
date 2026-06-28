@@ -324,7 +324,7 @@ export default function MundialDashboard({ matches }: Props) {
       <div className="bg-wc-card border border-wc-border rounded-2xl overflow-hidden shadow-xl">
         <div className="p-6 sm:p-8 bg-gradient-to-br from-wc-dark/50 to-wc-card relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 relative z-10">
+          <div className="flex flex-col gap-5 sm:gap-6 relative z-10">
             <div>
               <h1 className="text-3xl sm:text-4xl font-black font-sports tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-wc-gold to-amber-500 uppercase">
                 Mundial FIFA 2026
@@ -333,12 +333,12 @@ export default function MundialDashboard({ matches }: Props) {
                 Consulta los resultados oficiales, las tablas de posiciones actualizadas y la clasificación de los mejores terceros de la fase de grupos.
               </p>
             </div>
-            <div className="flex w-full md:w-auto items-center gap-1 sm:gap-2 bg-wc-dark/60 p-1.5 rounded-xl border border-wc-border overflow-x-auto custom-scrollbar whitespace-nowrap">
+            <div className="flex w-full items-center gap-1 sm:gap-2 bg-wc-dark/60 p-1.5 rounded-xl border border-wc-border overflow-x-auto custom-scrollbar whitespace-nowrap">
               <button
                 onClick={() => setActiveTab('grupos')}
                 title="Tabla de Grupos"
                 aria-label="Ver grupos"
-                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+                className={`flex-1 basis-0 min-w-[90px] sm:min-w-[140px] shrink-0 py-2.5 sm:py-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'grupos' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -348,7 +348,7 @@ export default function MundialDashboard({ matches }: Props) {
                 onClick={() => setActiveTab('terceros')}
                 title="Clasificación de Terceros"
                 aria-label="Ver mejores terceros"
-                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+                className={`flex-1 basis-0 min-w-[90px] sm:min-w-[140px] shrink-0 py-2.5 sm:py-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'terceros' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -358,7 +358,7 @@ export default function MundialDashboard({ matches }: Props) {
                 onClick={() => setActiveTab('calendario')}
                 title="Calendario de Partidos"
                 aria-label="Ver calendario de partidos"
-                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+                className={`flex-1 basis-0 min-w-[90px] sm:min-w-[140px] shrink-0 py-2.5 sm:py-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'calendario' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -368,7 +368,7 @@ export default function MundialDashboard({ matches }: Props) {
                 onClick={() => setActiveTab('llave')}
                 title="Fase Eliminatoria"
                 aria-label="Ver llave de fase eliminatoria"
-                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+                className={`flex-1 basis-0 min-w-[90px] sm:min-w-[140px] shrink-0 py-2.5 sm:py-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'llave' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -378,7 +378,7 @@ export default function MundialDashboard({ matches }: Props) {
                 onClick={() => setActiveTab('estadisticas')}
                 title="Estadísticas del Mundial"
                 aria-label="Ver estadísticas"
-                className={`flex-1 md:flex-none shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+                className={`flex-1 basis-0 min-w-[90px] sm:min-w-[140px] shrink-0 py-2.5 sm:py-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === 'estadisticas' ? 'bg-wc-gold text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >

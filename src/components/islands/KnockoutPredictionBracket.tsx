@@ -77,7 +77,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
 
   // Visualization modes
   const [viewMode, setViewMode] = useState<'llave' | 'fase' | 'fechas' | 'cronologico'>('llave');
-  const [cronologicoTab, setCronologicoTab] = useState<'todos' | 'por-jugar'>('todos');
+  const [cronologicoTab, setCronologicoTab] = useState<'todos' | 'por-jugar' | 'sin-pronostico'>('todos');
   const [activeDate, setActiveDate] = useState<string>('');
 
   const todayStrShort = useMemo(() => {
@@ -455,12 +455,22 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
 
   const porJugarMatches = useMemo(() => {
     const unplayed = allCalculatedMatches.filter(m => {
+      const dbMatch = dbMatches.find(dbM => dbM.match_number === m.matchNumber);
+      return dbMatch?.status === 'scheduled';
+    });
+    return sortChronologically(unplayed);
+  }, [allCalculatedMatches, dbMatches]);
+
+  const sinPronosticoMatches = useMemo(() => {
+    const unpredicted = allCalculatedMatches.filter(m => {
+      const dbMatch = dbMatches.find(dbM => dbM.match_number === m.matchNumber);
+      if (!dbMatch || dbMatch.status !== 'scheduled') return false;
       const pred = predictionsMap[m.matchNumber];
       const hasScore = pred && pred.predicted_home !== null && pred.predicted_away !== null &&
                        pred.predicted_home !== undefined && pred.predicted_away !== undefined;
       return !hasScore;
     });
-    return sortChronologically(unplayed);
+    return sortChronologically(unpredicted);
   }, [allCalculatedMatches, predictionsMap, dbMatches]);
 
   const getCountdownText = (matchTime: Date | null) => {
@@ -857,8 +867,8 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                 onClick={() => setViewMode('llave')}
                 className={`hidden xl:inline-flex px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
                   viewMode === 'llave'
-                    ? 'bg-wc-blue text-slate-950 shadow-md font-extrabold'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-wc-blue text-slate-900 shadow-md font-extrabold'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                 }`}
               >
                 Por Llave
@@ -868,8 +878,8 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                 onClick={() => setViewMode('fase')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
                   viewMode === 'fase'
-                    ? 'bg-wc-blue text-slate-950 shadow-md font-extrabold'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-wc-blue text-slate-900 shadow-md font-extrabold'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                 }`}
               >
                 Por Fase
@@ -880,8 +890,8 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                   onClick={() => setViewMode('fechas')}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
                     viewMode === 'fechas'
-                      ? 'bg-wc-blue text-slate-950 shadow-md font-extrabold'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-wc-blue text-slate-900 shadow-md font-extrabold'
+                      : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                   }`}
                 >
                   Por Fecha
@@ -892,8 +902,8 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                 onClick={() => setViewMode('cronologico')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
                   viewMode === 'cronologico'
-                    ? 'bg-wc-blue text-slate-950 shadow-md font-extrabold'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-wc-blue text-slate-900 shadow-md font-extrabold'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                 }`}
               >
                 Cronológico
@@ -968,7 +978,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
             <div className="space-y-6">
               {/* Navigation/Rounds Tabs */}
               <div className="flex justify-center">
-                <div className="inline-flex rounded-xl bg-wc-dark p-1 border border-wc-border/50 max-w-full overflow-x-auto custom-scrollbar">
+                <div className="inline-flex rounded-xl bg-wc-dark p-1 border border-wc-border/50 max-w-full overflow-x-auto custom-scrollbar gap-1.5">
                   {roundsInfo.map((round) => (
                     <button
                       key={round.id}
@@ -1037,14 +1047,14 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
           {/* MODO CRONOLOGICO */}
           {viewMode === 'cronologico' && (
             <div className="space-y-6">
-              <div className="flex bg-wc-dark/95 border border-wc-border rounded-xl p-1 shadow-inner w-fit mb-6">
+              <div className="flex bg-wc-dark/95 border border-wc-border rounded-xl p-1 shadow-inner w-fit mb-6 gap-1">
                 <button
                   type="button"
                   onClick={() => setCronologicoTab('todos')}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
                     cronologicoTab === 'todos'
                       ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                   }`}
                 >
                   Todos
@@ -1055,10 +1065,21 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
                     cronologicoTab === 'por-jugar'
                       ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                   }`}
                 >
                   Por Jugar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCronologicoTab('sin-pronostico')}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all cursor-pointer ${
+                    cronologicoTab === 'sin-pronostico'
+                      ? 'bg-wc-gold text-slate-950 shadow-md font-extrabold'
+                      : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                  }`}
+                >
+                  Sin Pronóstico
                 </button>
               </div>
 
@@ -1072,6 +1093,19 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
                 porJugarMatches.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
                     {porJugarMatches.map(renderLargeMatchCard)}
+                  </div>
+                ) : (
+                  <div className="p-12 text-center bg-wc-card/30 rounded-2xl border border-wc-border/50 flex flex-col items-center justify-center gap-3 max-w-lg mx-auto">
+                    <CheckCircle2 className="w-10 h-10 text-wc-green" strokeWidth={1.5} />
+                    <p className="text-slate-400 font-medium text-sm">No hay partidos pendientes por jugar en esta fase.</p>
+                  </div>
+                )
+              )}
+
+              {cronologicoTab === 'sin-pronostico' && (
+                sinPronosticoMatches.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+                    {sinPronosticoMatches.map(renderLargeMatchCard)}
                   </div>
                 ) : (
                   <div className="p-12 text-center bg-wc-card/30 rounded-2xl border border-wc-border/50 flex flex-col items-center justify-center gap-3 max-w-lg mx-auto">

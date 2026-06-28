@@ -223,20 +223,38 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
     return Object.values(allStats).sort((a, b) => b.gf - a.gf);
   }, [matches, goldTeams]);
 
-  // Navegación del carrusel
+  // Estadísticas generales del torneo para Slide 0
+  const tournamentStats = useMemo(() => {
+    const totalMatchesCount = 104;
+    const played = matches.filter(m => m.status === 'finished').length;
+    const remaining = totalMatchesCount - played;
+    const percentage = Math.round((played / totalMatchesCount) * 100);
+    
+    const goals = matches.reduce((acc, m) => {
+      if (m.status === 'finished' || m.status === 'live') {
+        return acc + (m.home_score ?? 0) + (m.away_score ?? 0);
+      }
+      return acc;
+    }, 0);
+    
+    const avg = played > 0 ? (goals / played).toFixed(2) : '0.00';
+    
+    return { played, remaining, percentage, goals, avg };
+  }, [matches]);
+
+  // Navegación del carrusel (3 slides ahora)
   const handlePrev = () => {
-    setCurrentSlide(prev => (prev === 0 ? 3 : prev - 1));
+    setCurrentSlide(prev => (prev === 0 ? 2 : prev - 1));
   };
 
   const handleNext = () => {
-    setCurrentSlide(prev => (prev === 3 ? 0 : prev + 1));
+    setCurrentSlide(prev => (prev === 2 ? 0 : prev + 1));
   };
 
   const slideTitles = [
-    'Estadísticas en Vivo',
+    'Progreso del Torneo',
     'Pronóstico de Oro',
-    'Top Goleadores',
-    'Mejores Terceros'
+    'Top Goleadores'
   ];
 
   return (
@@ -269,65 +287,48 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
 
         {/* Slides Content */}
         <div className="mt-3.5 flex-grow">
-          {/* SLIDE 0: Clasificación del Grupo */}
+          {/* SLIDE 0: Estadísticas Generales del Torneo */}
           {currentSlide === 0 && (
             <div className="space-y-3.5">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-400 font-sports uppercase tracking-wider">Clasificación en Vivo</span>
-                {activeGroup && (
-                  <span className="text-[9px] bg-wc-gold/15 text-wc-gold px-2 py-0.5 rounded-full border border-wc-gold/20 font-bold uppercase tracking-widest font-sports">
-                    {activeGroup}
-                  </span>
-                )}
+                <span className="text-[10px] text-slate-400 font-sports uppercase tracking-wider">Estadísticas Generales</span>
+                <span className="text-[9px] bg-wc-gold/15 text-wc-gold px-2 py-0.5 rounded-full border border-wc-gold/20 font-bold uppercase tracking-widest font-sports">
+                  Mundial 2026
+                </span>
               </div>
-              {currentGroupStandings.length === 0 ? (
-                <div className="text-center py-8 text-xs text-slate-400 font-sports uppercase tracking-wider">
-                  No hay datos del grupo disponibles.
+              
+              <div className="bg-wc-dark/40 rounded-xl p-3.5 border border-wc-border/50 space-y-3.5">
+                {/* Barra de progreso */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-[11px] font-bold font-sports uppercase tracking-wider text-slate-300">
+                    <span>Partidos Jugados</span>
+                    <span className="text-wc-gold">{tournamentStats.played} / 104 ({tournamentStats.percentage}%)</span>
+                  </div>
+                  <div className="w-full h-2.5 bg-wc-dark rounded-full overflow-hidden border border-wc-border/40">
+                    <div 
+                      className="h-full bg-gradient-to-r from-wc-gold to-amber-500 rounded-full transition-all duration-500" 
+                      style={{ width: `${tournamentStats.percentage}%` }}
+                    />
+                  </div>
                 </div>
-              ) : (
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-wc-dark/30 text-[10px] uppercase font-sports tracking-wider text-slate-500 border-b border-wc-border/30">
-                      <th className="px-1 py-1.5 text-center w-6">#</th>
-                      <th className="px-1 py-1.5">Equipo</th>
-                      <th className="px-1 py-1.5 text-center w-8" title="Partidos Jugados">PJ</th>
-                      <th className="px-1 py-1.5 text-center w-8" title="Diferencia de Goles">DG</th>
-                      <th className="px-1 py-1.5 text-center w-8 text-wc-gold" title="Puntos">PTS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentGroupStandings.map((team, idx) => {
-                      const flagUrl = getTeamFlagUrl(team.team);
-                      const isQualifier = idx < 2;
-                      
-                      return (
-                        <tr key={team.team} className="border-b border-wc-border/10 hover:bg-white/5 transition-colors text-xs">
-                          <td className="px-1 py-1.5 text-center">
-                            <span className={`font-sports font-bold ${isQualifier ? 'text-wc-green' : 'text-slate-450'}`}>
-                              {idx + 1}
-                            </span>
-                          </td>
-                          <td className="px-1 py-1.5 font-bold text-slate-200">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              {flagUrl ? (
-                                <img src={flagUrl} alt="" className="w-4 h-3 object-cover rounded-[1px] shadow-sm flex-shrink-0" />
-                              ) : (
-                                <div className="w-4 h-3 bg-slate-700 rounded-[1px] flex-shrink-0"></div>
-                              )}
-                              <span className="truncate max-w-[100px]">{team.team}</span>
-                            </div>
-                          </td>
-                          <td className="px-1 py-1.5 text-center text-slate-350 font-medium">{team.pj}</td>
-                          <td className="px-1 py-1.5 text-center font-medium text-slate-350">
-                            {team.dg > 0 ? `+${team.dg}` : team.dg}
-                          </td>
-                          <td className="px-1 py-1.5 text-center font-bold text-wc-gold">{team.pts}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
+
+                {/* Grid de goles y promedio */}
+                <div className="grid grid-cols-2 gap-3 text-center pt-1">
+                  <div className="bg-wc-dark/60 rounded-xl p-2.5 border border-wc-border/30">
+                    <span className="text-[9px] text-slate-450 uppercase font-sports tracking-wider block">Goles Totales</span>
+                    <span className="text-lg font-black text-slate-100 font-mono mt-0.5 block">{tournamentStats.goals}</span>
+                  </div>
+                  <div className="bg-wc-dark/60 rounded-xl p-2.5 border border-wc-border/30">
+                    <span className="text-[9px] text-slate-450 uppercase font-sports tracking-wider block">Promedio Goles</span>
+                    <span className="text-lg font-black text-wc-gold font-mono mt-0.5 block">{tournamentStats.avg}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-slate-400 font-medium px-1">
+                  <span>Partidos por jugar:</span>
+                  <span className="font-bold text-slate-200">{tournamentStats.remaining}</span>
+                </div>
+              </div>
             </div>
           )}
 
@@ -420,61 +421,7 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
             </div>
           )}
 
-          {/* SLIDE 3: Mejores Terceros */}
-          {currentSlide === 3 && (
-            <div className="space-y-3">
-              <span className="text-[10px] text-slate-400 font-sports uppercase tracking-wider block">Clasificación de Terceros (Top 8)</span>
-              {thirdPlaces.length === 0 ? (
-                <div className="text-center py-8 text-xs text-slate-400 font-sports uppercase tracking-wider">
-                  No hay datos disponibles.
-                </div>
-              ) : (
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-wc-dark/30 text-[10px] uppercase font-sports tracking-wider text-slate-500 border-b border-wc-border/30">
-                      <th className="px-1 py-1.5 text-center w-6">Pos</th>
-                      <th className="px-1 py-1.5">Equipo</th>
-                      <th className="px-1 py-1.5 text-center w-8" title="Partidos Jugados">PJ</th>
-                      <th className="px-1 py-1.5 text-center w-8" title="Diferencia de Goles">DG</th>
-                      <th className="px-1 py-1.5 text-center w-8 text-wc-gold" title="Puntos">PTS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {thirdPlaces.slice(0, 8).map((team, idx) => {
-                      const flagUrl = getTeamFlagUrl(team.team);
-                      const isQualifier = idx < 8; // Los 8 mejores terceros clasifican
-                      
-                      return (
-                        <tr key={team.team} className="border-b border-wc-border/10 hover:bg-white/5 transition-colors text-xs">
-                          <td className="px-1 py-1 text-center">
-                            <span className={`font-sports font-bold ${isQualifier ? 'text-wc-green' : 'text-wc-red'}`}>
-                              {idx + 1}
-                            </span>
-                          </td>
-                          <td className="px-1 py-1 font-bold text-slate-200">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              {flagUrl ? (
-                                <img src={flagUrl} alt="" className="w-4 h-3 object-cover rounded-[1px] shadow-sm flex-shrink-0" />
-                              ) : (
-                                <div className="w-4 h-3 bg-slate-700 rounded-[1px] flex-shrink-0"></div>
-                              )}
-                              <span className="truncate max-w-[85px]">{team.team}</span>
-                              <span className="text-[9px] text-slate-450 font-normal shrink-0">({team.group.split(' ')[1] || team.group})</span>
-                            </div>
-                          </td>
-                          <td className="px-1 py-1 text-center text-slate-350 font-medium">{team.pj}</td>
-                          <td className="px-1 py-1 text-center font-medium text-slate-350">
-                            {team.dg > 0 ? `+${team.dg}` : team.dg}
-                          </td>
-                          <td className="px-1 py-1 text-center font-bold text-wc-gold">{team.pts}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
+          {/* Slide 3 eliminado (Mejores terceros) */}
         </div>
       </div>
 
@@ -482,7 +429,7 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
       <div className="pt-2 border-t border-wc-border/30 space-y-2.5">
         {/* Carousel indicator dots */}
         <div className="flex items-center justify-center gap-1.5">
-          {[0, 1, 2, 3].map(slideIdx => (
+          {[0, 1, 2].map(slideIdx => (
             <button
               key={slideIdx}
               onClick={() => setCurrentSlide(slideIdx)}

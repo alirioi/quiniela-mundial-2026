@@ -24,6 +24,7 @@ export interface Match {
   status: 'scheduled' | 'live' | 'finished';
   group_name: string | null;
   match_number: number;
+  penalty_winner?: string | null;
 }
 
 interface Player {

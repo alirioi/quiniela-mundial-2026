@@ -22,12 +22,14 @@ interface Match {
   status: 'scheduled' | 'live' | 'finished';
   group_name: string | null;
   match_number: number;
+  penalty_winner?: string | null;
 }
 
 interface MatchEditState {
   home_score: string;
   away_score: string;
   status: 'scheduled' | 'live' | 'finished';
+  penalty_winner: string | null;
 }
 
 export default function AdminMatchResults() {
@@ -64,6 +66,7 @@ export default function AdminMatchResults() {
           home_score: m.home_score !== null ? String(m.home_score) : '',
           away_score: m.away_score !== null ? String(m.away_score) : '',
           status: m.status,
+          penalty_winner: m.penalty_winner || null,
         };
       });
       setEditStates(initialEdits);
@@ -87,6 +90,16 @@ export default function AdminMatchResults() {
       [matchId]: {
         ...prev[matchId],
         [`${field}_score`]: val,
+      },
+    }));
+  };
+
+  const handlePenaltyWinnerChange = (matchId: number, team: string | null) => {
+    setEditStates((prev) => ({
+      ...prev,
+      [matchId]: {
+        ...prev[matchId],
+        penalty_winner: team,
       },
     }));
   };
@@ -120,6 +133,7 @@ export default function AdminMatchResults() {
           homeScore: homeScoreVal,
           awayScore: awayScoreVal,
           status: state.status,
+          penaltyWinner: state.penalty_winner,
         }),
       });
 
@@ -132,7 +146,7 @@ export default function AdminMatchResults() {
       setMatches((prev) =>
         prev.map((m) =>
           m.id === matchId
-            ? { ...m, home_score: homeScoreVal, away_score: awayScoreVal, status: state.status }
+            ? { ...m, home_score: homeScoreVal, away_score: awayScoreVal, status: state.status, penalty_winner: state.penalty_winner }
             : m
         )
       );
@@ -337,6 +351,39 @@ export default function AdminMatchResults() {
                     </div>
                   </div>
                 </div>
+                {/* Selector de Penales (solo en eliminatorias si hay empate) */}
+                {match.phase_id > 1 &&
+                  editState.status === 'finished' &&
+                  editState.home_score !== '' &&
+                  editState.home_score === editState.away_score && (
+                    <div className="mt-4 pt-3.5 border-t border-wc-border relative z-10 flex flex-col gap-2">
+                      <label className="text-xs font-sports uppercase tracking-wider text-slate-400">
+                        Ganador en Penales
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handlePenaltyWinnerChange(match.id, match.home_team)}
+                          className={`flex-1 p-2 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all border ${
+                            editState.penalty_winner === match.home_team
+                              ? 'bg-wc-gold/20 border-wc-gold text-wc-gold shadow-sm shadow-wc-gold/10'
+                              : 'bg-wc-dark/40 border-wc-border text-slate-400 hover:text-white hover:border-slate-500'
+                          }`}
+                        >
+                          {match.home_team}
+                        </button>
+                        <button
+                          onClick={() => handlePenaltyWinnerChange(match.id, match.away_team)}
+                          className={`flex-1 p-2 rounded-lg text-xs font-bold font-sports uppercase tracking-wider transition-all border ${
+                            editState.penalty_winner === match.away_team
+                              ? 'bg-wc-gold/20 border-wc-gold text-wc-gold shadow-sm shadow-wc-gold/10'
+                              : 'bg-wc-dark/40 border-wc-border text-slate-400 hover:text-white hover:border-slate-500'
+                          }`}
+                        >
+                          {match.away_team}
+                        </button>
+                      </div>
+                    </div>
+                  )}
  
                 {/* Footer de la tarjeta con selector de estado y botón guardar */}
                 <div className="flex items-center justify-between gap-4 mt-4 pt-3.5 border-t border-wc-border relative z-10">

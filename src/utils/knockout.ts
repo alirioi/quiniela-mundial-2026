@@ -315,37 +315,47 @@ export function calculateKnockoutBracket(
            name.startsWith('Perdedor');
   };
 
-  if (dbMatches && dbMatches.length > 0) {
+  // Helper para sobreescribir con dbMatches
+  const applyDbMatches = (round: Record<number, KnockoutMatch>) => {
+    if (!dbMatches || dbMatches.length === 0) return;
     dbMatches.forEach(dbMatch => {
       const num = dbMatch.match_number || dbMatch.matchNumber;
-      if (num && r32[num]) {
-        // Solo sobrescribe si el equipo en la DB no es un placeholder genérico
+      if (num && round[num]) {
         if (dbMatch.home_team && !isPlaceholderName(dbMatch.home_team)) {
-          r32[num].homeTeam = dbMatch.home_team;
+          round[num].homeTeam = dbMatch.home_team;
         }
         if (dbMatch.away_team && !isPlaceholderName(dbMatch.away_team)) {
-          r32[num].awayTeam = dbMatch.away_team;
+          round[num].awayTeam = dbMatch.away_team;
         }
-        if (dbMatch.home_score !== undefined) r32[num].homeScore = dbMatch.home_score;
-        if (dbMatch.away_score !== undefined) r32[num].awayScore = dbMatch.away_score;
-        if (dbMatch.winner) r32[num].winner = dbMatch.winner;
+        if (dbMatch.home_score !== undefined) round[num].homeScore = dbMatch.home_score;
+        if (dbMatch.away_score !== undefined) round[num].awayScore = dbMatch.away_score;
+        if (dbMatch.winner) round[num].winner = dbMatch.winner;
         else if (dbMatch.status === 'finished' && dbMatch.home_score !== null && dbMatch.away_score !== null) {
-          r32[num].winner = dbMatch.home_score > dbMatch.away_score ? dbMatch.home_team : dbMatch.away_team;
+          if (dbMatch.home_score > dbMatch.away_score) {
+            round[num].winner = dbMatch.home_team;
+          } else if (dbMatch.away_score > dbMatch.home_score) {
+            round[num].winner = dbMatch.away_team;
+          } else if (dbMatch.penalty_winner) {
+            round[num].winner = dbMatch.penalty_winner;
+          }
         }
       }
     });
-  }
+  };
+
+  applyDbMatches(r32);
 
   // Helper to dynamically get winners of R32
   const getWinnerName = (match: KnockoutMatch): string => {
     // If the match has a simulated or real winner, return that team name.
     // If team name starts with placeholders, return "Ganador M[number]"
     if (match.winner) return match.winner;
-    if (match.homeTeam && !match.homeTeam.startsWith('1º') && !match.homeTeam.startsWith('2º') && !match.homeTeam.startsWith('3º')) {
+    if (match.homeTeam && !isPlaceholderName(match.homeTeam)) {
       // If we are simulating or have scores, decide based on that
       if (match.homeScore !== undefined && match.homeScore !== null && match.awayScore !== undefined && match.awayScore !== null) {
         if (match.homeScore > match.awayScore) return match.homeTeam;
         if (match.awayScore > match.homeScore) return match.awayTeam;
+        // penalty_winner no está en KnockoutMatch actualmente, pero lo toma de winner arriba.
       }
     }
     return `Ganador M${match.matchNumber}`;
@@ -427,6 +437,8 @@ export function calculateKnockoutBracket(
     }
   };
 
+  applyDbMatches(r16);
+
   // Build the 4 Quarterfinals (Matches 97 - 100)
   const qf: Record<number, KnockoutMatch> = {
     97: {
@@ -467,6 +479,8 @@ export function calculateKnockoutBracket(
     }
   };
 
+  applyDbMatches(qf);
+
   // Build the 2 Semifinals (Matches 101 - 102)
   const sf: Record<number, KnockoutMatch> = {
     101: {
@@ -489,12 +503,14 @@ export function calculateKnockoutBracket(
     }
   };
 
+  applyDbMatches(sf);
+
   // Helper to dynamically get losers of semifinals/r32
   const getLoserName = (match: KnockoutMatch): string => {
     if (match.winner) {
       return match.winner === match.homeTeam ? match.awayTeam : match.homeTeam;
     }
-    if (match.homeTeam && !match.homeTeam.startsWith('1º') && !match.homeTeam.startsWith('2º') && !match.homeTeam.startsWith('3º')) {
+    if (match.homeTeam && !isPlaceholderName(match.homeTeam)) {
       if (match.homeScore !== undefined && match.homeScore !== null && match.awayScore !== undefined && match.awayScore !== null) {
         return match.homeScore > match.awayScore ? match.awayTeam : match.homeTeam;
       }
@@ -523,6 +539,9 @@ export function calculateKnockoutBracket(
     dateStr: '18 JUL',
     venue: 'Miami'
   };
+
+  applyDbMatches({ 104: finalMatch });
+  applyDbMatches({ 103: thirdPlaceMatch });
 
   return { r32, r16, qf, sf, finalMatch, thirdPlaceMatch };
 }

@@ -32,7 +32,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
         away_score,
         status,
         group_name,
-        match_number
+        match_number,
+        penalty_winner
       `)
       .order('match_time', { ascending: true });
 

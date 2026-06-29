@@ -15,7 +15,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
   }
 
   try {
-    const { homeScore, awayScore, status } = await request.json();
+    const { homeScore, awayScore, status, penaltyWinner } = await request.json();
 
     const updateData: any = {};
     
@@ -25,6 +25,10 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     
     if (awayScore !== undefined && awayScore !== null) {
       updateData.away_score = parseInt(awayScore, 10);
+    }
+
+    if (penaltyWinner !== undefined) {
+      updateData.penalty_winner = penaltyWinner;
     }
 
     if (status) {

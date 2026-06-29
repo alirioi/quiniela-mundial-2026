@@ -220,6 +220,11 @@ export default function KnockoutBracket({ groupStandings, thirdPlaces, isSimulat
             
             {status === 'finished' && <span className="text-[9px] uppercase font-bold text-slate-500 mt-1">Final</span>}
             {status === 'live' && <span className="text-[9px] uppercase font-bold text-red-500 mt-1 animate-pulse">En Vivo</span>}
+            {dbMatch?.penalty_winner && (
+              <span className="text-[9px] uppercase font-bold text-wc-gold mt-1 text-center leading-tight">
+                Penales:<br/>{dbMatch.penalty_winner}
+              </span>
+            )}
           </div>
 
           {/* Away Team */}

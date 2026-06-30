@@ -114,7 +114,8 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
   }, [viewMode]);
 
   // Trigger autosave when changes occur
-  const isLocked = (matchTimeStr: string | undefined | null) => {
+  const isLocked = (matchTimeStr: string | undefined | null, status?: string) => {
+    if (status && status !== 'scheduled') return true;
     if (!matchTimeStr) return false;
     const matchTime = new Date(matchTimeStr).getTime();
     const lockTime = matchTime - 5 * 60 * 1000;
@@ -134,7 +135,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
           predictedHome: pred.predicted_home,
           predictedAway: pred.predicted_away,
           predictedWinner: pred.predicted_winner,
-          isLocked: isLocked(dbMatch?.match_time)
+          isLocked: isLocked(dbMatch?.match_time, dbMatch?.status)
         };
       })
       .filter(p => p.matchId !== undefined && p.predictedHome !== null && p.predictedAway !== null && !p.isLocked);
@@ -269,7 +270,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
             predictedHome: pred.predicted_home,
             predictedAway: pred.predicted_away,
             predictedWinner: pred.predicted_winner,
-            isLocked: isLocked(dbMatch?.match_time)
+            isLocked: isLocked(dbMatch?.match_time, dbMatch?.status)
           };
         })
         .filter(p => p.matchId !== undefined && p.predictedHome !== null && p.predictedAway !== null && !p.isLocked);
@@ -553,6 +554,10 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
     const isHomeSelectedWinner = pred.predicted_winner === match.homeTeam;
     const isAwaySelectedWinner = pred.predicted_winner === match.awayTeam;
 
+    const dbMatch = dbMatches.find(dbM => dbM.match_number === match.matchNumber);
+    const locked = isLocked(dbMatch?.match_time) || (dbMatch && dbMatch.status !== 'scheduled');
+    const inputDisabled = !phaseActive || isHomePH || isAwayPH || !!locked;
+
     return (
       <div
         key={match.matchNumber}
@@ -607,11 +612,11 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
               pattern="[0-9]*"
               inputMode="numeric"
               placeholder="-"
-              disabled={!phaseActive || isHomePH || isAwayPH}
+              disabled={inputDisabled}
               value={pred.predicted_home ?? ''}
               onChange={(e) => handleScoreChange(match.matchNumber, 'home', e.target.value)}
               className={`w-7 h-7 rounded-lg bg-wc-dark/30 border border-wc-border text-center font-sports text-xs text-slate-200 font-bold flex-shrink-0 focus:border-wc-gold/50 focus:outline-none ${
-                !phaseActive || isHomePH || isAwayPH ? 'cursor-not-allowed text-slate-550' : 'hover:border-slate-700'
+                inputDisabled ? 'cursor-not-allowed text-slate-550' : 'hover:border-slate-700'
               }`}
             />
           </div>
@@ -641,11 +646,11 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
               pattern="[0-9]*"
               inputMode="numeric"
               placeholder="-"
-              disabled={!phaseActive || isHomePH || isAwayPH}
+              disabled={inputDisabled}
               value={pred.predicted_away ?? ''}
               onChange={(e) => handleScoreChange(match.matchNumber, 'away', e.target.value)}
               className={`w-7 h-7 rounded-lg bg-wc-dark/30 border border-wc-border text-center font-sports text-xs text-slate-200 font-bold flex-shrink-0 focus:border-wc-gold/50 focus:outline-none ${
-                !phaseActive || isHomePH || isAwayPH ? 'cursor-not-allowed text-slate-550' : 'hover:border-slate-700'
+                inputDisabled ? 'cursor-not-allowed text-slate-550' : 'hover:border-slate-700'
               }`}
             />
           </div>
@@ -785,7 +790,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
     const awayFlag = isAwayPH ? null : getTeamFlagUrl(match.awayTeam);
 
     const dbMatch = dbMatches.find((m) => m.id === matchIdMap[match.matchNumber]);
-    const locked = isLocked(dbMatch?.match_time) || (dbMatch && dbMatch.status !== 'scheduled');
+    const locked = isLocked(dbMatch?.match_time, dbMatch?.status);
 
     const pred = predictionsMap[match.matchNumber] || { predicted_home: null, predicted_away: null, predicted_winner: null };
 

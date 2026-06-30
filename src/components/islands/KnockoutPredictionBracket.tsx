@@ -561,28 +561,56 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
     return (
       <div
         key={match.matchNumber}
-        className={`bg-wc-card border transition-all duration-300 rounded-2xl p-3 flex flex-col relative overflow-hidden group shadow-lg ${
-          highlighted
-            ? 'border-wc-gold shadow-[0_0_15px_rgba(212,175,55,0.2)] scale-[1.02] z-20'
-            : 'border-wc-border hover:border-wc-gold/30'
+        className={`border transition-all duration-300 rounded-2xl p-3 flex flex-col relative overflow-hidden group shadow-lg ${
+          dbMatch?.status === 'finished'
+            ? 'bg-wc-card/40 border-slate-700/50'
+            : dbMatch?.status === 'live'
+            ? 'bg-wc-card border-wc-red shadow-[0_0_15px_rgba(239,68,68,0.2)]'
+            : highlighted
+            ? 'bg-wc-card border-wc-gold shadow-[0_0_15px_rgba(212,175,55,0.2)] scale-[1.02] z-20'
+            : 'bg-wc-card border-wc-border hover:border-wc-gold/30'
         }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between text-[10px] font-sports uppercase tracking-wider text-slate-450 mb-2 border-b border-wc-border pb-1.5">
-          {match.matchNumber === 104 ? (
-            <>
-              <span className="xl:hidden text-wc-gold font-black tracking-widest bg-wc-gold/15 px-1.5 py-0.5 rounded border border-wc-gold/25">Gran Final</span>
+          <div className="flex items-center gap-1">
+            {match.matchNumber === 104 ? (
               <span className="hidden xl:inline text-slate-500 font-bold">Partido {match.matchNumber}</span>
-            </>
-          ) : match.matchNumber === 103 ? (
-            <>
-              <span className="xl:hidden text-wc-blue font-black tracking-widest bg-wc-blue/15 px-1.5 py-0.5 rounded border border-wc-blue/25">3er Puesto</span>
+            ) : match.matchNumber === 103 ? (
               <span className="hidden xl:inline text-slate-500 font-bold">Partido {match.matchNumber}</span>
-            </>
+            ) : (
+              <span className="text-slate-500 font-bold">Partido {match.matchNumber}</span>
+            )}
+            {(match.matchNumber === 104 || match.matchNumber === 103) && (
+              <span className={`xl:hidden px-1.5 py-0.5 rounded border font-black tracking-widest ${
+                match.matchNumber === 104 ? 'bg-wc-gold/15 text-wc-gold border-wc-gold/25' : 'bg-wc-blue/15 text-wc-blue border-wc-blue/25'
+              }`}>
+                {match.matchNumber === 104 ? 'Gran Final' : '3er Puesto'}
+              </span>
+            )}
+          </div>
+          {dbMatch?.status === 'live' ? (
+            <span className="text-wc-red font-bold animate-pulse">En Vivo</span>
+          ) : dbMatch?.status === 'finished' ? (
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-500 font-bold">Final</span>
+              {dbMatch.prediction && (
+                <span
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold border font-sports text-[8px] sm:text-[9px] tracking-wider uppercase shrink-0 ${
+                    (dbMatch.prediction as any).points_earned === 3
+                      ? 'bg-wc-gold/15 border-wc-gold/30 text-wc-gold'
+                      : (dbMatch.prediction as any).points_earned === 1
+                      ? 'bg-wc-blue/15 border-wc-blue/30 text-wc-blue'
+                      : 'bg-wc-dark border-slate-600 text-slate-400'
+                  }`}
+                >
+                  {(dbMatch.prediction as any).points_earned ?? 0} pts
+                </span>
+              )}
+            </div>
           ) : (
-            <span className="text-slate-500 font-bold">Partido {match.matchNumber}</span>
+            <span className="text-wc-gold font-bold">{formatMatchDateTime(match)}</span>
           )}
-          <span className="text-wc-gold font-bold">{formatMatchDateTime(match)}</span>
         </div>
 
         {/* Teams */}
@@ -657,23 +685,12 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
         </div>
 
         {/* Footer */}
-        {(() => {
-          const dbMatch = dbMatches.find(dbM => dbM.match_number === match.matchNumber);
-          const matchTime = dbMatch ? new Date(dbMatch.match_time) : null;
-          return (
-            <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-wc-border text-slate-400">
-              <div className="flex items-center gap-1 text-[10px] sm:text-xs min-w-0">
-                <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span className="truncate font-semibold">{match.venue}</span>
-              </div>
-              {matchTime && (
-                <span className="text-[8px] font-bold font-sports uppercase tracking-wider text-wc-gold/90 shrink-0 bg-wc-gold/10 px-1.5 py-0.5 rounded border border-wc-gold/15">
-                  {getCountdownText(matchTime)}
-                </span>
-              )}
-            </div>
-          );
-        })()}
+        <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-wc-border text-slate-400">
+          <div className="flex items-center gap-1 text-[10px] sm:text-xs min-w-0">
+            <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span className="truncate font-semibold text-[9.5px] sm:text-[10.5px]" title={match.venue}>{match.venue}</span>
+          </div>
+        </div>
       </div>
     );
   };

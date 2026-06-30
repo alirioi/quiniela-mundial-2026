@@ -105,6 +105,36 @@ export const GET: APIRoute = async ({ locals }) => {
       return new Response(JSON.stringify({ matches: [], match: null, predictions: [], tendencies: null }), { status: 200 });
     }
 
+    // Resolver placeholders usando la lógica de knockout
+    const { data: allMatches } = await supabaseAdmin
+      .from('matches')
+      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
+      .order('match_time', { ascending: true });
+
+    if (allMatches) {
+      const { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } = await import('../../../utils/knockout');
+      const { groupStandings, thirdPlaces } = calculateGroupStandings(allMatches);
+      const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, allMatches);
+      
+      const knockoutMatchesByNumber = new Map();
+      [
+        ...Object.values(bracket.r32),
+        ...Object.values(bracket.r16),
+        ...Object.values(bracket.qf),
+        ...Object.values(bracket.sf),
+        bracket.finalMatch,
+        bracket.thirdPlaceMatch
+      ].filter(Boolean).forEach(km => knockoutMatchesByNumber.set(km.matchNumber, km));
+
+      activeMatches.forEach(match => {
+        const km = knockoutMatchesByNumber.get(match.match_number);
+        if (km) {
+          if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
+          if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
+        }
+      });
+    }
+
     const matchIds = activeMatches.map(m => m.id);
 
     // 3. Obtener todos los participantes aprobados (excluyendo administradores)

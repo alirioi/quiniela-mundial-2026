@@ -53,6 +53,41 @@ export const GET: APIRoute = async ({ locals }) => {
       }
     }
 
+    // Obtener todos los partidos para poder calcular los cuadros y resolver placeholders
+    const { data: allMatches } = await supabaseAdmin
+      .from('matches')
+      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
+      .order('match_time', { ascending: true });
+
+    if (allMatches) {
+      const { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } = await import('../../../utils/knockout');
+      const { groupStandings, thirdPlaces } = calculateGroupStandings(allMatches);
+      const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, allMatches);
+      
+      const knockoutMatchesByNumber = new Map();
+      [
+        ...Object.values(bracket.r32),
+        ...Object.values(bracket.r16),
+        ...Object.values(bracket.qf),
+        ...Object.values(bracket.sf),
+        bracket.finalMatch,
+        bracket.thirdPlaceMatch
+      ].filter(Boolean).forEach(km => knockoutMatchesByNumber.set(km.matchNumber, km));
+
+      const resolvePlaceholders = (matches: any[]) => {
+        matches.forEach(match => {
+          const km = knockoutMatchesByNumber.get(match.match_number);
+          if (km) {
+            if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
+            if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
+          }
+        });
+      };
+
+      if (liveMatches) resolvePlaceholders(liveMatches);
+      if (nextMatches) resolvePlaceholders(nextMatches);
+    }
+
     return new Response(JSON.stringify({
       liveMatches: liveMatches || [],
       nextMatch: nextMatches[0] || null,

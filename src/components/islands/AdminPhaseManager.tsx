@@ -12,8 +12,13 @@ interface Phase {
 
 interface PhaseStats {
   phase_id: number;
-  total_matches: number;
-  completed_count: number;
+  next_match: {
+    id: number;
+    home_team: string;
+    away_team: string;
+    match_time: string;
+  } | null;
+  missing_users: { id: string; name: string }[];
   total_approved: number;
 }
 
@@ -24,6 +29,7 @@ export default function AdminPhaseManager() {
   const [error, setError] = useState<string | null>(null);
   const [notifyingId, setNotifyingId] = useState<number | null>(null);
   const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [expandedPhaseId, setExpandedPhaseId] = useState<number | null>(null);
 
   const handleTogglePhase = async (phaseId: number, currentActive: boolean) => {
     const action = currentActive ? 'desactivar' : 'activar';
@@ -78,9 +84,12 @@ export default function AdminPhaseManager() {
   }, []);
 
   const handleNotifyLaggards = async (phaseId: number, phaseName: string) => {
+    const phaseStat = stats.find(s => s.phase_id === phaseId);
+    if (!phaseStat || !phaseStat.next_match) return;
+
     const result = await showAlert.confirm(
       '¿Enviar recordatorios?',
-      `Se enviará un correo masivo a todos los participantes que no han completado sus pronósticos para la ${phaseName}.`
+      `Se enviará un correo a ${phaseStat.missing_users.length} participante(s) que no han llenado el partido ${phaseStat.next_match.home_team} vs ${phaseStat.next_match.away_team}.`
     );
     if (!result.isConfirmed) return;
 
@@ -174,19 +183,52 @@ export default function AdminPhaseManager() {
                   const phaseStat = stats.find(s => s.phase_id === phase.id);
                   if (!phaseStat) return null;
                   
-                  const { completed_count, total_approved, total_matches } = phaseStat;
-                  const percentage = total_approved > 0 ? Math.round((completed_count / total_approved) * 100) : 0;
-                  
+                  if (!phaseStat.next_match) {
+                    return (
+                      <div className="mt-4 p-3 bg-wc-green/10 border border-wc-green/20 rounded-lg">
+                        <p className="text-xs text-wc-green font-bold text-center">Todos los partidos de esta fase han finalizado.</p>
+                      </div>
+                    );
+                  }
+
+                  const missingCount = phaseStat.missing_users.length;
+                  const isExpanded = expandedPhaseId === phase.id;
+
                   return (
-                    <div className="mt-4">
-                      <div className="flex justify-between items-center text-xs text-slate-400 mb-1 font-medium">
-                        <span>Progreso de llenado</span>
-                        <span className="font-bold text-slate-300">{completed_count} / {total_approved} cupos</span>
+                    <div className="mt-4 bg-wc-dark/60 rounded-xl border border-wc-border p-3">
+                      <div className="text-[10px] text-slate-400 font-sports uppercase tracking-wider mb-2">Siguiente Partido a Jugar:</div>
+                      <div className="font-bold text-sm text-slate-200 mb-1">{phaseStat.next_match.home_team} vs {phaseStat.next_match.away_team}</div>
+                      <div className="text-xs text-slate-500 mb-3">{new Date(phaseStat.next_match.match_time).toLocaleString('es-ES')}</div>
+                      
+                      <div className="flex justify-between items-center text-xs border-t border-wc-border/50 pt-2">
+                        <span className="text-slate-400">Sin pronóstico:</span>
+                        <span className={`font-bold ${missingCount > 0 ? 'text-rose-450' : 'text-wc-green'}`}>
+                          {missingCount > 0 ? `${missingCount} personas` : 'Ninguna persona'}
+                        </span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-1.5 mb-1 overflow-hidden">
-                        <div className="bg-wc-gold h-1.5 rounded-full" style={{ width: `${percentage}%` }}></div>
-                      </div>
-                      <p className="text-xs text-slate-450">{total_matches} partidos en total</p>
+                      
+                      {missingCount > 0 && (
+                        <div className="mt-2">
+                          <button 
+                            onClick={() => setExpandedPhaseId(isExpanded ? null : phase.id)}
+                            className="text-[10px] text-wc-gold hover:underline font-bold"
+                          >
+                            {isExpanded ? 'Ocultar nombres' : 'Ver nombres faltantes'}
+                          </button>
+                          
+                          {isExpanded && (
+                            <div className="mt-2 max-h-32 overflow-y-auto custom-scrollbar p-2 bg-slate-900 rounded border border-slate-700">
+                              <ul className="space-y-1">
+                                {phaseStat.missing_users.map(u => (
+                                  <li key={u.id} className="text-[11px] text-slate-300 flex items-center gap-1.5 before:content-['•'] before:text-wc-red">
+                                    {u.name}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
@@ -211,9 +253,9 @@ export default function AdminPhaseManager() {
                 <button
                   type="button"
                   onClick={() => handleNotifyLaggards(phase.id, phase.name)}
-                  disabled={notifyingId === phase.id || stats.find(s => s.phase_id === phase.id)?.total_approved === stats.find(s => s.phase_id === phase.id)?.completed_count}
+                  disabled={notifyingId === phase.id || stats.find(s => s.phase_id === phase.id)?.missing_users?.length === 0 || !stats.find(s => s.phase_id === phase.id)?.next_match}
                   className={`w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold font-sports tracking-wider uppercase transition-colors cursor-pointer ${
-                    stats.find(s => s.phase_id === phase.id)?.total_approved === stats.find(s => s.phase_id === phase.id)?.completed_count
+                    stats.find(s => s.phase_id === phase.id)?.missing_users?.length === 0 || !stats.find(s => s.phase_id === phase.id)?.next_match
                       ? 'bg-wc-dark text-slate-500 cursor-not-allowed border border-slate-800'
                       : notifyingId === phase.id 
                       ? 'bg-wc-gold/20 text-wc-gold border border-wc-gold/30 cursor-wait'

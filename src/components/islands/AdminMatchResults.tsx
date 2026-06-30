@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { showAlert } from '../../utils/alerts';
 import { getTeamFlagUrl } from '../../utils/flags';
+import { isPlaceholderName } from '../../utils/knockout';
 import { Lock, RefreshCw, AlertTriangle, Award } from 'lucide-react';
 
 interface Phase {
@@ -289,10 +290,10 @@ export default function AdminMatchResults() {
                   {/* Local */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-end gap-2">
-                      <span className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={match.home_team}>
-                        {match.home_team}
+                      <span className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={isPlaceholderName(match.home_team) ? 'Por definir' : match.home_team}>
+                        {isPlaceholderName(match.home_team) ? 'Por definir' : match.home_team}
                       </span>
-                      {getTeamFlagUrl(match.home_team) && (
+                      {!isPlaceholderName(match.home_team) && getTeamFlagUrl(match.home_team) && (
                         <img
                           src={getTeamFlagUrl(match.home_team)!}
                           alt={`Bandera de ${match.home_team}`}
@@ -338,15 +339,15 @@ export default function AdminMatchResults() {
                   {/* Visitante */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-start gap-2">
-                      {getTeamFlagUrl(match.away_team) && (
+                      {!isPlaceholderName(match.away_team) && getTeamFlagUrl(match.away_team) && (
                         <img
                           src={getTeamFlagUrl(match.away_team)!}
                           alt={`Bandera de ${match.away_team}`}
                           className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
                         />
                       )}
-                      <span className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={match.away_team}>
-                        {match.away_team}
+                      <span className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={isPlaceholderName(match.away_team) ? 'Por definir' : match.away_team}>
+                        {isPlaceholderName(match.away_team) ? 'Por definir' : match.away_team}
                       </span>
                     </div>
                   </div>

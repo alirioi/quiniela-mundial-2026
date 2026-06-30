@@ -21,6 +21,82 @@ export interface TeamStats {
   pts: number; // Puntos
 }
 
+export function calculateGroupStandings(matches: any[]): { groupStandings: Record<string, TeamStats[]>, thirdPlaces: TeamStats[] } {
+  const statsByGroup: Record<string, Record<string, TeamStats>> = {};
+
+  matches.forEach(match => {
+    if (!match.group_name || match.phase_id !== 1) return;
+    const group = match.group_name;
+    
+    if (!statsByGroup[group]) statsByGroup[group] = {};
+    if (!statsByGroup[group][match.home_team]) {
+      statsByGroup[group][match.home_team] = { team: match.home_team, group, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
+    }
+    if (!statsByGroup[group][match.away_team]) {
+      statsByGroup[group][match.away_team] = { team: match.away_team, group, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
+    }
+
+    if ((match.status === 'finished' || match.status === 'live') && match.home_score !== null && match.away_score !== null) {
+      const home = statsByGroup[group][match.home_team];
+      const away = statsByGroup[group][match.away_team];
+      
+      home.pj++;
+      away.pj++;
+      home.gf += match.home_score;
+      home.gc += match.away_score;
+      away.gf += match.away_score;
+      away.gc += match.home_score;
+
+      if (match.home_score > match.away_score) {
+        home.g++;
+        home.pts += 3;
+        away.p++;
+      } else if (match.home_score < match.away_score) {
+        away.g++;
+        away.pts += 3;
+        home.p++;
+      } else {
+        home.e++;
+        away.e++;
+        home.pts += 1;
+        away.pts += 1;
+      }
+    }
+  });
+
+  const finalStandings: Record<string, TeamStats[]> = {};
+  const allThirds: TeamStats[] = [];
+
+  Object.keys(statsByGroup).sort().forEach(group => {
+    const teams = Object.values(statsByGroup[group]);
+    teams.forEach(t => t.dg = t.gf - t.gc);
+    
+    teams.sort((a, b) => {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      if (b.dg !== a.dg) return b.dg - a.dg;
+      if (b.gf !== a.gf) return b.gf - a.gf;
+      return a.team.localeCompare(b.team);
+    });
+    
+    finalStandings[group] = teams;
+    
+    if (teams.length >= 3) {
+      allThirds.push(teams[2]);
+    }
+  });
+
+  allThirds.sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.dg !== a.dg) return b.dg - a.dg;
+    if (b.gf !== a.gf) return b.gf - a.gf;
+    if (b.g !== a.g) return b.g - a.g;
+    return a.team.localeCompare(b.team);
+  });
+
+  return { groupStandings: finalStandings, thirdPlaces: allThirds };
+}
+
+
 /**
  * Estructura de un partido en la fase de eliminación directa.
  */
@@ -59,6 +135,16 @@ const allowedOpponents: Record<string, string[]> = {
   'K': ['D', 'E', 'I', 'J', 'L'],
   'L': ['E', 'H', 'I', 'J', 'K']
 };
+
+export const isPlaceholderName = (name?: string | null) => {
+  if (!name) return true;
+  return name.startsWith('1º') || 
+         name.startsWith('2º') || 
+         name.startsWith('3º') || 
+         name.startsWith('Ganador') ||
+         name.startsWith('Perdedor');
+};
+
 
 /**
  * Algoritmo de resolución por backtracking para asignar ganadores de grupo a mejores terceros.
@@ -306,14 +392,6 @@ export function calculateKnockoutBracket(
   };
 
   // Overwrite R32 matches with DB matches if provided
-  const isPlaceholderName = (name?: string) => {
-    if (!name) return true;
-    return name.startsWith('1º') || 
-           name.startsWith('2º') || 
-           name.startsWith('3º') || 
-           name.startsWith('Ganador') ||
-           name.startsWith('Perdedor');
-  };
 
   // Helper para sobreescribir con dbMatches
   const applyDbMatches = (round: Record<number, KnockoutMatch>) => {

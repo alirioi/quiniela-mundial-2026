@@ -16,15 +16,15 @@ export default function PhaseReminderEmail({
   missingFirstMatch = false
 }: PhaseReminderEmailProps) {
   const previewText = missingGold && missingFirstMatch
-    ? 'Faltan tu Pronóstico de Oro y tu primer partido'
+    ? 'Faltan tu Pronóstico de Oro y tu próximo partido'
     : missingGold
     ? 'Falta completar tu Pronóstico de Oro'
-    : 'Falta pronosticar el primer partido del Mundial';
+    : 'Falta pronosticar el próximo partido';
 
   return (
     <Layout previewText={previewText}>
       <Heading className="text-2xl font-bold text-gray-900 text-center mx-0 my-4">
-        ¡El Mundial está por comenzar! ⏰
+        ¡Tienes pronósticos pendientes! ⏰
       </Heading>
       
       <Text className="text-gray-700 text-base">
@@ -32,7 +32,7 @@ export default function PhaseReminderEmail({
       </Text>
 
       <Text className="text-gray-700 text-base">
-        Faltan pocas horas para el pitazo inicial de la Copa del Mundo y queremos asegurarnos de que no te quedes fuera. Hemos notado que tu cupo tiene los siguientes elementos pendientes:
+        Hemos notado que te faltan llenar algunos pronósticos. Recuerda que cada punto cuenta para ganar el gran premio:
       </Text>
 
       <div style={{ margin: '16px 0', padding: '14px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
@@ -44,7 +44,7 @@ export default function PhaseReminderEmail({
           )}
           {missingFirstMatch && (
             <li style={{ marginBottom: '8px' }}>
-              ⚽ <strong>Primer Partido del Mundial:</strong> Recuerda pronosticar el partido inaugural. Las predicciones de cada partido se bloquean automáticamente <strong>5 minutos antes</strong> de su inicio.
+              ⚽ <strong>Próximo partido de la {phaseName}:</strong> Recuerda pronosticar tu próximo partido. Las predicciones de cada partido se bloquean automáticamente <strong>5 minutos antes</strong> de su inicio.
             </li>
           )}
         </ul>

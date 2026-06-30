@@ -30,23 +30,47 @@ export const POST: APIRoute = async ({ params, locals }) => {
     // 2. Obtener partidos de la fase
     const { data: matches } = await supabaseAdmin
       .from('matches')
-      .select('id')
-      .eq('phase_id', phaseId);
+      .select('id, match_time, status, home_team, away_team, match_number')
+      .eq('phase_id', phaseId)
+      .order('match_time', { ascending: true });
 
-    const matchIds = matches?.map(m => m.id) || [];
-    const totalMatches = matchIds.length;
-
-    // 3. Obtener el primer partido del mundial (el de fecha más antigua)
-    const { data: firstMatch } = await supabaseAdmin
+    // Reemplazar nombres si es necesario (para que el email muestre los equipos correctos si ya están definidos)
+    const { data: allMatches } = await supabaseAdmin
       .from('matches')
-      .select('id')
-      .order('match_time', { ascending: true })
-      .limit(1)
-      .maybeSingle();
+      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
+      .order('match_time', { ascending: true });
+      
+    if (matches && allMatches) {
+      const { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } = await import('../../../../../utils/knockout');
+      const { groupStandings, thirdPlaces } = calculateGroupStandings(allMatches);
+      const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, allMatches);
+      
+      const knockoutMatchesByNumber = new Map();
+      [
+        ...Object.values(bracket.r32),
+        ...Object.values(bracket.r16),
+        ...Object.values(bracket.qf),
+        ...Object.values(bracket.sf),
+        bracket.finalMatch,
+        bracket.thirdPlaceMatch
+      ].filter(Boolean).forEach(km => knockoutMatchesByNumber.set(km.matchNumber, km));
 
-    const firstMatchId = firstMatch?.id;
+      matches.forEach(match => {
+        const km = knockoutMatchesByNumber.get(match.match_number);
+        if (km) {
+          if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
+          if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
+        }
+      });
+    }
 
-    // 4. Obtener usuarios aprobados y sus predicciones (incluyendo Pronóstico de Oro)
+    const nextMatch = matches?.find(m => m.status === 'scheduled');
+
+    if (!nextMatch) {
+      return new Response(JSON.stringify({ sentCount: 0, message: 'No hay partidos pendientes en esta fase' }), { status: 200 });
+    }
+
+    // 4. Obtener usuarios aprobados
     const { data: entries } = await supabaseAdmin
       .from('entries')
       .select(`
@@ -58,9 +82,6 @@ export const POST: APIRoute = async ({ params, locals }) => {
           full_name,
           email,
           role
-        ),
-        predictions (
-          match_id
         )
       `)
       .eq('status', 'approved');
@@ -69,8 +90,18 @@ export const POST: APIRoute = async ({ params, locals }) => {
        return new Response(JSON.stringify({ sentCount: 0 }), { status: 200 });
     }
 
-    // 5. Determinar quiénes no han completado
-    const usersToRemind = new Map<string, { email: string, name: string, missingGold: boolean, missingFirstMatch: boolean }>();
+    // Obtener predicciones solo para el próximo partido
+    const { data: predictions } = await supabaseAdmin
+      .from('predictions')
+      .select('entry_id')
+      .eq('match_id', nextMatch.id);
+
+    if (!entries) {
+       return new Response(JSON.stringify({ sentCount: 0 }), { status: 200 });
+    }
+
+    // 5. Determinar quiénes no han completado el SIGUIENTE partido
+    const usersToRemind = new Map<string, { email: string, name: string, missingNextMatch: boolean }>();
 
     entries.forEach((entry: any) => {
       if (!entry.profiles || entry.profiles.role === 'admin') return;
@@ -78,28 +109,14 @@ export const POST: APIRoute = async ({ params, locals }) => {
       const email = entry.profiles.email;
       const name = entry.profiles.full_name;
 
-      const hasGoldPrediction = !!entry.predicted_champion;
-      const hasFirstMatchPrediction = firstMatchId
-        ? entry.predictions.some((p: any) => p.match_id === firstMatchId)
-        : true;
+      const hasNextMatchPrediction = predictions?.some(p => p.entry_id === entry.id);
 
-      // Si le falta el pronóstico de oro OR el pronóstico del primer partido, le notificamos
-      if (!hasGoldPrediction || !hasFirstMatchPrediction) {
-        const missingGold = !hasGoldPrediction;
-        const missingFirstMatch = !hasFirstMatchPrediction;
-        
-        const existing = usersToRemind.get(email);
-        if (existing) {
-          existing.missingGold = existing.missingGold || missingGold;
-          existing.missingFirstMatch = existing.missingFirstMatch || missingFirstMatch;
-        } else {
-          usersToRemind.set(email, {
-            email,
-            name,
-            missingGold,
-            missingFirstMatch
-          });
-        }
+      if (!hasNextMatchPrediction) {
+        usersToRemind.set(email, {
+          email,
+          name,
+          missingNextMatch: true
+        });
       }
     });
 
@@ -111,16 +128,13 @@ export const POST: APIRoute = async ({ params, locals }) => {
           PhaseReminderEmail({
             userName: user.name,
             phaseName: phase.name,
-            missingGold: user.missingGold,
-            missingFirstMatch: user.missingFirstMatch
+            missingGold: false,
+            missingFirstMatch: true // Reusing this prop for the email template for now
           })
         );
         
-        const subject = user.missingGold && user.missingFirstMatch
-          ? '¡Te falta tu Pronóstico de Oro y tu primer partido! ⏰'
-          : user.missingGold
-          ? '¡Te falta llenar tu Pronóstico de Oro! 🏆'
-          : '¡Te falta pronosticar el primer partido del Mundial! ⚽';
+        // Let's replace the subject line for this logic
+        const subject = `¡Te falta pronosticar el partido ${nextMatch.home_team} vs ${nextMatch.away_team}! ⏰`;
 
         await resend.emails.send({
           from: 'Quiniela Mundial 2026 <quiniela@alirioi.dev>',

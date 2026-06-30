@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Users, Phone, Mail, FileText, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, Trophy, Trash2, Shield, AlertTriangle } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { isPlaceholderName } from '../../utils/knockout';
 
 interface Prediction {
   match_id: number;
@@ -39,6 +40,14 @@ interface Participant {
   total_entries_count: number;
 }
 
+interface MatchBasic {
+  id: number;
+  home_team: string;
+  away_team: string;
+  match_time: string;
+  group_name: string | null;
+}
+
 export default function AdminUserList() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [totalMatches, setTotalMatches] = useState(0);
@@ -49,6 +58,8 @@ export default function AdminUserList() {
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [expandedEntry, setExpandedEntry] = useState<number | null>(null);
   const [isDeletingUserId, setIsDeletingUserId] = useState<string | null>(null);
+  const [allMatches, setAllMatches] = useState<MatchBasic[]>([]);
+  const [showMissingOnly, setShowMissingOnly] = useState<Record<number, boolean>>({});
 
   const fetchData = async () => {
     try {
@@ -60,6 +71,7 @@ export default function AdminUserList() {
       setParticipants(data.participants || []);
       setTotalMatches(data.totalMatches || 0);
       setFirstMatchId(data.firstMatchId || null);
+      setAllMatches(data.allMatches || []);
     } catch (err: any) {
       setError(err.message || 'Error de conexión');
     } finally {
@@ -83,6 +95,10 @@ export default function AdminUserList() {
 
   const toggleEntry = (entryId: number) => {
     setExpandedEntry(expandedEntry === entryId ? null : entryId);
+  };
+
+  const toggleMissingView = (entryId: number) => {
+    setShowMissingOnly(prev => ({ ...prev, [entryId]: !prev[entryId] }));
   };
 
   const handleDeleteUser = async (e: React.MouseEvent, userId: string, userName: string) => {
@@ -362,31 +378,42 @@ export default function AdminUserList() {
                                 <FileText className="w-4 h-4" />
                               </a>
                             )}
-                            {entry.predictions_count > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => toggleEntry(entry.id)}
-                                className="px-2.5 py-1 text-[10px] font-sports font-bold tracking-wider rounded-lg border border-wc-border hover:border-wc-gold text-slate-300 hover:text-wc-gold bg-wc-dark/40 transition-all flex items-center gap-1"
-                              >
-                                <span>{isEntryExpanded ? 'Ocultar' : 'Ver'} Pronósticos</span>
-                                {isEntryExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                              </button>
-                            )}
+                            <button
+                              type="button"
+                              onClick={() => toggleEntry(entry.id)}
+                              className="px-2.5 py-1 text-[10px] font-sports font-bold tracking-wider rounded-lg border border-wc-border hover:border-wc-gold text-slate-300 hover:text-wc-gold bg-wc-dark/40 transition-all flex items-center gap-1"
+                            >
+                              <span>{isEntryExpanded ? 'Ocultar' : 'Ver'} Detalle</span>
+                              {isEntryExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                            </button>
                           </div>
                         </div>
 
                         {/* Pronósticos detallados del cupo */}
                         {isEntryExpanded && (
-                          <div className="pt-3 border-t border-wc-border/30 mt-2 space-y-2 max-h-60 overflow-y-auto pr-1">
-                            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-450 font-sports">Predicciones Guardadas</div>
+                          <div className="pt-3 border-t border-wc-border/30 mt-2 space-y-2 max-h-80 overflow-y-auto pr-1">
+                            <div className="flex justify-between items-center">
+                              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-450 font-sports">
+                                {showMissingOnly[entry.id] ? 'Partidos Sin Pronóstico' : 'Predicciones Guardadas'}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => toggleMissingView(entry.id)}
+                                className="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded transition-colors"
+                              >
+                                {showMissingOnly[entry.id] ? 'Ver Llenos' : 'Ver Faltantes'}
+                              </button>
+                            </div>
                             <div className="space-y-1.5">
-                              {entry.predictions.map((pred) => {
+                              {!showMissingOnly[entry.id] && entry.predictions.map((pred) => {
                                 const isChecked = pred.home_score !== null && pred.away_score !== null;
+                                const homeName = isPlaceholderName(pred.home_team) ? 'Por definir' : pred.home_team;
+                                const awayName = isPlaceholderName(pred.away_team) ? 'Por definir' : pred.away_team;
                                 
                                 return (
                                   <div key={pred.match_id} className="flex items-center justify-between text-[11px] bg-wc-dark/70 rounded-lg p-2 border border-wc-border/40 font-mono">
-                                    <div className="truncate max-w-[140px] text-slate-300 font-sans" title={`${pred.home_team} vs ${pred.away_team}`}>
-                                      {pred.home_team} vs {pred.away_team}
+                                    <div className="truncate max-w-[140px] text-slate-300 font-sans" title={`${homeName} vs ${awayName}`}>
+                                      {homeName} vs {awayName}
                                     </div>
                                     <div className="flex items-center gap-3">
                                       <div className="flex items-center gap-1 bg-wc-card px-2 py-0.5 rounded border border-wc-border/50">
@@ -407,6 +434,36 @@ export default function AdminUserList() {
                                   </div>
                                 );
                               })}
+
+                              {showMissingOnly[entry.id] && (() => {
+                                const predictedMatchIds = new Set(entry.predictions.map(p => p.match_id));
+                                const missingMatches = allMatches.filter(m => !predictedMatchIds.has(m.id));
+
+                                if (missingMatches.length === 0) {
+                                  return (
+                                    <div className="text-center text-xs text-slate-500 py-4 italic">
+                                      Este cupo tiene todos los pronósticos completados.
+                                    </div>
+                                  );
+                                }
+
+                                return missingMatches.map(m => {
+                                  const matchDate = new Date(m.match_time);
+                                  const homeName = isPlaceholderName(m.home_team) ? 'Por definir' : m.home_team;
+                                  const awayName = isPlaceholderName(m.away_team) ? 'Por definir' : m.away_team;
+                                  return (
+                                    <div key={m.id} className="flex items-center justify-between text-[11px] bg-amber-500/10 rounded-lg p-2 border border-amber-500/20 font-mono">
+                                      <div className="flex-1 truncate text-amber-500 font-sans" title={`${homeName} vs ${awayName}`}>
+                                        <span className="font-bold">{homeName} vs {awayName}</span>
+                                      </div>
+                                      <div className="text-[9px] text-slate-400 font-sans whitespace-nowrap ml-2 text-right">
+                                        {m.group_name && <span className="mr-2 text-amber-500/70">{m.group_name}</span>}
+                                        {matchDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                                      </div>
+                                    </div>
+                                  );
+                                });
+                              })()}
                             </div>
                           </div>
                         )}

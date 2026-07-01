@@ -3,7 +3,6 @@ import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../../../lib/supabase-server';
 import { sendEmail } from '../../../../../lib/resend';
 import PhaseReminderEmail from '../../../../../emails/PhaseReminderEmail';
-import { render } from '@react-email/components';
 import { resolveKnockoutTeamNames } from '../../../../../utils/matches';
 import { requireAdmin } from '../../../../../utils/api-helpers';
 
@@ -100,22 +99,17 @@ export const POST: APIRoute = async ({ params, locals }) => {
     let sentCount = 0;
     const emailPromises = Array.from(usersToRemind.values()).map(async (user) => {
       try {
-        const html = render(
-          PhaseReminderEmail({
-            userName: user.name,
-            phaseName: phase.name,
-            missingGold: false,
-            missingFirstMatch: true // Reusing this prop for the email template for now
-          })
-        );
-        
-        // Let's replace the subject line for this logic
         const subject = `¡Te falta pronosticar el partido ${nextMatch.home_team} vs ${nextMatch.away_team}! ⏰`;
 
         const result = await sendEmail({
           to: user.email,
           subject,
-          html,
+          react: PhaseReminderEmail({
+            userName: user.name,
+            phaseName: phase.name,
+            missingGold: false,
+            missingFirstMatch: true // Reusing this prop for the email template for now
+          }) as React.ReactElement
         });
 
         if (result.success) {

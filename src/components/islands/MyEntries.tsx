@@ -18,6 +18,8 @@ import {
   Check,
   Copy,
 } from "lucide-react";
+import { StatusBadge } from "../ui/StatusBadge";
+import { Modal } from "../ui/Modal";
 
 interface Entry {
   id: number;
@@ -227,38 +229,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
     }
   };
 
-  const getStatusBadge = (status: Entry["status"]) => {
-    switch (status) {
-      case "approved":
-        return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-wc-green/10 text-wc-green border border-wc-green/20 flex items-center gap-1.5 w-fit font-sports tracking-wider uppercase">
-            <CheckCircle2
-              className="w-3.5 h-3.5 text-wc-green"
-              strokeWidth={2.5}
-            />
-            Aprobado
-          </span>
-        );
-      case "rejected":
-        return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-wc-red/10 text-wc-red border border-wc-red/20 flex items-center gap-1.5 w-fit font-sports tracking-wider uppercase">
-            <XCircle className="w-3.5 h-3.5 text-wc-red" strokeWidth={2.5} />
-            Rechazado
-          </span>
-        );
-      case "pending":
-      default:
-        return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-wc-gold/10 text-wc-gold border border-wc-gold/20 flex items-center gap-1.5 w-fit font-sports tracking-wider uppercase">
-            <Clock
-              className="w-3.5 h-3.5 text-wc-gold animate-pulse-subtle"
-              strokeWidth={2.5}
-            />
-            Pendiente
-          </span>
-        );
-    }
-  };
+
 
   if (loading) {
     return (
@@ -355,7 +326,7 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                       })}
                     </p>
                   </div>
-                  {getStatusBadge(entry.status)}
+                  <StatusBadge status={entry.status} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-wc-dark border border-wc-border">
@@ -454,39 +425,13 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
       </div>
 
       {/* MODAL PARA NUEVO CUPO */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 py-8 sm:py-12 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-          <div
-            className="w-full max-w-lg bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-y-auto overflow-x-hidden custom-scrollbar max-h-full flex flex-col gap-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Gradients */}
-            <div className="absolute -top-12 -right-12 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
-
-            {/* Cabecera modal */}
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2 font-sports tracking-wider uppercase">
-                  <Trophy
-                    className="w-5.5 h-5.5 text-wc-gold"
-                    strokeWidth={2.5}
-                  />
-                  <span>Comprar Cupo Adicional</span>
-                </h3>
-                <p className="text-xs md:text-sm text-slate-400 mt-1">
-                  Registra un nuevo cupo subiendo un comprobante de
-                  transferencia.
-                </p>
-              </div>
-              <button
-                onClick={closeModal}
-                disabled={submitting}
-                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all disabled:opacity-50"
-              >
-                <X className="w-4.5 h-4.5" strokeWidth={2.5} />
-              </button>
-            </div>
-
+            <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title="Comprar Cupo Adicional"
+        description="Registra un nuevo cupo subiendo un comprobante de transferencia."
+      >
+        <div className="flex flex-col gap-6">
             {/* Desglose de Pago */}
             <div className="p-4 rounded-xl bg-wc-dark border border-wc-border space-y-3">
               <div className="text-xs md:text-sm font-semibold text-slate-400 flex justify-between font-sports tracking-wider">
@@ -1058,9 +1003,8 @@ export default function MyEntries({ userFullName }: MyEntriesProps) {
                 </button>
               </div>
             </form>
-          </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

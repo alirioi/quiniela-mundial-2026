@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase-browser';
 import { BarChart3, ChevronLeft, ChevronRight, Trophy, Award } from 'lucide-react';
-import { getTeamFlagUrl } from '../../utils/flags';
+import { TeamFlag } from '../ui/TeamFlag';
 
 interface Match {
   id: number;
@@ -346,7 +346,7 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
                 </thead>
                 <tbody>
                   {goldTeamsStats.map((teamStat, idx) => {
-                    const flagUrl = getTeamFlagUrl(teamStat.team);
+                    
                     return (
                       <tr key={teamStat.team} className="border-b border-wc-border/10 hover:bg-white/5 transition-colors text-xs">
                         <td className="px-1 py-1.5 text-center text-slate-450 font-sports font-bold">
@@ -392,7 +392,7 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
                   </thead>
                   <tbody>
                     {players.map((player, idx) => {
-                      const flagUrl = getTeamFlagUrl(player.team);
+                      
                       return (
                         <tr key={player.id || player.name} className="border-b border-wc-border/10 hover:bg-white/5 transition-colors text-xs">
                           <td className="px-1 py-1.5 text-center text-slate-450 font-sports font-bold">

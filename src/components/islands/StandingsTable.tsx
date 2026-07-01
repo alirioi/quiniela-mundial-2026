@@ -3,6 +3,9 @@ import { supabase } from '../../lib/supabase-browser';
 import { Trophy, Lock, BarChart3, AlertTriangle, ArrowUp, ArrowDown, Minus, X } from 'lucide-react';
 import { useFetch } from '../../hooks/useFetch';
 import { useCountdown } from '../../hooks/useCountdown';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { ErrorState } from '../ui/ErrorState';
+import { Modal } from '../ui/Modal';
 
 interface StandingEntry {
   id: number;
@@ -95,26 +98,15 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
   }, [fetchStandings]);
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-wc-card/20 rounded-2xl border border-wc-border">
-        <div className="w-8 h-8 border-3 border-wc-gold border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-400 text-sm font-sports uppercase tracking-wider">Cargando clasificación...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Cargando tabla de posiciones..." />;
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 bg-wc-red/10 border border-wc-red/20 rounded-2xl">
-        <AlertTriangle className="w-10 h-10 text-wc-red mb-4" />
-        <p className="text-wc-red font-sports tracking-wider uppercase mb-4">{error.message || 'Error de conexión'}</p>
-        <button
-          onClick={fetchStandings}
-          className="px-6 py-2 bg-wc-red/20 hover:bg-wc-red/30 text-white rounded-lg font-sports uppercase tracking-wider text-xs border border-wc-red/30 transition-colors"
-        >
-          Reintentar
-        </button>
-      </div>
+      <ErrorState 
+        message={error.message || 'Error de conexión'} 
+        onRetry={fetchStandings} 
+      />
     );
   }
 
@@ -438,126 +430,108 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
       </div>
 
       {/* MODAL HISTORIAL DE PREDICCIONES */}
-      {selectedHistoryEntryId !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 py-8 sm:py-12 bg-slate-950/80 backdrop-blur-sm transition-all duration-300">
-          <div className="w-full max-w-4xl bg-wc-card border border-wc-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-y-auto overflow-x-hidden custom-scrollbar max-h-full flex flex-col gap-6">
-            
-            {/* Header modal */}
-            <div className="flex justify-between items-start border-b border-wc-border/50 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-white font-sports tracking-wider uppercase">
-                  Historial de Predicciones
-                </h3>
-                <p className="text-xs text-wc-gold font-bold uppercase tracking-wider font-sports mt-1">
-                  Participante: {historyData?.displayName || 'Cargando...'}
-                </p>
-              </div>
-              <button
-                onClick={closeHistoryModal}
-                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all"
-              >
-                <X className="w-4.5 h-4.5" strokeWidth={2.5} />
-              </button>
-            </div>
-
-            {historyLoading ? (
-              <div className="flex flex-col items-center justify-center p-12 space-y-4">
-                <div className="w-8 h-8 border-3 border-wc-gold border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-slate-400 text-xs font-sports uppercase tracking-wider">Cargando historial...</p>
-              </div>
-            ) : historyError ? (
-              <div className="p-4 rounded-xl bg-wc-red/10 border border-wc-red/20 text-center text-xs text-red-200">
-                <span>{historyError}</span>
-              </div>
-            ) : (
-              <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-dark/30 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-wc-border text-[10px] sm:text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/80 font-sports">
-                        <th className="p-2 sm:p-4">Partido</th>
-                        <th className="p-2 sm:p-4 text-center w-20 sm:w-28">Tu Pronóstico</th>
-                        <th className="p-2 sm:p-4 text-center w-20 sm:w-28">Resultado Real</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-wc-border/40 text-[11px] sm:text-xs font-medium">
-                      {historyData?.history.map((item: any) => {
-                        const isFinished = item.status === 'finished';
-                        const isLive = item.status === 'live';
-                        const isScheduled = item.status === 'scheduled';
-                        
-                        let predText = '-';
-                        if (item.prediction) {
-                          if (item.prediction.hidden) {
-                            predText = 'Oculto';
-                          } else {
-                            predText = `${item.prediction.predicted_home} - ${item.prediction.predicted_away}`;
-                          }
-                        }
-
-                        let resultText = '-';
-                        if (isFinished || isLive) {
-                          resultText = `${item.home_score ?? 0} - ${item.away_score ?? 0}`;
-                        }
-
-                        let pointsBadge = null;
-                        if (item.prediction && !item.prediction.hidden && (isFinished || isLive)) {
-                          const pts = item.prediction.points_earned;
-                          let ptsColorClass = 'bg-slate-800/40 text-slate-500 border border-slate-700/40';
-                          if (pts === 3) ptsColorClass = 'bg-green-500/10 text-green-400 border border-green-500/20';
-                          else if (pts === 1) ptsColorClass = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
-                          
-                          pointsBadge = (
-                            <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-bold font-mono tracking-wider ${ptsColorClass}`}>
-                              +{pts} pt{pts !== 1 ? 's' : ''}
-                            </span>
-                          );
-                        } else if (item.prediction && item.prediction.hidden) {
-                          pointsBadge = <span className="text-slate-500">-</span>;
-                        } else if (isFinished || isLive) {
-                          pointsBadge = (
-                            <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-bold font-mono tracking-wider bg-slate-800/40 text-slate-500 border border-slate-700/40">
-                              +0 pts
-                            </span>
-                          );
-                        } else {
-                          pointsBadge = <span className="text-slate-500 font-sports uppercase text-[9px]">Programado</span>;
-                        }
-
-                        return (
-                          <tr key={item.match_id} className="hover:bg-wc-dark/20 transition-colors">
-                            <td className="p-2 sm:p-4">
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-slate-200 font-semibold text-xs sm:text-sm break-words leading-tight">{item.home_team} vs {item.away_team}</span>
-                                <div className="flex items-center mt-1.5">
-                                  {pointsBadge}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="p-2 sm:p-4 text-center font-mono text-xs sm:text-sm font-bold text-white whitespace-nowrap">
-                              {predText === 'Oculto' ? (
-                                <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 text-[9px] sm:text-[10px] font-sans font-normal border border-slate-700">Oculto</span>
-                              ) : (
-                                predText
-                              )}
-                            </td>
-                            <td className="p-2 sm:p-4 text-center font-mono text-xs sm:text-sm font-bold text-white whitespace-nowrap">
-                              {resultText}
-                              {isLive && (
-                                <span className="ml-1 px-1 py-0.2 rounded text-[7px] sm:text-[8px] bg-red-500/10 text-red-500 font-bold border border-red-500/20 uppercase font-sans animate-pulse">Vivo</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+      <Modal
+        isOpen={selectedHistoryEntryId !== null}
+        onClose={closeHistoryModal}
+        title="Historial de Predicciones"
+        description={historyData ? `Participante: ${historyData.displayName}` : 'Cargando...'}
+      >
+        {historyLoading ? (
+          <div className="flex flex-col items-center justify-center p-12 space-y-4">
+            <div className="w-8 h-8 border-3 border-wc-gold border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-slate-400 text-xs font-sports uppercase tracking-wider">Cargando historial...</p>
           </div>
-        </div>
-      )}
+        ) : historyError ? (
+          <div className="p-4 rounded-xl bg-wc-red/10 border border-wc-red/20 text-center text-xs text-red-200">
+            <span>{historyError}</span>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-dark/30 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-wc-border text-[10px] sm:text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/80 font-sports">
+                    <th className="p-2 sm:p-4">Partido</th>
+                    <th className="p-2 sm:p-4 text-center w-20 sm:w-28">Tu Pronóstico</th>
+                    <th className="p-2 sm:p-4 text-center w-20 sm:w-28">Resultado Real</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-wc-border/40 text-[11px] sm:text-xs font-medium">
+                  {historyData?.history.map((item: any) => {
+                    const isFinished = item.status === 'finished';
+                    const isLive = item.status === 'live';
+                    const isScheduled = item.status === 'scheduled';
+                    
+                    let predText = '-';
+                    if (item.prediction) {
+                      if (item.prediction.hidden) {
+                        predText = 'Oculto';
+                      } else {
+                        predText = `${item.prediction.predicted_home} - ${item.prediction.predicted_away}`;
+                      }
+                    }
+
+                    let resultText = '-';
+                    if (isFinished || isLive) {
+                      resultText = `${item.home_score ?? 0} - ${item.away_score ?? 0}`;
+                    }
+
+                    let pointsBadge = null;
+                    if (item.prediction && !item.prediction.hidden && (isFinished || isLive)) {
+                      const pts = item.prediction.points_earned;
+                      let ptsColorClass = 'bg-slate-800/40 text-slate-500 border border-slate-700/40';
+                      if (pts === 3) ptsColorClass = 'bg-green-500/10 text-green-400 border border-green-500/20';
+                      else if (pts === 1) ptsColorClass = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                      
+                      pointsBadge = (
+                        <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-bold font-mono tracking-wider ${ptsColorClass}`}>
+                          +{pts} pt{pts !== 1 ? 's' : ''}
+                        </span>
+                      );
+                    } else if (item.prediction && item.prediction.hidden) {
+                      pointsBadge = <span className="text-slate-500">-</span>;
+                    } else if (isFinished || isLive) {
+                      pointsBadge = (
+                        <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-bold font-mono tracking-wider bg-slate-800/40 text-slate-500 border border-slate-700/40">
+                          +0 pts
+                        </span>
+                      );
+                    } else {
+                      pointsBadge = <span className="text-slate-500 font-sports uppercase text-[9px]">Programado</span>;
+                    }
+
+                    return (
+                      <tr key={item.match_id} className="hover:bg-wc-dark/20 transition-colors">
+                        <td className="p-2 sm:p-4">
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-slate-200 font-semibold text-xs sm:text-sm break-words leading-tight">{item.home_team} vs {item.away_team}</span>
+                            <div className="flex items-center mt-1.5">
+                              {pointsBadge}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-2 sm:p-4 text-center font-mono text-xs sm:text-sm font-bold text-white whitespace-nowrap">
+                          {predText === 'Oculto' ? (
+                            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 text-[9px] sm:text-[10px] font-sans font-normal border border-slate-700">Oculto</span>
+                          ) : (
+                            predText
+                          )}
+                        </td>
+                        <td className="p-2 sm:p-4 text-center font-mono text-xs sm:text-sm font-bold text-white whitespace-nowrap">
+                          {resultText}
+                          {isLive && (
+                            <span className="ml-1 px-1 py-0.2 rounded text-[7px] sm:text-[8px] bg-red-500/10 text-red-500 font-bold border border-red-500/20 uppercase font-sans animate-pulse">Vivo</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </Modal>
 
     </div>
   );

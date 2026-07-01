@@ -14,12 +14,16 @@ import {
   ExternalLink,
   Trash,
   DollarSign,
-  TrendingUp,
   Coins,
   Shield,
-  Mail
+  Mail,
+  TrendingUp
 } from 'lucide-react';
 import { useFetch } from '../../hooks/useFetch';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { ErrorState } from '../ui/ErrorState';
+import { StatusBadge } from '../ui/StatusBadge';
+import { Modal } from '../ui/Modal';
 
 interface Entry {
   id: number;
@@ -234,16 +238,10 @@ export default function AdminEntryList() {
           )}
         </td>
         <td className="p-4 sm:p-5">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border font-sports tracking-wider uppercase ${entry.status === 'approved'
-            ? 'bg-wc-green/10 border-wc-green/20 text-wc-green'
-            : entry.status === 'rejected'
-              ? 'bg-wc-red/10 border-wc-red/20 text-wc-red'
-              : 'bg-wc-gold/10 border-wc-gold/20 text-wc-gold'
-            }`}>
-            {entry.status === 'approved' && 'Aprobado'}
-            {entry.status === 'rejected' && 'Rechazado'}
-            {entry.status === 'pending' && 'Pendiente'}
-          </span>
+          <div className="flex justify-between items-center bg-wc-dark/30 p-4 rounded-xl border border-wc-border">
+            <span className="text-slate-400 font-sports uppercase tracking-wider text-xs">Estado de Cuenta</span>
+            <StatusBadge status={entry.status} />
+          </div>
         </td>
         <td className="p-4 sm:p-5 text-right">
           {actionLoadingId === entry.id ? (
@@ -287,10 +285,8 @@ export default function AdminEntryList() {
 
   return (
     <div className="space-y-6">
-      {/* Resumen de Recaudación */}
       {!loading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1: Organización */}
           <div className="p-5 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden flex flex-col justify-between min-h-[120px]">
             <div className="absolute top-0 right-0 w-24 h-24 bg-wc-gold/5 rounded-full blur-2xl pointer-events-none"></div>
             <div className="flex items-center justify-between relative z-10">
@@ -310,7 +306,6 @@ export default function AdminEntryList() {
             </div>
           </div>
 
-          {/* Card 2: Pote de Premios */}
           <div className="p-5 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden flex flex-col justify-between min-h-[120px]">
             <div className="absolute top-0 right-0 w-24 h-24 bg-wc-blue/5 rounded-full blur-2xl pointer-events-none"></div>
             <div className="flex items-center justify-between relative z-10">
@@ -330,7 +325,6 @@ export default function AdminEntryList() {
             </div>
           </div>
 
-          {/* Card 3: Total Recaudado */}
           <div className="p-5 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden flex flex-col justify-between min-h-[120px]">
             <div className="absolute top-0 right-0 w-24 h-24 bg-wc-green/5 rounded-full blur-2xl pointer-events-none"></div>
             <div className="flex items-center justify-between relative z-10">
@@ -352,7 +346,6 @@ export default function AdminEntryList() {
         </div>
       )}
 
-      {/* Filtros */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
         <div className="flex flex-wrap items-center gap-2 relative z-10">
@@ -415,23 +408,13 @@ export default function AdminEntryList() {
         </div>
       </div>
 
-      {/* Lista de Cupos */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-wc-card/40 rounded-2xl border border-wc-border">
-          <RefreshCw className="w-9 h-9 text-wc-gold animate-spin" strokeWidth={2.5} />
-          <p className="text-slate-400 text-xs font-sports tracking-wider uppercase">Cargando cupos...</p>
-        </div>
+        <LoadingSpinner message="Cargando cupos..." />
       ) : error ? (
-        <div className="flex flex-col items-center justify-center p-12 bg-wc-red/10 border border-wc-red/20 rounded-2xl">
-          <AlertTriangle className="w-10 h-10 text-wc-red mb-4" />
-          <p className="text-wc-red font-sports tracking-wider uppercase mb-4">{error.message || 'Error de conexión'}</p>
-          <button
-            onClick={fetchEntries}
-            className="px-6 py-2 bg-wc-red/20 hover:bg-wc-red/30 text-white rounded-lg font-sports uppercase tracking-wider text-xs border border-wc-red/30 transition-colors"
-          >
-            Reintentar
-          </button>
-        </div>
+        <ErrorState 
+          message={error.message || 'Error de conexión'}
+          onRetry={fetchEntries}
+        />
       ) : filteredEntries.length === 0 ? (
         <div className="p-12 text-center bg-wc-card/40 rounded-2xl border border-wc-border text-slate-500 text-sm flex flex-col items-center justify-center space-y-2">
           <Inbox className="w-9 h-9 text-slate-400 mb-1" strokeWidth={2.5} />
@@ -494,102 +477,94 @@ export default function AdminEntryList() {
         </div>
       )}
 
-      {/* Modal para ver comprobante */}
-      {selectedReceipt && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-wc-card border border-wc-border w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl relative flex flex-col max-h-[85vh]">
-            <div className="p-5 border-b border-wc-border flex justify-between items-center bg-wc-dark/40">
-              <h3 className="font-bold text-white text-lg font-sports tracking-wide uppercase">Comprobante - {selectedReceipt.name}</h3>
-              <button
-                onClick={() => setSelectedReceipt(null)}
-                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+      <Modal
+        isOpen={!!selectedReceipt}
+        onClose={() => setSelectedReceipt(null)}
+        title="Comprobante de Pago"
+        subtitle={selectedReceipt?.name}
+        maxWidth="3xl"
+        footer={
+          <>
+            <button
+              onClick={() => setSelectedReceipt(null)}
+              className="px-4 py-2 bg-wc-dark hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-wc-border rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-colors"
+            >
+              Cerrar
+            </button>
+            <div className="flex gap-2">
+              <a
+                href={selectedReceipt?.url}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2 bg-wc-card hover:bg-wc-dark text-slate-300 hover:text-white border border-wc-border rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-colors flex items-center gap-1.5"
               >
-                <X className="w-4.5 h-4.5" strokeWidth={2.5} />
+                <ExternalLink className="w-4 h-4" /> Ver Original
+              </a>
+              <button
+                onClick={() => selectedReceipt && handleDeleteReceipt(selectedReceipt.id)}
+                className="px-4 py-2 bg-wc-red/20 hover:bg-wc-red/30 text-wc-red rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-colors border border-wc-red/30 flex items-center gap-1.5"
+              >
+                <Trash className="w-4 h-4" /> Eliminar
               </button>
             </div>
-
-            <div className="flex-grow p-6 overflow-y-auto flex items-center justify-center bg-wc-dark/20 min-h-[300px]">
-              {selectedReceipt.url.includes('.pdf') || selectedReceipt.url.includes('application/pdf') ? (
-                <iframe
-                  src={selectedReceipt.url}
-                  className="w-full h-[50vh] rounded-lg border border-wc-border"
-                  title="PDF Comprobante"
-                ></iframe>
-              ) : (
-                <img
-                  src={selectedReceipt.url}
-                  alt="Comprobante de Pago"
-                  className="max-w-full max-h-[50vh] rounded-lg object-contain border border-wc-border shadow-lg"
-                />
-              )}
-            </div>
-
-            <div className="p-4 border-t border-wc-border bg-wc-dark/60 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => handleDeleteReceipt(selectedReceipt.id)}
-                  className="px-4 py-2 bg-wc-red/10 hover:bg-wc-red/20 text-wc-red rounded-xl text-xs font-bold font-sports tracking-wider uppercase border border-wc-red/30 transition-colors flex items-center gap-1.5"
-                >
-                  <Trash className="w-4 h-4" strokeWidth={2.5} /> Eliminar Captura
-                </button>
-                <a
-                  href={selectedReceipt.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-4 py-2 bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white rounded-xl text-xs font-bold font-sports tracking-wider uppercase border border-wc-border transition-colors flex items-center gap-1.5 hidden sm:flex"
-                >
-                  <ExternalLink className="w-4 h-4 text-slate-300" strokeWidth={2.5} /> Abrir Pestaña
-                </a>
-              </div>
-              <button
-                onClick={() => setSelectedReceipt(null)}
-                className="px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-wc-gold to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-955 shadow-md shadow-wc-gold/15 transition-colors font-sports tracking-wider uppercase"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
+          </>
+        }
+      >
+        <div className="flex items-center justify-center bg-wc-dark/30 rounded-xl min-h-[300px]">
+          {selectedReceipt?.url.includes('.pdf') || selectedReceipt?.url.includes('application/pdf') ? (
+            <iframe
+              src={selectedReceipt.url}
+              className="w-full h-[60vh] rounded-lg border border-wc-border"
+              title="PDF Comprobante"
+            ></iframe>
+          ) : (
+            <img
+              src={selectedReceipt?.url}
+              alt="Comprobante de Pago"
+              className="max-w-full max-h-[70vh] rounded-lg object-contain border border-wc-border shadow-lg"
+            />
+          )}
         </div>
-      )}
+      </Modal>
 
-      {/* Modal para motivo de rechazo */}
-      {rejectingId !== null && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-wc-card border border-wc-border w-full max-w-md rounded-2xl overflow-hidden shadow-2xl p-6 space-y-4 relative">
-            <h3 className="font-bold text-white text-lg font-sports tracking-wide uppercase">Rechazar Comprobante</h3>
-            <p className="text-xs text-slate-400 leading-relaxed font-medium">
-              Indica el motivo por el cual rechazas este comprobante. Se enviará un correo electrónico al usuario con esta explicación.
-            </p>
-
-            <textarea
-              value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
-              placeholder="Ej: La captura de pantalla no es legible o el monto transferido es incorrecto."
-              className="w-full h-24 p-3 rounded-xl bg-wc-dark border border-wc-border text-slate-200 placeholder-slate-600 text-xs focus:outline-none focus:ring-2 focus:ring-wc-red/50 focus:border-wc-red transition-all font-medium"
-              required
-            ></textarea>
-
-            <div className="flex justify-end items-center gap-3 pt-2">
-              <button
-                onClick={() => {
-                  setRejectingId(null);
-                  setRejectionReason('');
-                }}
-                className="px-4 py-2 bg-wc-dark hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-wc-border rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => handleUpdateStatus(rejectingId, 'rejected', rejectionReason)}
-                className="px-5 py-2 bg-wc-red hover:bg-red-650 text-white rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-all shadow-md shadow-wc-red/10"
-                disabled={!rejectionReason.trim()}
-              >
-                Confirmar Rechazo
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={rejectingId !== null}
+        onClose={() => {
+          setRejectingId(null);
+          setRejectionReason('');
+        }}
+        title="Rechazar Comprobante"
+        subtitle="Indica el motivo por el cual rechazas este comprobante. Se enviará un correo electrónico al usuario con esta explicación."
+        maxWidth="md"
+        footer={
+          <>
+            <button
+              onClick={() => {
+                setRejectingId(null);
+                setRejectionReason('');
+              }}
+              className="px-4 py-2 bg-wc-dark hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-wc-border rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={() => rejectingId !== null && handleUpdateStatus(rejectingId, 'rejected', rejectionReason)}
+              className="px-5 py-2 bg-wc-red hover:bg-red-650 text-white rounded-xl text-xs font-bold font-sports tracking-wider uppercase transition-all shadow-md shadow-wc-red/10"
+              disabled={!rejectionReason.trim()}
+            >
+              Confirmar Rechazo
+            </button>
+          </>
+        }
+      >
+        <textarea
+          value={rejectionReason}
+          onChange={(e) => setRejectionReason(e.target.value)}
+          placeholder="Ej: La captura de pantalla no es legible o el monto transferido es incorrecto."
+          className="w-full h-32 p-3 rounded-xl bg-wc-dark border border-wc-border text-slate-200 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-wc-red/50 focus:border-wc-red transition-all font-medium"
+          required
+        ></textarea>
+      </Modal>
     </div>
   );
 }

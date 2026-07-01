@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { showAlert } from '../../utils/alerts';
-import { getTeamFlagUrl } from '../../utils/flags';
+import { TeamFlag } from '../ui/TeamFlag';
 import { isPlaceholderName } from '../../utils/knockout';
 import { Lock, RefreshCw, AlertTriangle, Award } from 'lucide-react';
 import { useFetch } from '../../hooks/useFetch';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { ErrorState } from '../ui/ErrorState';
 
 interface Phase {
   id: number;
@@ -215,21 +217,12 @@ export default function AdminMatchResults() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-wc-card/40 rounded-2xl border border-wc-border">
-          <RefreshCw className="w-9 h-9 animate-spin text-wc-gold" strokeWidth={2.5} />
-          <p className="text-slate-400 text-xs font-sports tracking-wider uppercase">Cargando fixture...</p>
-        </div>
+        <LoadingSpinner message="Cargando fixture..." />
       ) : error ? (
-        <div className="p-6 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center space-y-3">
-          <AlertTriangle className="w-9 h-9 text-wc-red mx-auto" strokeWidth={2.5} />
-          <p className="text-wc-red font-bold text-xs uppercase font-sports tracking-wider">{error.message || 'Error de conexión'}</p>
-          <button
-            onClick={fetchData}
-            className="px-4 py-2 rounded-xl bg-wc-red/20 hover:bg-wc-red/35 text-white text-xs font-bold font-sports tracking-wider uppercase border border-wc-red/30 transition-colors"
-          >
-            Reintentar
-          </button>
-        </div>
+        <ErrorState 
+          message={error.message || 'Error de conexión'}
+          onRetry={fetchData}
+        />
       ) : filteredMatches.length === 0 ? (
         <div className="p-12 text-center bg-wc-card/40 rounded-2xl border border-wc-border text-slate-550 text-sm flex flex-col items-center justify-center gap-2">
           <Award className="w-9 h-9 text-slate-450" strokeWidth={2.5} />
@@ -281,13 +274,7 @@ export default function AdminMatchResults() {
                       <span className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={isPlaceholderName(match.home_team) ? 'Por definir' : match.home_team}>
                         {isPlaceholderName(match.home_team) ? 'Por definir' : match.home_team}
                       </span>
-                      {!isPlaceholderName(match.home_team) && getTeamFlagUrl(match.home_team) && (
-                        <img
-                          src={getTeamFlagUrl(match.home_team)!}
-                          alt={`Bandera de ${match.home_team}`}
-                          className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
-                        />
-                      )}
+                      <TeamFlag teamName={match.home_team} size="sm" />
                     </div>
                   </div>
  
@@ -327,13 +314,7 @@ export default function AdminMatchResults() {
                   {/* Visitante */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-start gap-2">
-                      {!isPlaceholderName(match.away_team) && getTeamFlagUrl(match.away_team) && (
-                        <img
-                          src={getTeamFlagUrl(match.away_team)!}
-                          alt={`Bandera de ${match.away_team}`}
-                          className="w-6 h-4 sm:w-7 sm:h-5 object-cover rounded shadow border border-slate-700/50 flex-shrink-0"
-                        />
-                      )}
+                      <TeamFlag teamName={match.away_team} size="sm" />
                       <span className="font-bold text-white text-sm font-sports tracking-wide uppercase truncate" title={isPlaceholderName(match.away_team) ? 'Por definir' : match.away_team}>
                         {isPlaceholderName(match.away_team) ? 'Por definir' : match.away_team}
                       </span>

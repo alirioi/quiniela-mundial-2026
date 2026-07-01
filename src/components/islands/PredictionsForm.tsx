@@ -7,7 +7,14 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { showAlert } from '../../utils/alerts';
+import { isPlaceholderName } from '../../utils/knockout';
 import { getTeamFlagUrl } from '../../utils/flags';
+import { useFetch } from '../../hooks/useFetch';
+import { useCountdown } from '../../hooks/useCountdown';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { ErrorState } from '../ui/ErrorState';
+import { TeamFlag } from '../ui/TeamFlag';
+import { StandingsRow } from '../ui/StandingsRow';
 import { Lock, Clock, AlertTriangle, Loader2, Award, CheckCircle2, Trophy, GitBranch, Save } from 'lucide-react';
 import KnockoutBracket from './KnockoutBracket';
 
@@ -354,70 +361,22 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
     return { groupStandings: finalStandings, thirdPlaces: allThirds };
   }, [matches, inputs, phaseSlug]);
 
-  // Helper for team rows in simulated standings
   const renderSimulatedTeamRow = (team: TeamStats, index: number, isThirdPlaceTable = false) => {
-    let rowClass = "";
-    let indicatorClass = "";
-    
-    if (!isThirdPlaceTable) {
-      if (index === 0 || index === 1) {
-        rowClass = "row-qualifier";
-        indicatorClass = "text-wc-green font-bold";
-      } else if (index === 2) {
-        rowClass = "row-possible-third";
-        indicatorClass = "text-wc-gold font-bold";
-      } else {
-        rowClass = "border-l-4 border-transparent opacity-60";
-        indicatorClass = "text-slate-500";
-      }
-    } else {
-      if (index < 8) {
-        rowClass = "row-qualifier";
-        indicatorClass = "text-wc-green font-bold";
-      } else {
-        rowClass = "row-eliminated opacity-70";
-        indicatorClass = "text-wc-red";
-      }
-    }
-
-    const flagUrl = getTeamFlagUrl(team.team);
-    const paddingClass = isThirdPlaceTable ? "p-4" : "px-0.5 py-2 sm:px-1 sm:py-2.5";
-    const teamCellPadding = isThirdPlaceTable ? "p-4 min-w-0" : "px-1 py-2 sm:px-1.5 sm:py-2.5 min-w-0";
-
     return (
-      <tr key={team.team} className={`border-b border-wc-border/30 hover:bg-white/5 transition-colors ${rowClass}`}>
-        <td className={`${paddingClass} text-center ${isThirdPlaceTable ? 'w-12' : 'w-8'}`}>
-          <span className={`font-sports text-sm sm:text-base ${indicatorClass}`}>{index + 1}</span>
-        </td>
-        <td className={teamCellPadding}>
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            {flagUrl ? (
-              <img src={flagUrl} alt={`Bandera de ${team.team}`} className="w-5 h-3.5 object-cover rounded-[2px] shadow-sm flex-shrink-0" />
-            ) : (
-              <div className="w-5 h-3.5 bg-slate-700 rounded-[2px] flex-shrink-0"></div>
-            )}
-            <span 
-              className={`font-bold text-slate-200 text-xs sm:text-sm truncate block ${
-                isThirdPlaceTable 
-                  ? "max-w-[150px] sm:max-w-none" 
-                  : "max-w-[85px] sm:max-w-[120px] md:max-w-[160px] lg:max-w-[95px] xl:max-w-[135px] 2xl:max-w-[95px] [@media(min-width:1700px)]:max-w-[150px]"
-              }`}
-              title={team.team}
-            >
-              {team.team}
-            </span>
-            {isThirdPlaceTable && <span className="hidden sm:inline-block ml-1 text-[10px] uppercase font-sports text-slate-500 flex-shrink-0">({team.group})</span>}
-          </div>
-        </td>
-        <td className={`${paddingClass} text-center text-slate-300 text-xs sm:text-sm`}>{team.pj}</td>
-        <td className={`${paddingClass} text-center text-slate-400 hidden sm:table-cell text-xs`}>{team.g}</td>
-        <td className={`${paddingClass} text-center text-slate-400 hidden sm:table-cell text-xs`}>{team.e}</td>
-        <td className={`${paddingClass} text-center text-slate-400 hidden sm:table-cell text-xs`}>{team.p}</td>
-        <td className={`${paddingClass} text-center text-slate-300 hidden md:table-cell text-xs`}>{team.gf}</td>
-        <td className={`${paddingClass} text-center text-slate-300 hidden md:table-cell text-xs`}>{team.gc}</td>
-        <td className={`${paddingClass} text-center font-bold text-slate-300 text-xs sm:text-sm`}>{team.dg > 0 ? `+${team.dg}` : team.dg}</td>
-        <td className={`${paddingClass} text-center font-bold text-wc-gold text-sm sm:text-base font-sports`}>{team.pts}</td>
-      </tr>
+      <StandingsRow
+        key={team.team}
+        teamName={team.team}
+        index={index}
+        pj={team.pj}
+        g={team.g}
+        e={team.e}
+        p={team.p}
+        gf={team.gf}
+        gc={team.gc}
+        dg={team.dg}
+        pts={team.pts}
+        isThirdPlaceTable={isThirdPlaceTable}
+      />
     );
   };
 
@@ -966,15 +925,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                           <div className="flex items-start justify-between gap-2 sm:gap-4 my-1">
                             {/* Local - Vertical: Bandera encima, nombre debajo */}
                             <div className="flex-1 flex flex-col items-center text-center min-w-0 gap-1.5">
-                              {getTeamFlagUrl(match.home_team) ? (
-                                <img
-                                  src={getTeamFlagUrl(match.home_team)!}
-                                  alt={`Bandera de ${match.home_team}`}
-                                  className="w-10 h-7 sm:w-12 sm:h-8 object-cover rounded-md shadow-md border border-slate-700/50"
-                                />
-                              ) : (
-                                <div className="w-10 h-7 sm:w-12 sm:h-8 bg-slate-700 rounded-md"></div>
-                              )}
+                              <TeamFlag teamName={match.home_team} size="lg" />
                               <span
                                 className="font-bold text-slate-200 text-[11px] sm:text-xs md:text-sm font-sports uppercase tracking-wide leading-tight text-center max-w-[95px] sm:max-w-[130px]"
                                 title={match.home_team}
@@ -1022,15 +973,7 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
 
                             {/* Visitante - Vertical: Bandera encima, nombre debajo */}
                             <div className="flex-1 flex flex-col items-center text-center min-w-0 gap-1.5">
-                              {getTeamFlagUrl(match.away_team) ? (
-                                <img
-                                  src={getTeamFlagUrl(match.away_team)!}
-                                  alt={`Bandera de ${match.away_team}`}
-                                  className="w-10 h-7 sm:w-12 sm:h-8 object-cover rounded-md shadow-md border border-slate-700/50"
-                                />
-                              ) : (
-                                <div className="w-10 h-7 sm:w-12 sm:h-8 bg-slate-700 rounded-md"></div>
-                              )}
+                              <TeamFlag teamName={match.away_team} size="lg" />
                               <span
                                 className="font-bold text-slate-200 text-[11px] sm:text-xs md:text-sm font-sports uppercase tracking-wide leading-tight text-center max-w-[95px] sm:max-w-[130px]"
                                 title={match.away_team}

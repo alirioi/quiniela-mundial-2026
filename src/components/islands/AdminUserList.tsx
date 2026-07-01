@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Search, Users, Phone, Mail, FileText, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, Trophy, Trash2, Shield, AlertTriangle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { isPlaceholderName } from '../../utils/knockout';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { ErrorState } from '../ui/ErrorState';
+import { StatusBadge } from '../ui/StatusBadge';
 
 interface Prediction {
   match_id: number;
@@ -173,20 +176,15 @@ export default function AdminUserList() {
   });
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center p-16 space-y-4 bg-wc-card/25 rounded-2xl border border-wc-border">
-        <div className="w-8 h-8 border-3 border-wc-gold border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-450 text-xs font-sports uppercase tracking-wider">Cargando participantes...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Cargando participantes..." />;
   }
 
   if (error) {
     return (
-      <div className="p-5 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center text-xs text-red-200 flex items-center justify-center gap-2">
-        <XCircle className="w-5 h-5 text-wc-red" strokeWidth={2.5} />
-        <span>{error.message || 'Error de conexión'}</span>
-      </div>
+      <ErrorState 
+        message={error.message || 'Error de conexión'}
+        onRetry={fetchData}
+      />
     );
   }
 
@@ -313,15 +311,7 @@ export default function AdminUserList() {
                             </h5>
                             <span className="text-[10px] text-slate-550 font-mono">ID: {entry.id}</span>
                           </div>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-sports uppercase tracking-wider border ${
-                            entry.status === 'approved'
-                              ? 'bg-wc-green/10 text-wc-green border-wc-green/15'
-                              : entry.status === 'pending'
-                              ? 'bg-wc-gold/10 text-wc-gold border-wc-gold/15'
-                              : 'bg-wc-red/10 text-wc-red border-wc-red/15'
-                          }`}>
-                            {entry.status === 'approved' ? 'Pagado' : entry.status === 'pending' ? 'Verificar' : 'Rechazado'}
-                          </span>
+                          <StatusBadge status={entry.status} />
                         </div>
 
                         <div className="h-px bg-wc-border/40"></div>

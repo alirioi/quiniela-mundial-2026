@@ -54,7 +54,7 @@ export async function validateEntryOwnership(
 export async function getApprovedNonAdminEntries() {
   const { data: rawEntries, error } = await supabaseAdmin
     .from('entries')
-    .select('id, display_name, entry_number, profiles(role, email, full_name)')
+    .select('id, display_name, entry_number, profiles(role, full_name)')
     .eq('status', 'approved');
 
   if (error) {

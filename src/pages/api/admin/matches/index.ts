@@ -1,45 +1,85 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../../lib/supabase-server';
-import { resolveKnockoutTeamNames } from '../../../../utils/matches';
-import { requireAdmin, getApprovedNonAdminEntries } from '../../../../utils/api-helpers';
+import { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } from '../../../../utils/knockout';
 
-export const GET: APIRoute = async ({ locals }) => {
-  const adminError = requireAdmin(locals);
-  if (adminError) return adminError;
+export const GET: APIRoute = async ({ request, locals }) => {
+  // Explicit admin check
+  if (locals.profile?.role !== 'admin') {
+    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403 });
+  }
 
   try {
-    // 1. Obtener todas las fases
+    // Obtener fases
     const { data: phases, error: phasesError } = await supabaseAdmin
       .from('tournament_phases')
       .select('*')
-      .order('start_date', { ascending: true });
+      .order('order', { ascending: true });
 
     if (phasesError) {
       return new Response(JSON.stringify({ error: phasesError.message }), { status: 400 });
     }
 
-    // 2. Obtener todos los partidos
+    // Obtener todos los partidos ordenados por hora
     const { data: matches, error: matchesError } = await supabaseAdmin
       .from('matches')
-      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
+      .select(`
+        id,
+        phase_id,
+        home_team,
+        away_team,
+        match_time,
+        home_score,
+        away_score,
+        status,
+        group_name,
+        match_number,
+        penalty_winner
+      `)
       .order('match_time', { ascending: true });
 
     if (matchesError) {
       return new Response(JSON.stringify({ error: matchesError.message }), { status: 400 });
     }
 
-    // Resolver placeholders usando la lógica centralizada
-    if (matches && matches.length > 0) {
-      await resolveKnockoutTeamNames(matches);
-    }
-
-    // 3. Obtener participantes aprobados para estadísticas
-    const { entries, error: entriesError } = await getApprovedNonAdminEntries();
+    // Calculate actual matchups
+    const { groupStandings, thirdPlaces } = calculateGroupStandings(matches || []);
+    const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, matches || []);
     
-    if (entriesError) {
-      return new Response(JSON.stringify({ error: entriesError.message }), { status: 400 });
-    } 
+    // Create a flat map of knockout matches by match_number
+    const knockoutMatchesByNumber = new Map();
+    [
+      ...Object.values(bracket.r32),
+      ...Object.values(bracket.r16),
+      ...Object.values(bracket.qf),
+      ...Object.values(bracket.sf),
+      bracket.finalMatch,
+      bracket.thirdPlaceMatch
+    ].filter(Boolean).forEach(km => {
+      knockoutMatchesByNumber.set(km.matchNumber, km);
+    });
+
+    // Update matches in-memory with real names if available
+    matches?.forEach(match => {
+      const km = knockoutMatchesByNumber.get(match.match_number);
+      if (km) {
+        if (!isPlaceholderName(km.homeTeam)) {
+          match.home_team = km.homeTeam;
+        }
+        if (!isPlaceholderName(km.awayTeam)) {
+          match.away_team = km.awayTeam;
+        }
+      }
+    });
+
+    // Fetch entries and predictions for stats (excluding admin accounts)
+    const { data: rawEntries } = await supabaseAdmin
+      .from('entries')
+      .select('id, user_id, display_name, profiles(role, full_name)')
+      .eq('status', 'approved');
+
+    const entries = rawEntries?.filter((entry: any) => entry.profiles?.role !== 'admin') || [];
+
     const approvedCount = entries.length;
 
     // Encontrar el siguiente partido programado en cada fase
@@ -73,7 +113,6 @@ export const GET: APIRoute = async ({ locals }) => {
         entries.forEach(entry => {
           const hasPredicted = predictions.some(p => p.entry_id === entry.id && p.match_id === nextMatch.id);
           if (!hasPredicted) {
-            // Utilizamos el nombre del perfil o en su defecto el de la entrada
             const name = entry.profiles?.full_name || entry.display_name || 'Desconocido';
             missingUsers.push({ id: entry.id, name });
           }

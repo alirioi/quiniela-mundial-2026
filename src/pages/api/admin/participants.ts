@@ -1,6 +1,7 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
+import { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } from '../../../utils/knockout';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   // Explicit admin check for defense in depth (middleware already handles this)
@@ -27,7 +28,39 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const firstMatchId = firstMatch?.id || null;
 
-    // 2. Obtener perfiles de usuarios con sus entradas y predicciones asociadas
+    // 2. Obtener todos los partidos para poder identificar cuáles faltan y calcular cuadros
+    const { data: allMatchesRaw } = await supabaseAdmin
+      .from('matches')
+      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
+      .order('match_time', { ascending: true });
+
+    // Resolver placeholders de nombres de equipos knockout
+    const matchesMap = new Map<number, { home: string; away: string }>();
+    if (allMatchesRaw) {
+      const { groupStandings, thirdPlaces } = calculateGroupStandings(allMatchesRaw);
+      const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, allMatchesRaw);
+
+      const knockoutMatchesByNumber = new Map();
+      [
+        ...Object.values(bracket.r32),
+        ...Object.values(bracket.r16),
+        ...Object.values(bracket.qf),
+        ...Object.values(bracket.sf),
+        bracket.finalMatch,
+        bracket.thirdPlaceMatch
+      ].filter(Boolean).forEach((km: any) => knockoutMatchesByNumber.set(km.matchNumber, km));
+
+      allMatchesRaw.forEach(match => {
+        const km = knockoutMatchesByNumber.get(match.match_number);
+        if (km) {
+          if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
+          if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
+        }
+        matchesMap.set(match.id, { home: match.home_team, away: match.away_team });
+      });
+    }
+
+    // 3. Obtener perfiles de usuarios con sus entradas y predicciones asociadas
     const { data: profiles, error: profilesError } = await supabaseAdmin
       .from('profiles')
       .select(`
@@ -58,7 +91,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
               away_team,
               home_score,
               away_score,
-              match_time
               match_time,
               match_number,
               phase_id,
@@ -75,23 +107,17 @@ export const GET: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: profilesError.message }), { status: 400 });
     }
 
-    // Resolver placeholders usando la lógica centralizada
-    const allMatches = profiles?.flatMap(p => p.entries.flatMap(e => e.predictions.map(pred => pred.matches)));
-    const uniqueMatches = Array.from(new Map(allMatches?.filter(Boolean).map(m => [m!.id, m])).values());
-    if (uniqueMatches.length > 0) {
-      await resolveKnockoutTeamNames(uniqueMatches as any);
-    }
-
     // Formatear datos para la visualización del administrador
     const formattedParticipants = await Promise.all(
       profiles.map(async (profile) => {
         const entries = await Promise.all(
           (profile.entries || []).map(async (entry: any) => {
             const predictions = (entry.predictions || []).map((pred: any) => {
+              const realMatch = matchesMap.get(pred.match_id);
               return {
                 match_id: pred.match_id,
-                home_team: pred.matches?.home_team || 'N/A',
-                away_team: pred.matches?.away_team || 'N/A',
+                home_team: realMatch ? realMatch.home : (pred.matches?.home_team || 'N/A'),
+                away_team: realMatch ? realMatch.away : (pred.matches?.away_team || 'N/A'),
                 predicted_home: pred.predicted_home,
                 predicted_away: pred.predicted_away,
                 home_score: pred.matches?.home_score ?? null,
@@ -149,7 +175,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
         totalMatches: totalMatches || 0,
         firstMatchId,
         participants: formattedParticipants,
-        allMatches: allMatches || []
+        allMatches: allMatchesRaw || []
       }),
       { status: 200 }
     );

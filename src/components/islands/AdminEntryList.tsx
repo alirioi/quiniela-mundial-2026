@@ -214,9 +214,7 @@ export default function AdminEntryList() {
             </span>
           </div>
         </td>
-        <td className="p-4 sm:p-5 font-mono text-xs text-wc-gold font-bold">
-          #{entry.entry_number}
-        </td>
+
         <td className="p-4 sm:p-5 text-slate-400 text-xs font-medium">
           {new Date(entry.created_at).toLocaleDateString('es-ES', {
             day: 'numeric',
@@ -238,10 +236,7 @@ export default function AdminEntryList() {
           )}
         </td>
         <td className="p-4 sm:p-5">
-          <div className="flex justify-between items-center bg-wc-dark/30 p-4 rounded-xl border border-wc-border">
-            <span className="text-slate-400 font-sports uppercase tracking-wider text-xs">Estado de Cuenta</span>
-            <StatusBadge status={entry.status} />
-          </div>
+          <StatusBadge status={entry.status} />
         </td>
         <td className="p-4 sm:p-5 text-right">
           {actionLoadingId === entry.id ? (
@@ -429,7 +424,6 @@ export default function AdminEntryList() {
                   <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
                     <th className="p-4 sm:p-5">Usuario / Apodo</th>
                     <th className="p-4 sm:p-5">Pago y Ref.</th>
-                    <th className="p-4 sm:p-5">Cupo #</th>
                     <th className="p-4 sm:p-5">Fecha Reg.</th>
                     <th className="p-4 sm:p-5 text-center">Comprobante</th>
                     <th className="p-4 sm:p-5">Estado</th>
@@ -460,7 +454,6 @@ export default function AdminEntryList() {
                     <tr className="border-b border-wc-border text-xs uppercase font-bold tracking-wider text-slate-350 bg-wc-dark/50 font-sports">
                       <th className="p-4 sm:p-5">Usuario / Apodo</th>
                       <th className="p-4 sm:p-5">Pago y Ref.</th>
-                      <th className="p-4 sm:p-5">Cupo #</th>
                       <th className="p-4 sm:p-5">Fecha Reg.</th>
                       <th className="p-4 sm:p-5 text-center">Comprobante</th>
                       <th className="p-4 sm:p-5">Estado</th>

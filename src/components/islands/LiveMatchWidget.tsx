@@ -492,13 +492,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
               <div className="flex items-center justify-between gap-4 my-2">
                 {/* Local */}
                 <div className="flex-1 flex flex-col items-center text-center min-w-0">
-                  {getTeamFlagUrl(match.home_team) && (
-                    <img
-                      src={getTeamFlagUrl(match.home_team)!}
-                      alt={`Bandera de ${match.home_team}`}
-                      className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60"
-                    />
-                  )}
+                  <TeamFlag teamName={match.home_team} size="lg" />
                   <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={match.home_team}>
                     {match.home_team}
                   </span>
@@ -513,13 +507,7 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
 
                 {/* Visitante */}
                 <div className="flex-1 flex flex-col items-center text-center min-w-0">
-                  {getTeamFlagUrl(match.away_team) && (
-                    <img
-                      src={getTeamFlagUrl(match.away_team)!}
-                      alt={`Bandera de ${match.away_team}`}
-                      className="w-10 h-7 object-cover rounded-md shadow-md border border-slate-700/60"
-                    />
-                  )}
+                  <TeamFlag teamName={match.away_team} size="lg" />
                   <span className="font-extrabold text-slate-200 text-xs sm:text-sm font-sports tracking-wide uppercase mt-2 whitespace-normal text-center max-w-full" title={match.away_team}>
                     {match.away_team}
                   </span>

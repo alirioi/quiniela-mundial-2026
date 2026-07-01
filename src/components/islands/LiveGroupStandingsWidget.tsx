@@ -354,11 +354,7 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
                         </td>
                         <td className="px-1 py-1.5 font-bold text-slate-200">
                           <div className="flex items-center gap-1.5 min-w-0">
-                            {flagUrl ? (
-                              <img src={flagUrl} alt="" className="w-4 h-3 object-cover rounded-[1px] shadow-sm flex-shrink-0" />
-                            ) : (
-                              <div className="w-4 h-3 bg-slate-700 rounded-[1px] flex-shrink-0"></div>
-                            )}
+                            <TeamFlag teamName={teamStat.team} size="xs" />
                             <span className="truncate max-w-[120px]">{teamStat.team}</span>
                           </div>
                         </td>
@@ -402,9 +398,7 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
                             <div className="flex flex-col min-w-0">
                               <span className="truncate max-w-[125px] leading-tight block">{player.name}</span>
                               <div className="flex items-center gap-1 mt-0.5">
-                                {flagUrl && (
-                                  <img src={flagUrl} alt="" className="w-3 h-2 object-cover rounded-[1px] flex-shrink-0" />
-                                )}
+                                <TeamFlag teamName={player.team} size="xs" />
                                 <span className="text-[9px] text-slate-450 font-medium uppercase truncate max-w-[90px]">{player.team}</span>
                               </div>
                             </div>

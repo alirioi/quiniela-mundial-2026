@@ -101,14 +101,15 @@ export const POST: APIRoute = async ({ params, locals }) => {
       try {
         const subject = `¡Te falta pronosticar el partido ${nextMatch.home_team} vs ${nextMatch.away_team}! ⏰`;
 
-        const result = await sendEmail({
+         const result = await sendEmail({
           to: user.email,
           subject,
           react: PhaseReminderEmail({
-            userName: user.name,
+            userName: user.name ? user.name.trim().split(' ')[0] : 'Usuario',
             phaseName: phase.name,
             missingGold: false,
-            missingFirstMatch: true // Reusing this prop for the email template for now
+            missingFirstMatch: true,
+            nextMatchName: `${nextMatch.home_team} vs ${nextMatch.away_team}`
           }) as React.ReactElement
         });
 

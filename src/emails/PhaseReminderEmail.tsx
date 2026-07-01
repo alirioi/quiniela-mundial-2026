@@ -7,13 +7,15 @@ interface PhaseReminderEmailProps {
   phaseName: string;
   missingGold?: boolean;
   missingFirstMatch?: boolean;
+  nextMatchName?: string;
 }
 
 export default function PhaseReminderEmail({
   userName = 'Usuario',
   phaseName = 'Fase',
   missingGold = false,
-  missingFirstMatch = false
+  missingFirstMatch = false,
+  nextMatchName = ''
 }: PhaseReminderEmailProps) {
   const previewText = missingGold && missingFirstMatch
     ? 'Faltan tu Pronóstico de Oro y tu próximo partido'
@@ -44,7 +46,7 @@ export default function PhaseReminderEmail({
           )}
           {missingFirstMatch && (
             <li style={{ marginBottom: '8px' }}>
-              ⚽ <strong>Próximo partido de la {phaseName}:</strong> Recuerda pronosticar tu próximo partido. Las predicciones de cada partido se bloquean automáticamente <strong>5 minutos antes</strong> de su inicio.
+              ⚽ <strong>Próximo partido{nextMatchName ? ` (${nextMatchName})` : ` de la ${phaseName}`}:</strong> Recuerda pronosticar tu próximo partido. Las predicciones de cada partido se bloquean automáticamente <strong>5 minutos antes</strong> de su inicio.
             </li>
           )}
         </ul>
@@ -57,7 +59,7 @@ export default function PhaseReminderEmail({
       <Section className="text-center mt-6 mb-6">
         <Button
           className="bg-wc-green text-white font-bold px-6 py-3 rounded-lg no-underline"
-          href="https://quiniela.alirioi.dev/dashboard"
+          href="https://quiniela.alirioi.dev/predictions"
         >
           Llenar mis pronósticos ahora
         </Button>

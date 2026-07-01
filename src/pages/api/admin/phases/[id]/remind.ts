@@ -1,7 +1,7 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../../../lib/supabase-server';
-import { resend } from '../../../../../lib/resend';
+import { sendEmail } from '../../../../../lib/resend';
 import PhaseReminderEmail from '../../../../../emails/PhaseReminderEmail';
 import { render } from '@react-email/components';
 import { resolveKnockoutTeamNames } from '../../../../../utils/matches';
@@ -112,13 +112,17 @@ export const POST: APIRoute = async ({ params, locals }) => {
         // Let's replace the subject line for this logic
         const subject = `¡Te falta pronosticar el partido ${nextMatch.home_team} vs ${nextMatch.away_team}! ⏰`;
 
-        await resend.emails.send({
-          from: 'Quiniela Mundial 2026 <quiniela@alirioi.dev>',
+        const result = await sendEmail({
           to: user.email,
           subject,
           html,
         });
-        sentCount++;
+
+        if (result.success) {
+          sentCount++;
+        } else {
+          console.error(`Error enviando correo a ${user.email}:`, result.error || result.warning);
+        }
       } catch (err) {
         console.error(`Error enviando correo a ${user.email}:`, err);
       }

@@ -63,7 +63,10 @@ export const GET: APIRoute = async ({ locals }) => {
       nextMatches
     }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, s-maxage=20, stale-while-revalidate=10'
+      }
     });
   } catch (e: any) {
     return new Response(JSON.stringify({ error: e.message || 'Error interno' }), { status: 500 });

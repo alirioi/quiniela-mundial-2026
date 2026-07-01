@@ -118,9 +118,6 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
   useEffect(() => {
     fetchMatchesData();
 
-    // Polling de respaldo cada 30 segundos para asegurar actualización de marcadores en vivo
-    const pollInterval = setInterval(fetchMatchesData, 30000);
-
     // Suscribirse a cambios en la tabla 'matches' en tiempo real
     const channel = supabase
       .channel('public:matches-sidebar-widget')
@@ -133,9 +130,17 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
       )
       .subscribe();
 
+    // Fallback: refetch cuando el usuario vuelve a la pestaña (tab switching)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchMatchesData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
-      clearInterval(pollInterval);
       supabase.removeChannel(channel);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

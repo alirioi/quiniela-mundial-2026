@@ -17,7 +17,7 @@ export const GET: APIRoute = async () => {
 
     const headers = {
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=5',
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
     };
 
     return new Response(JSON.stringify(players), { status: 200, headers });

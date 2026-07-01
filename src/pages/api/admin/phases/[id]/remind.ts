@@ -4,11 +4,12 @@ import { supabaseAdmin } from '../../../../../lib/supabase-server';
 import { resend } from '../../../../../lib/resend';
 import PhaseReminderEmail from '../../../../../emails/PhaseReminderEmail';
 import { render } from '@react-email/components';
+import { resolveKnockoutTeamNames } from '../../../../../utils/matches';
+import { requireAdmin } from '../../../../../utils/api-helpers';
 
 export const POST: APIRoute = async ({ params, locals }) => {
-  if (locals.profile?.role !== 'admin') {
-    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403 });
-  }
+  const adminError = requireAdmin(locals);
+  if (adminError) return adminError;
 
   const phaseId = parseInt(params.id!);
   if (isNaN(phaseId)) {
@@ -35,33 +36,8 @@ export const POST: APIRoute = async ({ params, locals }) => {
       .order('match_time', { ascending: true });
 
     // Reemplazar nombres si es necesario (para que el email muestre los equipos correctos si ya están definidos)
-    const { data: allMatches } = await supabaseAdmin
-      .from('matches')
-      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
-      .order('match_time', { ascending: true });
-      
-    if (matches && allMatches) {
-      const { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } = await import('../../../../../utils/knockout');
-      const { groupStandings, thirdPlaces } = calculateGroupStandings(allMatches);
-      const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, allMatches);
-      
-      const knockoutMatchesByNumber = new Map();
-      [
-        ...Object.values(bracket.r32),
-        ...Object.values(bracket.r16),
-        ...Object.values(bracket.qf),
-        ...Object.values(bracket.sf),
-        bracket.finalMatch,
-        bracket.thirdPlaceMatch
-      ].filter(Boolean).forEach(km => knockoutMatchesByNumber.set(km.matchNumber, km));
-
-      matches.forEach(match => {
-        const km = knockoutMatchesByNumber.get(match.match_number);
-        if (km) {
-          if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
-          if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
-        }
-      });
+    if (matches && matches.length > 0) {
+      await resolveKnockoutTeamNames(matches);
     }
 
     const nextMatch = matches?.find(m => m.status === 'scheduled');

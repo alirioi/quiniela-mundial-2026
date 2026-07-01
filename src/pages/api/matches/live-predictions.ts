@@ -1,15 +1,15 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
+import { resolveKnockoutTeamNames, isMatchLocked } from '../../../utils/matches';
+import { requireAuth, getApprovedNonAdminEntries } from '../../../utils/api-helpers';
 
 export const GET: APIRoute = async ({ locals }) => {
+  const authError = requireAuth(locals);
+  if (authError) return authError;
+
   const user = locals.user;
   const profile = locals.profile;
-
-  // Verify auth
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
-  }
 
   try {
     // 0. Obtener los entries del usuario logueado para verificar aprobación de forma robusta y guardar sus IDs
@@ -105,49 +105,17 @@ export const GET: APIRoute = async ({ locals }) => {
       return new Response(JSON.stringify({ matches: [], match: null, predictions: [], tendencies: null }), { status: 200 });
     }
 
-    // Resolver placeholders usando la lógica de knockout
-    const { data: allMatches } = await supabaseAdmin
-      .from('matches')
-      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
-      .order('match_time', { ascending: true });
-
-    if (allMatches) {
-      const { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } = await import('../../../utils/knockout');
-      const { groupStandings, thirdPlaces } = calculateGroupStandings(allMatches);
-      const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, allMatches);
-      
-      const knockoutMatchesByNumber = new Map();
-      [
-        ...Object.values(bracket.r32),
-        ...Object.values(bracket.r16),
-        ...Object.values(bracket.qf),
-        ...Object.values(bracket.sf),
-        bracket.finalMatch,
-        bracket.thirdPlaceMatch
-      ].filter(Boolean).forEach(km => knockoutMatchesByNumber.set(km.matchNumber, km));
-
-      activeMatches.forEach(match => {
-        const km = knockoutMatchesByNumber.get(match.match_number);
-        if (km) {
-          if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
-          if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
-        }
-      });
-    }
+    // Resolver placeholders usando la lógica centralizada
+    await resolveKnockoutTeamNames(activeMatches);
 
     const matchIds = activeMatches.map(m => m.id);
 
     // 3. Obtener todos los participantes aprobados (excluyendo administradores)
-    const { data: rawEntries, error: entriesError } = await supabaseAdmin
-      .from('entries')
-      .select('id, display_name, entry_number, profiles(role)')
-      .eq('status', 'approved');
+    const { entries, error: entriesError } = await getApprovedNonAdminEntries();
 
     if (entriesError) {
       return new Response(JSON.stringify({ error: entriesError.message }), { status: 400 });
     }
-
-    const entries = rawEntries?.filter((entry: any) => entry.profiles?.role !== 'admin') || [];
 
     // 4. Obtener todas las predicciones para los partidos seleccionados
     const { data: predictions, error: predictionsError } = await supabaseAdmin
@@ -166,10 +134,7 @@ export const GET: APIRoute = async ({ locals }) => {
         predictionsMap.set(p.entry_id, p);
       });
 
-      const matchTimeMs = new Date(match.match_time).getTime();
-      const nowMs = Date.now();
-      const lockTimeMs = matchTimeMs - 5 * 60 * 1000; // 5 minutos antes del partido
-      const isLocked = nowMs >= lockTimeMs;
+      const isLocked = isMatchLocked(match.match_time);
 
       const isMatchScheduled = match.status === 'scheduled';
 

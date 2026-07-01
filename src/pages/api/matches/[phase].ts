@@ -1,6 +1,8 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
+import { resolveKnockoutTeamNames } from '../../../utils/matches';
+import { requireAuth } from '../../../utils/api-helpers';
 
 export const GET: APIRoute = async ({ params, url, locals }) => {
   const { phase } = params;
@@ -10,10 +12,10 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     return new Response(JSON.stringify({ error: 'Fase no especificada' }), { status: 400 });
   }
 
+  const authError = requireAuth(locals);
+  if (authError) return authError;
+
   const user = locals.user;
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
-  }
 
   try {
     // 1. Obtener la fase para validar y tener su id
@@ -38,34 +40,9 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
       return new Response(JSON.stringify({ error: matchesError.message }), { status: 400 });
     }
 
-    // Resolver placeholders usando la lógica de knockout
-    const { data: allMatches } = await supabaseAdmin
-      .from('matches')
-      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
-      .order('match_time', { ascending: true });
-
-    if (allMatches) {
-      const { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } = await import('../../../utils/knockout');
-      const { groupStandings, thirdPlaces } = calculateGroupStandings(allMatches);
-      const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, allMatches);
-      
-      const knockoutMatchesByNumber = new Map();
-      [
-        ...Object.values(bracket.r32),
-        ...Object.values(bracket.r16),
-        ...Object.values(bracket.qf),
-        ...Object.values(bracket.sf),
-        bracket.finalMatch,
-        bracket.thirdPlaceMatch
-      ].filter(Boolean).forEach(km => knockoutMatchesByNumber.set(km.matchNumber, km));
-
-      matches.forEach(match => {
-        const km = knockoutMatchesByNumber.get(match.match_number);
-        if (km) {
-          if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
-          if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
-        }
-      });
+    // Resolver placeholders usando la lógica centralizada
+    if (matches && matches.length > 0) {
+      await resolveKnockoutTeamNames(matches);
     }
 
     // 3. Si se especifica entryId, buscar y adjuntar las predicciones correspondientes

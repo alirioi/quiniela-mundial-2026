@@ -1,85 +1,45 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../../lib/supabase-server';
-import { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } from '../../../../utils/knockout';
+import { resolveKnockoutTeamNames } from '../../../../utils/matches';
+import { requireAdmin, getApprovedNonAdminEntries } from '../../../../utils/api-helpers';
 
-export const GET: APIRoute = async ({ request, locals }) => {
-  // Explicit admin check
-  if (locals.profile?.role !== 'admin') {
-    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403 });
-  }
+export const GET: APIRoute = async ({ locals }) => {
+  const adminError = requireAdmin(locals);
+  if (adminError) return adminError;
 
   try {
-    // Obtener fases
+    // 1. Obtener todas las fases
     const { data: phases, error: phasesError } = await supabaseAdmin
       .from('tournament_phases')
       .select('*')
-      .order('order', { ascending: true });
+      .order('start_date', { ascending: true });
 
     if (phasesError) {
       return new Response(JSON.stringify({ error: phasesError.message }), { status: 400 });
     }
 
-    // Obtener todos los partidos ordenados por hora
+    // 2. Obtener todos los partidos
     const { data: matches, error: matchesError } = await supabaseAdmin
       .from('matches')
-      .select(`
-        id,
-        phase_id,
-        home_team,
-        away_team,
-        match_time,
-        home_score,
-        away_score,
-        status,
-        group_name,
-        match_number,
-        penalty_winner
-      `)
+      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
       .order('match_time', { ascending: true });
 
     if (matchesError) {
       return new Response(JSON.stringify({ error: matchesError.message }), { status: 400 });
     }
 
-    // Calculate actual matchups
-    const { groupStandings, thirdPlaces } = calculateGroupStandings(matches || []);
-    const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, matches || []);
+    // Resolver placeholders usando la lógica centralizada
+    if (matches && matches.length > 0) {
+      await resolveKnockoutTeamNames(matches);
+    }
+
+    // 3. Obtener participantes aprobados para estadísticas
+    const { entries, error: entriesError } = await getApprovedNonAdminEntries();
     
-    // Create a flat map of knockout matches by match_number
-    const knockoutMatchesByNumber = new Map();
-    [
-      ...Object.values(bracket.r32),
-      ...Object.values(bracket.r16),
-      ...Object.values(bracket.qf),
-      ...Object.values(bracket.sf),
-      bracket.finalMatch,
-      bracket.thirdPlaceMatch
-    ].filter(Boolean).forEach(km => {
-      knockoutMatchesByNumber.set(km.matchNumber, km);
-    });
-
-    // Update matches in-memory with real names if available
-    matches?.forEach(match => {
-      const km = knockoutMatchesByNumber.get(match.match_number);
-      if (km) {
-        if (!isPlaceholderName(km.homeTeam)) {
-          match.home_team = km.homeTeam;
-        }
-        if (!isPlaceholderName(km.awayTeam)) {
-          match.away_team = km.awayTeam;
-        }
-      }
-    });
-
-    // Fetch entries and predictions for stats (excluding admin accounts)
-    const { data: rawEntries } = await supabaseAdmin
-      .from('entries')
-      .select('id, user_id, display_name, profiles(role, full_name)')
-      .eq('status', 'approved');
-
-    const entries = rawEntries?.filter((entry: any) => entry.profiles?.role !== 'admin') || [];
-
+    if (entriesError) {
+      return new Response(JSON.stringify({ error: entriesError.message }), { status: 400 });
+    } 
     const approvedCount = entries.length;
 
     // Encontrar el siguiente partido programado en cada fase

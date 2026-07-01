@@ -1,12 +1,12 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
+import { requireAuth, validateEntryOwnership } from '../../../utils/api-helpers';
 
 export const POST: APIRoute = async ({ request, locals }) => {
+  const authError = requireAuth(locals);
+  if (authError) return authError;
   const user = locals.user;
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
-  }
 
   try {
     const { entryId, predictions } = await request.json();
@@ -16,23 +16,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // 1. Validar propiedad del cupo y que esté aprobado
-    const { data: entry, error: entryError } = await supabaseAdmin
-      .from('entries')
-      .select('user_id, status')
-      .eq('id', entryId)
-      .single();
-
-    if (entryError || !entry) {
-      return new Response(JSON.stringify({ error: 'Cupo no encontrado' }), { status: 404 });
-    }
-
-    if (entry.user_id !== user.id) {
-      return new Response(JSON.stringify({ error: 'Acceso denegado a este cupo' }), { status: 403 });
-    }
-
-    if (entry.status !== 'approved') {
-      return new Response(JSON.stringify({ error: 'El cupo debe estar aprobado para registrar predicciones' }), { status: 403 });
-    }
+    const { error: ownershipError } = await validateEntryOwnership(entryId, user.id, 'approved');
+    if (ownershipError) return ownershipError;
 
     // 2. Filtrar predicciones incompletas
     const validPredictions = predictions.filter(

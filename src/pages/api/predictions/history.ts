@@ -1,12 +1,14 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
+import { resolveKnockoutTeamNames, isMatchLocked } from '../../../utils/matches';
+import { requireAuth } from '../../../utils/api-helpers';
 
 export const GET: APIRoute = async ({ url, locals }) => {
+  const authError = requireAuth(locals);
+  if (authError) return authError;
+
   const user = locals.user;
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
-  }
 
   const entryIdParam = url.searchParams.get('entryId');
   if (!entryIdParam) {
@@ -40,6 +42,11 @@ export const GET: APIRoute = async ({ url, locals }) => {
       return new Response(JSON.stringify({ error: matchesError?.message || 'Error al obtener partidos' }), { status: 400 });
     }
 
+    // Resolver placeholders usando la lógica centralizada
+    if (matches && matches.length > 0) {
+      await resolveKnockoutTeamNames(matches);
+    }
+
     // 3. Obtener todas las predicciones del cupo
     const { data: predictions, error: predictionsError } = await supabaseAdmin
       .from('predictions')
@@ -55,16 +62,13 @@ export const GET: APIRoute = async ({ url, locals }) => {
       predictionsMap.set(p.match_id, p);
     });
 
-    const now = Date.now();
     const isOwnEntry = entry.user_id === user.id || locals.profile?.role === 'admin';
 
     // 4. Mapear partidos con la predicción correspondiente aplicando la regla de visibilidad (lock de 5 mins)
     const history = matches
       .map((match) => {
         const pred = predictionsMap.get(match.id);
-        const matchTimeMs = new Date(match.match_time).getTime();
-        const lockTimeMs = matchTimeMs - 5 * 60 * 1000;
-        const isLocked = now >= lockTimeMs;
+        const isLocked = isMatchLocked(match.match_time);
 
         // Un partido se puede ver si ya está bloqueado (<5m del inicio), si está en vivo, si ya finalizó, o si es el propio cupo del usuario.
         const canSee = isLocked || match.status === 'live' || match.status === 'finished' || isOwnEntry;

@@ -1,12 +1,11 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../lib/supabase-server';
+import { requireAuth } from '../../utils/api-helpers';
 
 export const GET: APIRoute = async ({ request, locals }) => {
-  const user = locals.user;
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
-  }
+  const authError = requireAuth(locals);
+  if (authError) return authError;
 
   try {
     // 1. Obtener la fecha del primer partido y verificar si hay partidos activos en paralelo

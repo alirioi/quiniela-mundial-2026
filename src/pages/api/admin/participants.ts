@@ -59,6 +59,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
               home_score,
               away_score,
               match_time
+              match_time,
+              match_number,
+              phase_id,
+              group_name,
+              status,
+              penalty_winner
             )
           )
         )
@@ -69,39 +75,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: profilesError.message }), { status: 400 });
     }
 
-    // Obtener todos los partidos para poder identificar cuáles faltan y calcular cuadros
-    const { data: allMatches } = await supabaseAdmin
-      .from('matches')
-      .select('id, phase_id, home_team, away_team, match_time, home_score, away_score, status, group_name, match_number, penalty_winner')
-      .order('match_time', { ascending: true });
-
-    // Reemplazar nombres de equipos si están en llaves con los valores calculados reales
-    const matchesMap = new Map();
-    if (allMatches) {
-      const { calculateGroupStandings, calculateKnockoutBracket, isPlaceholderName } = await import('../../../utils/knockout');
-      const { groupStandings, thirdPlaces } = calculateGroupStandings(allMatches);
-      const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, allMatches);
-      
-      const knockoutMatchesByNumber = new Map();
-      [
-        ...Object.values(bracket.r32),
-        ...Object.values(bracket.r16),
-        ...Object.values(bracket.qf),
-        ...Object.values(bracket.sf),
-        bracket.finalMatch,
-        bracket.thirdPlaceMatch
-      ].filter(Boolean).forEach(km => {
-        knockoutMatchesByNumber.set(km.matchNumber, km);
-      });
-
-      allMatches.forEach(match => {
-        const km = knockoutMatchesByNumber.get(match.match_number);
-        if (km) {
-          if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
-          if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
-        }
-        matchesMap.set(match.id, { home: match.home_team, away: match.away_team });
-      });
+    // Resolver placeholders usando la lógica centralizada
+    const allMatches = profiles?.flatMap(p => p.entries.flatMap(e => e.predictions.map(pred => pred.matches)));
+    const uniqueMatches = Array.from(new Map(allMatches?.filter(Boolean).map(m => [m!.id, m])).values());
+    if (uniqueMatches.length > 0) {
+      await resolveKnockoutTeamNames(uniqueMatches as any);
     }
 
     // Formatear datos para la visualización del administrador
@@ -110,11 +88,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
         const entries = await Promise.all(
           (profile.entries || []).map(async (entry: any) => {
             const predictions = (entry.predictions || []).map((pred: any) => {
-              const realMatch = matchesMap.get(pred.match_id);
               return {
                 match_id: pred.match_id,
-                home_team: realMatch ? realMatch.home : (pred.matches?.home_team || 'N/A'),
-                away_team: realMatch ? realMatch.away : (pred.matches?.away_team || 'N/A'),
+                home_team: pred.matches?.home_team || 'N/A',
+                away_team: pred.matches?.away_team || 'N/A',
                 predicted_home: pred.predicted_home,
                 predicted_away: pred.predicted_away,
                 home_score: pred.matches?.home_score ?? null,

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { calculateGroupStandings, TeamStats } from '../utils/knockout';
+import { calculateGroupStandings } from '../utils/knockout';
+import type { TeamStats } from '../utils/knockout';
 
 export function useGroupStandings(matches: any[]) {
   const standings = useMemo(() => {

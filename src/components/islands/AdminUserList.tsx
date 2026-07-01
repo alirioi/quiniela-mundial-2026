@@ -185,7 +185,7 @@ export default function AdminUserList() {
     return (
       <div className="p-5 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center text-xs text-red-200 flex items-center justify-center gap-2">
         <XCircle className="w-5 h-5 text-wc-red" strokeWidth={2.5} />
-        <span>{error}</span>
+        <span>{error.message || 'Error de conexión'}</span>
       </div>
     );
   }

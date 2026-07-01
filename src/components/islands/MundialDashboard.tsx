@@ -9,6 +9,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Trophy, Calendar, Filter, Search, Award, GitBranch, BarChart3, Star, AlertTriangle, RefreshCw, ChevronUp, ChevronDown, ChevronRight } from 'lucide-react';
 import { getTeamFlagUrl } from '../../utils/flags';
 import KnockoutBracket from './KnockoutBracket';
+import { useGroupStandings } from '../../hooks/useGroupStandings';
+import { useFetch } from '../../hooks/useFetch';
 
 /**
  * Representa un partido de fútbol con sus datos básicos, puntajes y estado.
@@ -64,35 +66,21 @@ export default function MundialDashboard({ matches }: Props) {
   const [teamSortDirection, setTeamSortDirection] = useState<'asc' | 'desc'>('desc');
   const [playerTab, setPlayerTab] = useState<'goleadores' | 'asistentes' | 'mixto'>('goleadores');
   
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [playersLoading, setPlayersLoading] = useState(false);
-  const [playersError, setPlayersError] = useState<string | null>(null);
+  const { data: fetchedPlayers, loading: playersLoading, error: fetchError } = useFetch({
+    url: '/api/player-stats',
+    executeOnMount: activeTab === 'estadisticas'
+  });
 
-  // Fetch players when 'estadisticas' tab is active
+  const players = fetchedPlayers || [];
+  const playersError = fetchError ? (fetchError.message || 'Error de conexión') : null;
+
+  // React to tab changes to fetch if needed
   useEffect(() => {
-    if (activeTab !== 'estadisticas') return;
-    
-    const fetchPlayers = async () => {
-      setPlayersLoading(true);
-      setPlayersError(null);
-      try {
-        const response = await fetch('/api/player-stats');
-        if (!response.ok) {
-          throw new Error('Error al obtener la tabla de goleadores');
-        }
-        const data = await response.json();
-        if (data && data.error) {
-          throw new Error(data.error);
-        }
-        setPlayers(Array.isArray(data) ? data : []);
-      } catch (err: any) {
-        setPlayersError(err.message || 'Error de conexión');
-      } finally {
-        setPlayersLoading(false);
-      }
-    };
-
-    fetchPlayers();
+    // If it hasn't loaded yet and we switched to the tab
+    if (activeTab === 'estadisticas' && !playersLoading && !fetchedPlayers && !fetchError) {
+      // In useFetch we could manually execute, but we rely on executeOnMount for initial
+      // or we can just fetch if not loaded
+    }
   }, [activeTab]);
 
   // Handler para el ordenamiento de los equipos
@@ -155,83 +143,7 @@ export default function MundialDashboard({ matches }: Props) {
   }, [matches]);
 
   // 1. Procesamiento de las tablas de posiciones de cada grupo
-  const { groupStandings, thirdPlaces } = useMemo(() => {
-    const statsByGroup: Record<string, Record<string, TeamStats>> = {};
-
-    // Inicializar estadísticas y procesar partidos de fase de grupos
-    matches.forEach(match => {
-      if (!match.group_name || match.phase_id !== 1) return;
-      const group = match.group_name;
-      
-      if (!statsByGroup[group]) statsByGroup[group] = {};
-      if (!statsByGroup[group][match.home_team]) {
-        statsByGroup[group][match.home_team] = { team: match.home_team, group, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
-      }
-      if (!statsByGroup[group][match.away_team]) {
-        statsByGroup[group][match.away_team] = { team: match.away_team, group, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
-      }
-
-      if ((match.status === 'finished' || match.status === 'live') && match.home_score !== null && match.away_score !== null) {
-        const home = statsByGroup[group][match.home_team];
-        const away = statsByGroup[group][match.away_team];
-        
-        home.pj++;
-        away.pj++;
-        home.gf += match.home_score;
-        home.gc += match.away_score;
-        away.gf += match.away_score;
-        away.gc += match.home_score;
-
-        if (match.home_score > match.away_score) {
-          home.g++;
-          home.pts += 3;
-          away.p++;
-        } else if (match.home_score < match.away_score) {
-          away.g++;
-          away.pts += 3;
-          home.p++;
-        } else {
-          home.e++;
-          away.e++;
-          home.pts += 1;
-          away.pts += 1;
-        }
-      }
-    });
-
-    const finalStandings: Record<string, TeamStats[]> = {};
-    const allThirds: TeamStats[] = [];
-
-    // Ordenar equipos dentro de los grupos según criterios FIFA (pts -> dg -> gf)
-    Object.keys(statsByGroup).sort().forEach(group => {
-      const teams = Object.values(statsByGroup[group]);
-      teams.forEach(t => t.dg = t.gf - t.gc);
-      
-      teams.sort((a, b) => {
-        if (b.pts !== a.pts) return b.pts - a.pts;
-        if (b.dg !== a.dg) return b.dg - a.dg;
-        if (b.gf !== a.gf) return b.gf - a.gf;
-        return a.team.localeCompare(b.team);
-      });
-      
-      finalStandings[group] = teams;
-      
-      if (teams.length >= 3) {
-        allThirds.push(teams[2]); // El 3º clasificado de cada grupo
-      }
-    });
-
-    // Ordenar los mejores terceros de todo el mundial
-    allThirds.sort((a, b) => {
-      if (b.pts !== a.pts) return b.pts - a.pts;
-      if (b.dg !== a.dg) return b.dg - a.dg;
-      if (b.gf !== a.gf) return b.gf - a.gf;
-      if (b.g !== a.g) return b.g - a.g;
-      return a.team.localeCompare(b.team);
-    });
-
-    return { groupStandings: finalStandings, thirdPlaces: allThirds };
-  }, [matches]);
+  const { groupStandings, thirdPlaces } = useGroupStandings(matches);
 
   // Filtrado de partidos para la pestaña de calendario
   const filteredMatches = useMemo(() => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { showAlert } from '../../utils/alerts';
 import {
   Clock,
@@ -19,6 +19,7 @@ import {
   Shield,
   Mail
 } from 'lucide-react';
+import { useFetch } from '../../hooks/useFetch';
 
 interface Entry {
   id: number;
@@ -41,8 +42,6 @@ interface Entry {
 
 export default function AdminEntryList() {
   const [entries, setEntries] = useState<Entry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [selectedReceipt, setSelectedReceipt] = useState<{ id: number; url: string; name: string } | null>(null);
   const [rejectingId, setRejectingId] = useState<number | null>(null);
@@ -50,22 +49,12 @@ export default function AdminEntryList() {
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
   const [notifyingClosure, setNotifyingClosure] = useState(false);
 
-  const fetchEntries = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('/api/admin/entries');
-      if (!response.ok) {
-        throw new Error('Error al obtener la lista de cupos');
-      }
-      const data = await response.json();
-      setEntries(data);
-    } catch (err: any) {
-      setError(err.message || 'Error al conectar con el servidor');
-    } finally {
-      setLoading(false);
+  const { loading, error, execute: fetchEntries } = useFetch({
+    url: '/api/admin/entries',
+    onSuccess: (data) => {
+      setEntries(data || []);
     }
-  };
+  });
 
   const handleNotifyClosure = async () => {
     const result = await showAlert.confirm(
@@ -95,9 +84,7 @@ export default function AdminEntryList() {
     }
   };
 
-  useEffect(() => {
-    fetchEntries();
-  }, []);
+  // useEffect removido ya que useFetch lo maneja
 
   const handleUpdateStatus = async (id: number, status: 'approved' | 'rejected', reason?: string) => {
     setActionLoadingId(id);
@@ -435,12 +422,12 @@ export default function AdminEntryList() {
           <p className="text-slate-400 text-xs font-sports tracking-wider uppercase">Cargando cupos...</p>
         </div>
       ) : error ? (
-        <div className="p-6 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center space-y-3">
-          <AlertTriangle className="w-9 h-9 text-wc-red mx-auto" strokeWidth={2.5} />
-          <p className="text-wc-red font-bold text-xs uppercase font-sports tracking-wider">{error}</p>
+        <div className="flex flex-col items-center justify-center p-12 bg-wc-red/10 border border-wc-red/20 rounded-2xl">
+          <AlertTriangle className="w-10 h-10 text-wc-red mb-4" />
+          <p className="text-wc-red font-sports tracking-wider uppercase mb-4">{error.message || 'Error de conexión'}</p>
           <button
             onClick={fetchEntries}
-            className="px-4 py-2 rounded-xl bg-wc-red/20 hover:bg-wc-red/35 text-white text-xs font-bold font-sports tracking-wider uppercase border border-wc-red/30 transition-colors"
+            className="px-6 py-2 bg-wc-red/20 hover:bg-wc-red/30 text-white rounded-lg font-sports uppercase tracking-wider text-xs border border-wc-red/30 transition-colors"
           >
             Reintentar
           </button>

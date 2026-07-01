@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { showAlert } from '../../utils/alerts';
 import { getTeamFlagUrl } from '../../utils/flags';
 import { isPlaceholderName } from '../../utils/knockout';
 import { Lock, RefreshCw, AlertTriangle, Award } from 'lucide-react';
+import { useFetch } from '../../hooks/useFetch';
 
 interface Phase {
   id: number;
@@ -36,52 +37,39 @@ interface MatchEditState {
 export default function AdminMatchResults() {
   const [phases, setPhases] = useState<Phase[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedPhaseId, setSelectedPhaseId] = useState<number | 'today' | null>(null);
   const [editStates, setEditStates] = useState<Record<number, MatchEditState>>({});
   const [savingId, setSavingId] = useState<number | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('/api/admin/matches');
-      if (!response.ok) {
-        throw new Error('Error al obtener los partidos');
-      }
-      const data = await response.json();
-      setPhases(data.phases);
-      setMatches(data.matches);
+  const { loading, error, execute: fetchData } = useFetch({
+    url: '/api/admin/matches',
+    onSuccess: (data) => {
+      setPhases(data.phases || []);
+      setMatches(data.matches || []);
 
-      if (data.phases.length > 0) {
-        // Seleccionar la primera fase por defecto o la activa
+      if (data.phases?.length > 0 && selectedPhaseId === null) {
+        // Seleccionar la primera fase por defecto o la activa solo en la primera carga
         const activePhase = data.phases.find((p: Phase) => p.is_active);
         setSelectedPhaseId(activePhase ? activePhase.id : data.phases[0].id);
       }
 
-      // Inicializar el estado de edición para cada partido
-      const initialEdits: Record<number, MatchEditState> = {};
-      data.matches.forEach((m: Match) => {
-        initialEdits[m.id] = {
-          home_score: m.home_score !== null ? String(m.home_score) : '',
-          away_score: m.away_score !== null ? String(m.away_score) : '',
-          status: m.status,
-          penalty_winner: m.penalty_winner || null,
-        };
+      // Inicializar el estado de edición para cada partido solo si no estaban editándose
+      setEditStates((prev) => {
+        const newEdits: Record<number, MatchEditState> = { ...prev };
+        (data.matches || []).forEach((m: Match) => {
+          if (!newEdits[m.id]) {
+            newEdits[m.id] = {
+              home_score: m.home_score !== null ? String(m.home_score) : '',
+              away_score: m.away_score !== null ? String(m.away_score) : '',
+              status: m.status,
+              penalty_winner: m.penalty_winner || null,
+            };
+          }
+        });
+        return newEdits;
       });
-      setEditStates(initialEdits);
-    } catch (err: any) {
-      setError(err.message || 'Error de conexión');
-    } finally {
-      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
+  });
   const handleScoreChange = (matchId: number, field: 'home' | 'away', val: string) => {
     // Solo permitir números o string vacía
     if (val !== '' && !/^\d+$/.test(val)) return;
@@ -232,9 +220,9 @@ export default function AdminMatchResults() {
           <p className="text-slate-400 text-xs font-sports tracking-wider uppercase">Cargando fixture...</p>
         </div>
       ) : error ? (
-        <div className="p-6 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center flex flex-col items-center justify-center space-y-3">
-          <AlertTriangle className="w-9 h-9 text-wc-red" strokeWidth={2.5} />
-          <p className="text-wc-red font-bold text-xs uppercase font-sports tracking-wider">{error}</p>
+        <div className="p-6 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center space-y-3">
+          <AlertTriangle className="w-9 h-9 text-wc-red mx-auto" strokeWidth={2.5} />
+          <p className="text-wc-red font-bold text-xs uppercase font-sports tracking-wider">{error.message || 'Error de conexión'}</p>
           <button
             onClick={fetchData}
             className="px-4 py-2 rounded-xl bg-wc-red/20 hover:bg-wc-red/35 text-white text-xs font-bold font-sports tracking-wider uppercase border border-wc-red/30 transition-colors"

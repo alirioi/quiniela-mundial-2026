@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase-browser';
 import { Trophy, Lock, BarChart3, AlertTriangle, ArrowUp, ArrowDown, Minus, X } from 'lucide-react';
+import { useFetch } from '../../hooks/useFetch';
+import { useCountdown } from '../../hooks/useCountdown';
 
 interface StandingEntry {
   id: number;
@@ -22,9 +24,7 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
   const [standings, setStandings] = useState<StandingEntry[]>([]);
   const [tournamentStarted, setTournamentStarted] = useState(true);
   const [firstMatchTime, setFirstMatchTime] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const timeLeft = useCountdown(firstMatchTime);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedHistoryEntryId, setSelectedHistoryEntryId] = useState<number | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -59,22 +59,14 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
     setHistoryError(null);
   };
 
-  const fetchStandings = async () => {
-    try {
-      const response = await fetch('/api/standings');
-      if (!response.ok) {
-        throw new Error('Error al cargar la tabla de posiciones');
-      }
-      const data = await response.json();
+  const { loading, error, execute: fetchStandings } = useFetch({
+    url: '/api/standings',
+    onSuccess: (data) => {
       setTournamentStarted(data.tournamentStarted);
       setFirstMatchTime(data.firstMatchTime || null);
       setStandings(data.standings || []);
-    } catch (err: any) {
-      setError(err.message || 'Error de conexión');
-    } finally {
-      setLoading(false);
     }
-  };
+  });
 
   useEffect(() => {
     fetchStandings();
@@ -100,33 +92,7 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
       supabase.removeChannel(channel);
       clearTimeout(timeoutId);
     };
-  }, []);
-
-  useEffect(() => {
-    if (tournamentStarted || !firstMatchTime) return;
-
-    const targetDate = new Date(firstMatchTime);
-
-    const calculateTimeLeft = () => {
-      const difference = targetDate.getTime() - Date.now();
-      if (difference <= 0) {
-        fetchStandings();
-        return;
-      }
-
-      setTimeLeft({
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60)
-      });
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
-  }, [tournamentStarted, firstMatchTime]);
+  }, [fetchStandings]);
 
   if (loading) {
     return (
@@ -139,9 +105,15 @@ export default function StandingsTable({ myEntryIds, isAdmin = false }: Standing
 
   if (error) {
     return (
-      <div className="p-4 rounded-xl bg-wc-red/10 border border-wc-red/20 text-center text-xs text-red-200 flex items-center justify-center gap-1.5">
-        <AlertTriangle className="w-4.5 h-4.5 text-wc-red" strokeWidth={2.5} />
-        <span>{error}</span>
+      <div className="flex flex-col items-center justify-center p-12 bg-wc-red/10 border border-wc-red/20 rounded-2xl">
+        <AlertTriangle className="w-10 h-10 text-wc-red mb-4" />
+        <p className="text-wc-red font-sports tracking-wider uppercase mb-4">{error.message || 'Error de conexión'}</p>
+        <button
+          onClick={fetchStandings}
+          className="px-6 py-2 bg-wc-red/20 hover:bg-wc-red/30 text-white rounded-lg font-sports uppercase tracking-wider text-xs border border-wc-red/30 transition-colors"
+        >
+          Reintentar
+        </button>
       </div>
     );
   }

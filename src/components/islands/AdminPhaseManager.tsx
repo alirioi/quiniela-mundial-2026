@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { showAlert } from '../../utils/alerts';
 import { Settings, RefreshCw, AlertTriangle, Bell, Power } from 'lucide-react';
+import { useFetch } from '../../hooks/useFetch';
 
 interface Phase {
   id: number;
@@ -25,11 +26,21 @@ interface PhaseStats {
 export default function AdminPhaseManager() {
   const [phases, setPhases] = useState<Phase[]>([]);
   const [stats, setStats] = useState<PhaseStats[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // loading y error se manejan con useFetch
   const [notifyingId, setNotifyingId] = useState<number | null>(null);
   const [togglingId, setTogglingId] = useState<number | null>(null);
   const [expandedPhaseId, setExpandedPhaseId] = useState<number | null>(null);
+
+  const { data: phasesData, loading, error, execute: fetchPhases } = useFetch({
+    url: '/api/admin/matches',
+    onSuccess: (data) => {
+      setPhases(data.phases || []);
+      setStats(data.phasesStats || []);
+    },
+    onError: (err) => {
+      // Error handled by hook
+    }
+  });
 
   const handleTogglePhase = async (phaseId: number, currentActive: boolean) => {
     const action = currentActive ? 'desactivar' : 'activar';
@@ -60,28 +71,6 @@ export default function AdminPhaseManager() {
       setTogglingId(null);
     }
   };
-
-  const fetchPhases = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('/api/admin/matches'); // Reutilizamos esta API que trae fases y partidos
-      if (!response.ok) {
-        throw new Error('Error al obtener las fases');
-      }
-      const data = await response.json();
-      setPhases(data.phases);
-      setStats(data.phasesStats || []);
-    } catch (err: any) {
-      setError(err.message || 'Error de conexión');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPhases();
-  }, []);
 
   const handleNotifyLaggards = async (phaseId: number, phaseName: string) => {
     const phaseStat = stats.find(s => s.phase_id === phaseId);
@@ -134,7 +123,7 @@ export default function AdminPhaseManager() {
       ) : error ? (
         <div className="p-6 rounded-2xl bg-wc-red/10 border border-wc-red/20 text-center space-y-3">
           <AlertTriangle className="w-9 h-9 text-wc-red mx-auto" strokeWidth={2.5} />
-          <p className="text-wc-red font-bold text-xs uppercase font-sports tracking-wider">{error}</p>
+          <p className="text-wc-red font-bold text-xs uppercase font-sports tracking-wider">{error.message || 'Error de conexión'}</p>
           <button
             onClick={fetchPhases}
             className="px-4 py-2 rounded-xl bg-wc-red/20 hover:bg-wc-red/35 text-white text-xs font-bold font-sports tracking-wider uppercase border border-wc-red/30 transition-all"

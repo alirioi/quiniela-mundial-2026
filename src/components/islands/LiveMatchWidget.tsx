@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase-browser';
 import { Activity, Calendar, Clock, Lock, Save, Check, Loader2 } from 'lucide-react';
 import { getTeamFlagUrl } from '../../utils/flags';
 import { showAlert } from '../../utils/alerts';
+import { useFetch } from '../../hooks/useFetch';
 
 interface Match {
   id: number;
@@ -48,21 +49,19 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
     return ids;
   }, [liveMatches, nextMatches]);
 
-  const fetchMatchesData = async () => {
-    try {
-      const response = await fetch('/api/matches/live');
-      if (!response.ok) throw new Error('Error al consultar /api/matches/live');
-      
-      const data = await response.json();
+  const { data: matchesData, loading: matchesLoading, execute: fetchMatchesData } = useFetch({
+    url: '/api/matches/live',
+    onSuccess: (data) => {
       setLiveMatches(data.liveMatches || []);
       setNextMatch(data.nextMatch || null);
       setNextMatches(data.nextMatches || (data.nextMatch ? [data.nextMatch] : []));
-    } catch (e) {
+      setLoading(false);
+    },
+    onError: (e) => {
       console.error('Error al cargar datos del widget de partidos:', e);
-    } finally {
       setLoading(false);
     }
-  };
+  });
 
   const fetchPredictions = async () => {
     console.log('fetchPredictions started. entryId:', selectedEntryId, 'matchIds:', activeMatchIds);

@@ -9,6 +9,7 @@ interface PredictionMatchCardProps {
   matchStatus: 'scheduled' | 'live' | 'finished';
   countdown?: string;
   locked: boolean;
+  matchTime?: string;
 
   // Teams
   homeTeam: string;
@@ -38,6 +39,7 @@ export const PredictionMatchCard: React.FC<PredictionMatchCardProps> = ({
   matchStatus,
   countdown,
   locked,
+  matchTime,
   homeTeam,
   awayTeam,
   homeFlag,
@@ -67,11 +69,34 @@ export const PredictionMatchCard: React.FC<PredictionMatchCardProps> = ({
       }`}
     >
       {/* Header: Etiqueta + Estado */}
-      <div className="flex justify-between items-center text-xs text-slate-500 mb-4 pb-2.5 border-b border-wc-border/50">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-slate-300 font-sports uppercase tracking-wider text-xs sm:text-sm">
+      <div className="flex justify-between items-center text-xs text-slate-500 mb-4 pb-2.5 border-b border-wc-border/50 min-w-0 w-full">
+        <div className="flex flex-col gap-0.5 min-w-0 flex-1 pr-2">
+          <span className="font-bold text-slate-300 font-sports uppercase tracking-wider text-[11px] sm:text-xs truncate block" title={headerLabel}>
             {headerLabel}
           </span>
+          {matchTime && (
+            <span className="text-[10px] text-slate-450 font-medium whitespace-nowrap">
+              {(() => {
+                try {
+                  const date = new Date(matchTime);
+                  const options: Intl.DateTimeFormatOptions = {
+                    day: '2-digit',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  };
+                  let formatted = date.toLocaleDateString('es-ES', options);
+                  formatted = formatted.replace(/\s*[ap]\.?\s*m\.?/i, (m) => {
+                    return m.toLowerCase().includes('p') ? ' pm' : ' am';
+                  });
+                  return formatted;
+                } catch (e) {
+                  return matchTime;
+                }
+              })()}
+            </span>
+          )}
         </div>
 
         {/* Estado o cuenta regresiva */}

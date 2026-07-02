@@ -77,6 +77,26 @@ interface PredictionsFormProps {
   userEntries: Entry[];
 }
 
+const formatDate12h = (dateStr: string | Date) => {
+  try {
+    const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    let formatted = date.toLocaleDateString('es-ES', options);
+    formatted = formatted.replace(/\s*[ap]\.?\s*m\.?/i, (m) => {
+      return m.toLowerCase().includes('p') ? ' pm' : ' am';
+    });
+    return formatted;
+  } catch (e) {
+    return typeof dateStr === 'string' ? dateStr : dateStr.toISOString();
+  }
+};
+
 export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsFormProps) {
   const [selectedEntryId, setSelectedEntryId] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -890,11 +910,16 @@ export default function PredictionsForm({ phaseSlug, userEntries }: PredictionsF
                           }`}
                         >
                           {/* Header: Grupo + Estado */}
-                          <div className="flex justify-between items-center text-xs text-slate-500 mb-4 pb-2.5 border-b border-wc-border/50">
-                            <div className="flex items-center gap-2">
+                          <div className="flex justify-between items-center text-xs text-slate-500 mb-4 pb-2.5 border-b border-wc-border/50 min-w-0 w-full">
+                            <div className="flex flex-col gap-0.5 min-w-0 flex-1 pr-2">
                               {match.group_name && (
-                                <span className="font-bold text-slate-300 font-sports uppercase tracking-wider text-xs sm:text-sm">{match.group_name}</span>
+                                <span className="font-bold text-slate-300 font-sports uppercase tracking-wider text-[11px] sm:text-xs truncate block" title={match.group_name}>
+                                  {match.group_name}
+                                </span>
                               )}
+                              <span className="text-[10px] text-slate-450 font-medium whitespace-nowrap">
+                                {formatDate12h(match.match_time)}
+                              </span>
                             </div>
 
                             {/* Estado o cuenta regresiva */}

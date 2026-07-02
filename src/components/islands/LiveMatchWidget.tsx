@@ -543,13 +543,25 @@ export default function LiveMatchWidget({ approvedEntries = [] }: LiveMatchWidge
             <span>Comienza en: {timeLeft}</span>
           </div>
           <span className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase font-sports mt-0.5">
-            {nextMatchTime.toLocaleString('es-ES', {
-              weekday: 'short',
-              day: 'numeric',
-              month: 'short',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            {(() => {
+              try {
+                const options: Intl.DateTimeFormatOptions = {
+                  weekday: 'short',
+                  day: 'numeric',
+                  month: 'short',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                };
+                let formatted = nextMatchTime.toLocaleString('es-ES', options);
+                formatted = formatted.replace(/\s*[ap]\.?\s*m\.?/i, (m) => {
+                  return m.toLowerCase().includes('p') ? ' pm' : ' am';
+                });
+                return formatted;
+              } catch (e) {
+                return nextMatchTime.toISOString();
+              }
+            })()}
           </span>
         </div>
       </div>

@@ -159,9 +159,13 @@ function translateTeam(englishName) {
  */
 function buildWikiTitle(homeTeam, awayTeam, groupName) {
   if (groupName) {
-    // Group stage: "2026 FIFA World Cup Group A"
-    const groupLetter = groupName.replace(/^Grupo\s+/i, '').replace(/^Group\s+/i, '');
-    return `2026_FIFA_World_Cup_Group_${groupLetter}`;
+    // Si groupName indica una ronda eliminatoria, usar el artículo de la fase eliminatoria
+    const isKnockout = /dieciseisavos|octavos|cuartos|semifinal|final|tercer/i.test(groupName);
+    if (!isKnockout) {
+      // Group stage: "2026 FIFA World Cup Group A"
+      const groupLetter = groupName.replace(/^Grupo\s+/i, '').replace(/^Group\s+/i, '');
+      return `2026_FIFA_World_Cup_Group_${groupLetter}`;
+    }
   }
   // Knockout stage: single article
   return '2026_FIFA_World_Cup_knockout_stage';

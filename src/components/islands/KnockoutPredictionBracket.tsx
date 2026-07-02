@@ -829,6 +829,7 @@ export default function KnockoutPredictionBracket({ groupStandings, thirdPlaces,
         matchStatus={dbMatch?.status as 'scheduled' | 'live' | 'finished' || 'scheduled'}
         countdown={countdown}
         locked={!!locked}
+        matchTime={dbMatch?.match_time}
         homeTeam={match.homeTeam || match.placeholderHome || ''}
         awayTeam={match.awayTeam || match.placeholderAway || ''}
         homeFlag={homeFlag}

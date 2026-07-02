@@ -153,13 +153,15 @@ function translateTeam(englishName) {
 
 /**
  * Builds the expected Wikipedia article title for a given match.
- * Wikipedia uses a consistent naming convention:
- *   "2026 FIFA World Cup Group A" for group stage matches
- *   "2026 FIFA World Cup knockout stage" for later rounds
+ * Wikipedia organises knockout rounds into separate articles:
+ *   - Matches 73-88:  2026 FIFA World Cup round of 32
+ *   - Matches 89-96:  2026 FIFA World Cup round of 16
+ *   - Matches 97-100: 2026 FIFA World Cup quarter-finals
+ *   - Matches 101-102 / 103: 2026 FIFA World Cup semi-finals / third-place play-off / final
  */
-function buildWikiTitle(homeTeam, awayTeam, groupName) {
+function buildWikiTitle(homeTeam, awayTeam, groupName, matchNumber) {
   if (groupName) {
-    // Si groupName indica una ronda eliminatoria, usar el artículo de la fase eliminatoria
+    // Si groupName indica una ronda eliminatoria, caer al bloque de knockout abajo
     const isKnockout = /dieciseisavos|octavos|cuartos|semifinal|final|tercer/i.test(groupName);
     if (!isKnockout) {
       // Group stage: "2026 FIFA World Cup Group A"
@@ -167,7 +169,17 @@ function buildWikiTitle(homeTeam, awayTeam, groupName) {
       return `2026_FIFA_World_Cup_Group_${groupLetter}`;
     }
   }
-  // Knockout stage: single article
+
+  // Knockout stage — cada ronda tiene su propio artículo en Wikipedia
+  const n = Number(matchNumber);
+  if (n >= 73 && n <= 88)  return '2026_FIFA_World_Cup_round_of_32';
+  if (n >= 89 && n <= 96)  return '2026_FIFA_World_Cup_round_of_16';
+  if (n >= 97 && n <= 100) return '2026_FIFA_World_Cup_quarter-finals';
+  if (n >= 101 && n <= 102) return '2026_FIFA_World_Cup_semi-finals';
+  if (n === 103) return '2026_FIFA_World_Cup_third_place_play-off';
+  if (n === 104) return '2026_FIFA_World_Cup_final';
+
+  // Fallback
   return '2026_FIFA_World_Cup_knockout_stage';
 }
 
@@ -557,7 +569,7 @@ async function main() {
 
   const { data: matchesWithFlag, error: matchErr } = await supabase
     .from('matches')
-    .select('id, home_team, away_team, group_name, home_score, away_score')
+    .select('id, match_number, home_team, away_team, group_name, home_score, away_score')
     .eq('status', 'finished')
     .eq('stats_processed', false)
     .order('id', { ascending: true });
@@ -591,12 +603,12 @@ async function main() {
   let skipped = 0;
 
   for (const match of matches) {
-    const { id, home_team, away_team, group_name } = match;
+    const { id, match_number, home_team, away_team, group_name } = match;
     const label = `Match ${id}: ${home_team} vs ${away_team}`;
 
     console.log(`\n[sync] Processing ${label}…`);
 
-    const wikiTitle = buildWikiTitle(home_team, away_team, group_name);
+    const wikiTitle = buildWikiTitle(home_team, away_team, group_name, match_number);
 
     // Fetch wikitext (use cache if already fetched for this article)
     if (!wikiCache.has(wikiTitle)) {

@@ -44,10 +44,16 @@ export default function PredictionsDashboard({ userEntries }: PredictionsDashboa
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [historyPage, setHistoryPage] = useState(1);
+  const [filterType, setFilterType] = useState<'todos' | 'exactos' | 'parcial' | 'no_acertado'>('todos');
 
   useEffect(() => {
     setHistoryPage(1);
+    setFilterType('todos');
   }, [selectedEntryId]);
+
+  useEffect(() => {
+    setHistoryPage(1);
+  }, [filterType]);
 
   useEffect(() => {
     if (!selectedEntryId) return;
@@ -262,14 +268,49 @@ export default function PredictionsDashboard({ userEntries }: PredictionsDashboa
 
       {/* Historial de predicciones */}
       {!loading && stats && stats.history.length > 0 && (() => {
+        const filteredHistory = stats.history.filter((h) => {
+          if (filterType === 'exactos') return h.pointsEarned === 3;
+          if (filterType === 'parcial') return h.pointsEarned === 1;
+          if (filterType === 'no_acertado') return h.pointsEarned === 0;
+          return true;
+        });
+
         const itemsPerPage = 10;
-        const totalPages = Math.ceil(stats.history.length / itemsPerPage);
+        const totalPages = Math.max(1, Math.ceil(filteredHistory.length / itemsPerPage));
         const activePage = Math.min(historyPage, totalPages);
-        const paginatedHistory = stats.history.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
+        const paginatedHistory = filteredHistory.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
 
         return (
           <div className="space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300 font-sports font-sports">Historial de Predicciones</h2>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300 font-sports">Historial de Predicciones</h2>
+              <div className="flex flex-wrap bg-wc-dark/80 p-1 rounded-xl border border-wc-border text-[10px] sm:text-xs font-bold font-sports uppercase tracking-wider select-none shrink-0 self-start md:self-auto gap-0.5">
+                <button
+                  onClick={() => setFilterType('todos')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${filterType === 'todos' ? 'bg-wc-gold text-wc-dark font-extrabold shadow-md shadow-wc-gold/20' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Todos ({stats.history.length})
+                </button>
+                <button
+                  onClick={() => setFilterType('exactos')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${filterType === 'exactos' ? 'bg-wc-gold text-wc-dark font-extrabold shadow-md shadow-wc-gold/20' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Exactos ({stats.history.filter(h => h.pointsEarned === 3).length})
+                </button>
+                <button
+                  onClick={() => setFilterType('parcial')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${filterType === 'parcial' ? 'bg-wc-gold text-wc-dark font-extrabold shadow-md shadow-wc-gold/20' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Parcial ({stats.history.filter(h => h.pointsEarned === 1).length})
+                </button>
+                <button
+                  onClick={() => setFilterType('no_acertado')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${filterType === 'no_acertado' ? 'bg-wc-gold text-wc-dark font-extrabold shadow-md shadow-wc-gold/20' : 'text-slate-400 hover:text-white'}`}
+                >
+                  No acertados ({stats.history.filter(h => h.pointsEarned === 0).length})
+                </button>
+              </div>
+            </div>
             <div className="overflow-hidden rounded-2xl border border-wc-border bg-wc-card/30 backdrop-blur-md">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
@@ -282,7 +323,13 @@ export default function PredictionsDashboard({ userEntries }: PredictionsDashboa
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-wc-border/50 text-slate-200">
-                    {paginatedHistory.map((item) => (
+                    {paginatedHistory.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="p-8 text-center text-slate-500 italic">
+                          No hay predicciones en esta categoría.
+                        </td>
+                      </tr>
+                    ) : paginatedHistory.map((item) => (
                       <tr key={item.matchId} className="hover:bg-wc-card/50 transition-colors">
                         <td className="p-4 font-medium">
                           {item.homeTeam} vs {item.awayTeam}

@@ -1,6 +1,7 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../../lib/supabase-server';
+import { resolveKnockoutTeamNames } from '../../../utils/matches';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   const user = locals.user;
@@ -123,7 +124,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
           home_score,
           away_score,
           status,
-          match_time
+          match_time,
+          match_number
         )
       `)
       .eq('entry_id', entryId);
@@ -131,6 +133,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
     if (predError) {
       return new Response(JSON.stringify({ error: predError.message }), { status: 400 });
     }
+
+    // Resolver nombres de knockout antes de filtrar y mapear
+    const matchesToResolve = (predictions || [])
+      .map(p => p.matches)
+      .filter(Boolean);
+    await resolveKnockoutTeamNames(matchesToResolve);
 
     const totalPredictions = predictions?.length || 0;
     

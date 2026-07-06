@@ -39,7 +39,9 @@ interface MatchEditState {
 export default function AdminMatchResults() {
   const [phases, setPhases] = useState<Phase[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
-  const [selectedPhaseId, setSelectedPhaseId] = useState<number | 'today' | null>(null);
+  const [selectedMainTab, setSelectedMainTab] = useState<'today' | 'groups' | 'knockout'>('today');
+  const [selectedPhaseId, setSelectedPhaseId] = useState<number | 'today'>('today');
+  const [selectedSubPhase, setSelectedSubPhase] = useState<'r32' | 'r16' | 'qf' | 'sf' | 'final'>('r32');
   const [editStates, setEditStates] = useState<Record<number, MatchEditState>>({});
   const [savingId, setSavingId] = useState<number | null>(null);
 
@@ -48,12 +50,6 @@ export default function AdminMatchResults() {
     onSuccess: (data) => {
       setPhases(data.phases || []);
       setMatches(data.matches || []);
-
-      if (data.phases?.length > 0 && selectedPhaseId === null) {
-        // Seleccionar la primera fase por defecto o la activa solo en la primera carga
-        const activePhase = data.phases.find((p: Phase) => p.is_active);
-        setSelectedPhaseId(activePhase ? activePhase.id : data.phases[0].id);
-      }
 
       // Inicializar el estado de edición para cada partido solo si no estaban editándose
       setEditStates((prev) => {
@@ -150,8 +146,23 @@ export default function AdminMatchResults() {
     }
   };
 
+  // Helper para manejar el cambio de pestaña principal
+  const handleMainTabChange = (tab: 'today' | 'groups' | 'knockout') => {
+    setSelectedMainTab(tab);
+    if (tab === 'today') {
+      setSelectedPhaseId('today');
+    } else if (tab === 'groups') {
+      const groupPhase = phases.find(p => p.id === 1 || p.slug === 'grupos');
+      setSelectedPhaseId(groupPhase ? groupPhase.id : 1);
+    } else if (tab === 'knockout') {
+      setSelectedSubPhase('r32');
+      const knockoutPhase = phases.find(p => p.id > 1);
+      setSelectedPhaseId(knockoutPhase ? knockoutPhase.id : 2);
+    }
+  };
+
   const activePhase = phases.find((p) => p.id === selectedPhaseId);
-  const filteredMatches = selectedPhaseId === 'today'
+  const filteredMatches = selectedMainTab === 'today'
     ? matches.filter((m) => {
         const matchDate = new Date(m.match_time);
         const today = new Date();
@@ -171,49 +182,100 @@ export default function AdminMatchResults() {
 
         return isToday || isTomorrowMidnight;
       })
-    : matches.filter((m) => m.phase_id === selectedPhaseId);
+    : selectedMainTab === 'groups'
+    ? matches.filter((m) => m.phase_id === selectedPhaseId)
+    : matches.filter((m) => {
+        const num = m.match_number;
+        if (selectedSubPhase === 'r32') return num >= 73 && num <= 88;
+        if (selectedSubPhase === 'r16') return num >= 89 && num <= 96;
+        if (selectedSubPhase === 'qf') return num >= 97 && num <= 100;
+        if (selectedSubPhase === 'sf') return num >= 101 && num <= 102;
+        if (selectedSubPhase === 'final') return num >= 103 && num <= 104;
+        return false;
+      });
 
   return (
     <div className="space-y-6">
       {/* Pestañas de fases */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden">
+      <div className="flex flex-col gap-4 p-4 bg-wc-card/50 rounded-2xl border border-wc-border backdrop-blur-md relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-wc-gold/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="flex flex-wrap items-center gap-2 relative z-10">
-          <button
-            onClick={() => setSelectedPhaseId('today')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border flex items-center gap-1.5 font-sports relative z-10 ${
-              selectedPhaseId === 'today'
-                ? 'bg-wc-gold/10 border-wc-gold/30 text-wc-gold shadow-md shadow-wc-gold/5'
-                : 'bg-wc-dark/40 border-wc-border hover:border-slate-700 text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span>Partidos de Hoy</span>
-          </button>
-
-          {phases.map((phase) => (
+        
+        <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">
+          <div className="flex flex-wrap items-center gap-2">
             <button
-              key={phase.id}
-              onClick={() => setSelectedPhaseId(phase.id)}
+              onClick={() => handleMainTabChange('today')}
               className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border flex items-center gap-1.5 font-sports relative z-10 ${
-                selectedPhaseId === phase.id
+                selectedMainTab === 'today'
+                  ? 'bg-wc-gold/10 border-wc-gold/30 text-wc-gold shadow-md shadow-wc-gold/5'
+                  : 'bg-wc-dark/40 border-wc-border hover:border-slate-700 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <span>Partidos de Hoy</span>
+            </button>
+
+            <button
+              onClick={() => handleMainTabChange('groups')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border flex items-center gap-1.5 font-sports relative z-10 ${
+                selectedMainTab === 'groups'
                   ? 'bg-wc-green/10 border-wc-green/30 text-wc-green shadow-md shadow-wc-green/5'
                   : 'bg-wc-dark/40 border-wc-border hover:border-slate-700 text-slate-400 hover:text-slate-200'
               }`}
             >
-              <span>{phase.name}</span>
-              {!phase.is_active && <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" strokeWidth={2.5} />}
+              <span>Fase de Grupos</span>
+              {(() => {
+                const groupPhase = phases.find(p => p.id === 1 || p.slug === 'grupos');
+                return groupPhase && !groupPhase.is_active ? (
+                  <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" strokeWidth={2.5} />
+                ) : null;
+              })()}
             </button>
-          ))}
+
+            <button
+              onClick={() => handleMainTabChange('knockout')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border flex items-center gap-1.5 font-sports relative z-10 ${
+                selectedMainTab === 'knockout'
+                  ? 'bg-wc-blue/10 border-wc-blue/30 text-wc-blue shadow-md shadow-wc-blue/5'
+                  : 'bg-wc-dark/40 border-wc-border hover:border-slate-700 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <span>Fase Eliminatoria</span>
+            </button>
+          </div>
+
+          <button
+            onClick={fetchData}
+            className="p-2 px-3.5 rounded-xl bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white border border-wc-border transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1.5 relative z-10"
+            disabled={loading}
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} strokeWidth={2.5} />
+            <span>Recargar Partidos</span>
+          </button>
         </div>
 
-        <button
-          onClick={fetchData}
-          className="p-2 px-3.5 rounded-xl bg-wc-dark hover:bg-wc-card text-slate-300 hover:text-white border border-wc-border transition-all duration-200 text-xs font-bold font-sports tracking-wider uppercase flex items-center gap-1.5 relative z-10"
-          disabled={loading}
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} strokeWidth={2.5} />
-          <span>Recargar Partidos</span>
-        </button>
+        {/* Sub-pestañas para Fases de Eliminación Directa (16avos, 8vos, 4tos, Semis, Final) */}
+        {selectedMainTab === 'knockout' && (
+          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-wc-border/30 relative z-10 animate-fadeIn">
+            {([
+              { key: 'r32', name: '16avos de Final' },
+              { key: 'r16', name: 'Octavos de Final' },
+              { key: 'qf', name: 'Cuartos de Final' },
+              { key: 'sf', name: 'Semifinales' },
+              { key: 'final', name: 'Tercer Puesto / Final' },
+            ] as const).map((sub) => (
+              <button
+                key={sub.key}
+                onClick={() => setSelectedSubPhase(sub.key)}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 border flex items-center gap-1 font-sports ${
+                  selectedSubPhase === sub.key
+                    ? 'bg-wc-gold/15 border-wc-gold/45 text-wc-gold'
+                    : 'bg-wc-dark/20 border-wc-border/50 hover:border-slate-750 text-slate-450 hover:text-slate-300'
+                }`}
+              >
+                <span>{sub.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {loading ? (

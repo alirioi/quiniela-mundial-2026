@@ -6,13 +6,14 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Trophy, Calendar, Filter, Search, Award, GitBranch, BarChart3, Star, AlertTriangle, RefreshCw, ChevronUp, ChevronDown, ChevronRight } from 'lucide-react';
+import { Trophy, Calendar, Filter, Search, Award, GitBranch, BarChart3, Star, AlertTriangle, RefreshCw, ChevronUp, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
 import KnockoutBracket from './KnockoutBracket';
 import { useGroupStandings } from '../../hooks/useGroupStandings';
 import { useFetch } from '../../hooks/useFetch';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { ErrorState } from '../ui/ErrorState';
 import { TeamFlag } from '../ui/TeamFlag';
+import { getMatchVenue } from '../../utils/venues';
 import { StandingsRow } from '../ui/StandingsRow';
 
 /**
@@ -30,6 +31,7 @@ export interface Match {
   group_name: string | null;
   match_number: number;
   penalty_winner?: string | null;
+  venue?: string;
 }
 
 interface Player {
@@ -435,6 +437,16 @@ export default function MundialDashboard({ matches }: Props) {
                         </span>
                       </div>
                     </div>
+                    {(() => {
+                      const num = match.match_number ?? (match as any).matchNumber;
+                      const venue = getMatchVenue(num, match.group_name);
+                      return venue ? (
+                        <div className="flex items-center gap-1.5 mt-3 pt-2.5 border-t border-wc-border/30 text-[10px] text-slate-500 font-medium">
+                          <MapPin className="w-3.5 h-3.5 text-slate-600" />
+                          <span className="truncate">{venue}</span>
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 );
               })

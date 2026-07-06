@@ -3,6 +3,7 @@ export const prerender = false;
 import MainLayout from '../layouts/MainLayout.astro';
 import MundialDashboard from '../components/islands/MundialDashboard';
 import { supabaseAdmin } from '../lib/supabase-server';
+import { resolveKnockoutTeamNames } from '../utils/matches';
 
 const profile = Astro.locals.profile;
 
@@ -29,6 +30,9 @@ if (error) {
 }
 
 const matchData = matches || [];
+
+// Resolver nombres de knockout in-place para que todo el dashboard y el bracket muestre los equipos reales confirmados
+await resolveKnockoutTeamNames(matchData);
 ---
 
 <MainLayout 

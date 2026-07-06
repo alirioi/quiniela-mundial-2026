@@ -409,10 +409,12 @@ export function calculateKnockoutBracket(
         if (dbMatch.away_score !== undefined) round[num].awayScore = dbMatch.away_score;
         if (dbMatch.winner) round[num].winner = dbMatch.winner;
         else if (dbMatch.status === 'finished' && dbMatch.home_score !== null && dbMatch.away_score !== null) {
+          // Use the already-resolved team names from the bracket (round[num].homeTeam / awayTeam)
+          // instead of dbMatch.home_team / away_team which may still be placeholders (e.g. "2º Grupo K")
           if (dbMatch.home_score > dbMatch.away_score) {
-            round[num].winner = dbMatch.home_team;
+            round[num].winner = round[num].homeTeam;
           } else if (dbMatch.away_score > dbMatch.home_score) {
-            round[num].winner = dbMatch.away_team;
+            round[num].winner = round[num].awayTeam;
           } else if (dbMatch.penalty_winner) {
             round[num].winner = dbMatch.penalty_winner;
           }

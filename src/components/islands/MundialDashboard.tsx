@@ -169,6 +169,10 @@ export default function MundialDashboard({ matches }: Props) {
     });
   }, [matches, filterGroup, filterStatus, searchQuery]);
 
+  const qualifiedThirdsNames = useMemo(() => {
+    return thirdPlaces.slice(0, 8).map(t => t.team);
+  }, [thirdPlaces]);
+
   const renderTeamRow = (team: TeamStats, index: number, isThirdPlaceTable = false) => {
     return (
       <StandingsRow
@@ -184,6 +188,7 @@ export default function MundialDashboard({ matches }: Props) {
         dg={team.dg}
         pts={team.pts}
         isThirdPlaceTable={isThirdPlaceTable}
+        qualifiedThirds={qualifiedThirdsNames}
       />
     );
   };

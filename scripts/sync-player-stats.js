@@ -161,26 +161,278 @@ function translateTeam(englishName) {
  */
 function buildWikiTitle(homeTeam, awayTeam, groupName, matchNumber) {
   if (groupName) {
-    // Si groupName indica una ronda eliminatoria, caer al bloque de knockout abajo
     const isKnockout = /dieciseisavos|octavos|cuartos|semifinal|final|tercer/i.test(groupName);
     if (!isKnockout) {
-      // Group stage: "2026 FIFA World Cup Group A"
       const groupLetter = groupName.replace(/^Grupo\s+/i, '').replace(/^Group\s+/i, '');
       return `2026_FIFA_World_Cup_Group_${groupLetter}`;
     }
   }
-
-  // Knockout stage — cada ronda tiene su propio artículo en Wikipedia
-  const n = Number(matchNumber);
-  if (n >= 73 && n <= 88)  return '2026_FIFA_World_Cup_round_of_32';
-  if (n >= 89 && n <= 96)  return '2026_FIFA_World_Cup_round_of_16';
-  if (n >= 97 && n <= 100) return '2026_FIFA_World_Cup_quarter-finals';
-  if (n >= 101 && n <= 102) return '2026_FIFA_World_Cup_semi-finals';
-  if (n === 103) return '2026_FIFA_World_Cup_third_place_play-off';
-  if (n === 104) return '2026_FIFA_World_Cup_final';
-
-  // Fallback
   return '2026_FIFA_World_Cup_knockout_stage';
+}
+
+// ─── Knockout Bracket Resolution Helpers (JS Vanilla) ──────────────────────────
+
+const allowedOpponents = {
+  'A': ['C', 'E', 'F', 'H', 'I'],
+  'B': ['E', 'F', 'G', 'I', 'J'],
+  'D': ['B', 'E', 'F', 'I', 'J'],
+  'E': ['A', 'B', 'C', 'D', 'F'],
+  'G': ['A', 'E', 'H', 'I', 'J'],
+  'I': ['C', 'D', 'F', 'G', 'H'],
+  'K': ['D', 'E', 'I', 'J', 'L'],
+  'L': ['E', 'H', 'I', 'J', 'K']
+};
+
+function isPlaceholderName(name) {
+  if (!name) return true;
+  return name.startsWith('1º') || 
+         name.startsWith('2º') || 
+         name.startsWith('3º') || 
+         name.startsWith('Ganador') ||
+         name.startsWith('Perdedor');
+}
+
+function matchWinnersToThirds(winners, thirds, assignment = {}) {
+  if (winners.length === 0) return assignment;
+  const currentWinner = winners[0];
+  const remainingWinners = winners.slice(1);
+  const options = allowedOpponents[currentWinner] || [];
+
+  for (const option of options) {
+    if (thirds.includes(option) && !Object.values(assignment).includes(option)) {
+      const newAssignment = { ...assignment, [currentWinner]: option };
+      const result = matchWinnersToThirds(remainingWinners, thirds, newAssignment);
+      if (result) return result;
+    }
+  }
+  return null;
+}
+
+function calculateGroupStandings(matches) {
+  const statsByGroup = {};
+
+  matches.forEach(match => {
+    if (!match.group_name || match.phase_id !== 1) return;
+    const group = match.group_name;
+    
+    if (!statsByGroup[group]) statsByGroup[group] = {};
+    if (!statsByGroup[group][match.home_team]) {
+      statsByGroup[group][match.home_team] = { team: match.home_team, group, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
+    }
+    if (!statsByGroup[group][match.away_team]) {
+      statsByGroup[group][match.away_team] = { team: match.away_team, group, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
+    }
+
+    if ((match.status === 'finished' || match.status === 'live') && match.home_score !== null && match.away_score !== null) {
+      const home = statsByGroup[group][match.home_team];
+      const away = statsByGroup[group][match.away_team];
+      
+      home.pj++;
+      away.pj++;
+      home.gf += match.home_score;
+      home.gc += match.away_score;
+      away.gf += match.away_score;
+      away.gc += match.home_score;
+
+      if (match.home_score > match.away_score) {
+        home.g++;
+        home.pts += 3;
+        away.p++;
+      } else if (match.home_score < match.away_score) {
+        away.g++;
+        away.pts += 3;
+        home.p++;
+      } else {
+        home.e++;
+        away.e++;
+        home.pts += 1;
+        away.pts += 1;
+      }
+    }
+  });
+
+  const finalStandings = {};
+  const allThirds = [];
+
+  Object.keys(statsByGroup).sort().forEach(group => {
+    const teams = Object.values(statsByGroup[group]);
+    teams.forEach(t => t.dg = t.gf - t.gc);
+    
+    teams.sort((a, b) => {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      if (b.dg !== a.dg) return b.dg - a.dg;
+      if (b.gf !== a.gf) return b.gf - a.gf;
+      return a.team.localeCompare(b.team);
+    });
+    
+    finalStandings[group] = teams;
+    if (teams.length >= 3) allThirds.push(teams[2]);
+  });
+
+  allThirds.sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.dg !== a.dg) return b.dg - a.dg;
+    if (b.gf !== a.gf) return b.gf - a.gf;
+    if (b.g !== a.g) return b.g - a.g;
+    return a.team.localeCompare(b.team);
+  });
+
+  return { groupStandings: finalStandings, thirdPlaces: allThirds };
+}
+
+function calculateKnockoutBracket(groupStandings, thirdPlaces, dbMatches = []) {
+  const winners = {};
+  const runnersUp = {};
+  const thirdPlaceMap = {};
+  const groups = ['Grupo A', 'Grupo B', 'Grupo C', 'Grupo D', 'Grupo E', 'Grupo F', 'Grupo G', 'Grupo H', 'Grupo I', 'Grupo J', 'Grupo K', 'Grupo L'];
+  
+  groups.forEach(groupName => {
+    const letter = groupName.replace('Grupo ', '');
+    const teams = groupStandings[groupName] || [];
+    winners[letter] = teams[0]?.team || `1º ${letter}`;
+    runnersUp[letter] = teams[1]?.team || `2º ${letter}`;
+    thirdPlaceMap[letter] = teams[2]?.team || `3º ${letter}`;
+  });
+
+  const sortedThirds = [...thirdPlaces].sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.dg !== a.dg) return b.dg - a.dg;
+    if (b.gf !== a.gf) return b.gf - a.gf;
+    if (b.g !== a.g) return b.g - a.g;
+    return a.group.localeCompare(b.group);
+  });
+
+  const bestEightThirds = sortedThirds.slice(0, 8);
+  const bestEightLetters = bestEightThirds.map(t => t.group.replace('Grupo ', ''));
+  const winnersToMatch = ['E', 'I', 'A', 'L', 'D', 'G', 'B', 'K'];
+  const solvedAssignments = matchWinnersToThirds(winnersToMatch, bestEightLetters) || {};
+
+  const getThirdPlaceOpponent = (winnerLetter) => {
+    const assignedGroupLetter = solvedAssignments[winnerLetter];
+    return assignedGroupLetter ? (thirdPlaceMap[assignedGroupLetter] || `3º ${assignedGroupLetter}`) : `3º Grupo ${winnerLetter}`;
+  };
+
+  const r32 = {
+    73: { matchNumber: 73, homeTeam: runnersUp['A'], awayTeam: runnersUp['B'] },
+    74: { matchNumber: 74, homeTeam: winners['E'], awayTeam: getThirdPlaceOpponent('E') },
+    75: { matchNumber: 75, homeTeam: winners['F'], awayTeam: runnersUp['C'] },
+    76: { matchNumber: 76, homeTeam: winners['C'], awayTeam: runnersUp['F'] },
+    77: { matchNumber: 77, homeTeam: winners['I'], awayTeam: getThirdPlaceOpponent('I') },
+    78: { matchNumber: 78, homeTeam: runnersUp['E'], awayTeam: runnersUp['I'] },
+    79: { matchNumber: 79, homeTeam: winners['A'], awayTeam: getThirdPlaceOpponent('A') },
+    80: { matchNumber: 80, homeTeam: winners['L'], awayTeam: getThirdPlaceOpponent('L') },
+    81: { matchNumber: 81, homeTeam: winners['D'], awayTeam: getThirdPlaceOpponent('D') },
+    82: { matchNumber: 82, homeTeam: winners['G'], awayTeam: getThirdPlaceOpponent('G') },
+    83: { matchNumber: 83, homeTeam: runnersUp['K'], awayTeam: runnersUp['L'] },
+    84: { matchNumber: 84, homeTeam: winners['H'], awayTeam: runnersUp['J'] },
+    85: { matchNumber: 85, homeTeam: winners['B'], awayTeam: getThirdPlaceOpponent('B') },
+    86: { matchNumber: 86, homeTeam: winners['J'], awayTeam: runnersUp['H'] },
+    87: { matchNumber: 87, homeTeam: winners['K'], awayTeam: getThirdPlaceOpponent('K') },
+    88: { matchNumber: 88, homeTeam: runnersUp['D'], awayTeam: runnersUp['G'] }
+  };
+
+  const applyDbMatches = (round) => {
+    dbMatches.forEach(dbMatch => {
+      const num = dbMatch.match_number || dbMatch.matchNumber;
+      if (num && round[num]) {
+        if (dbMatch.home_team && !isPlaceholderName(dbMatch.home_team)) round[num].homeTeam = dbMatch.home_team;
+        if (dbMatch.away_team && !isPlaceholderName(dbMatch.away_team)) round[num].awayTeam = dbMatch.away_team;
+        if (dbMatch.home_score !== undefined) round[num].homeScore = dbMatch.home_score;
+        if (dbMatch.away_score !== undefined) round[num].awayScore = dbMatch.away_score;
+        if (dbMatch.winner) {
+          round[num].winner = dbMatch.winner;
+        } else if (dbMatch.status === 'finished' && dbMatch.home_score !== null && dbMatch.away_score !== null) {
+          if (dbMatch.home_score > dbMatch.away_score) round[num].winner = round[num].homeTeam;
+          else if (dbMatch.away_score > dbMatch.home_score) round[num].winner = round[num].awayTeam;
+          else if (dbMatch.penalty_winner) round[num].winner = dbMatch.penalty_winner;
+        }
+      }
+    });
+  };
+
+  applyDbMatches(r32);
+
+  const getWinnerName = (match) => {
+    if (match.winner) return match.winner;
+    if (match.homeTeam && !isPlaceholderName(match.homeTeam)) {
+      if (match.homeScore !== undefined && match.homeScore !== null && match.awayScore !== undefined && match.awayScore !== null) {
+        if (match.homeScore > match.awayScore) return match.homeTeam;
+        if (match.awayScore > match.homeScore) return match.awayTeam;
+      }
+    }
+    return `Ganador M${match.matchNumber}`;
+  };
+
+  const r16 = {
+    89: { matchNumber: 89, homeTeam: getWinnerName(r32[74]), awayTeam: getWinnerName(r32[77]) },
+    90: { matchNumber: 90, homeTeam: getWinnerName(r32[73]), awayTeam: getWinnerName(r32[75]) },
+    91: { matchNumber: 91, homeTeam: getWinnerName(r32[76]), awayTeam: getWinnerName(r32[78]) },
+    92: { matchNumber: 92, homeTeam: getWinnerName(r32[79]), awayTeam: getWinnerName(r32[80]) },
+    93: { matchNumber: 93, homeTeam: getWinnerName(r32[83]), awayTeam: getWinnerName(r32[84]) },
+    94: { matchNumber: 94, homeTeam: getWinnerName(r32[81]), awayTeam: getWinnerName(r32[82]) },
+    95: { matchNumber: 95, homeTeam: getWinnerName(r32[86]), awayTeam: getWinnerName(r32[88]) },
+    96: { matchNumber: 96, homeTeam: getWinnerName(r32[85]), awayTeam: getWinnerName(r32[87]) }
+  };
+
+  applyDbMatches(r16);
+
+  const qf = {
+    97: { matchNumber: 97, homeTeam: getWinnerName(r16[89]), awayTeam: getWinnerName(r16[90]) },
+    98: { matchNumber: 98, homeTeam: getWinnerName(r16[93]), awayTeam: getWinnerName(r16[94]) },
+    99: { matchNumber: 99, homeTeam: getWinnerName(r16[91]), awayTeam: getWinnerName(r16[92]) },
+    100: { matchNumber: 100, homeTeam: getWinnerName(r16[95]), awayTeam: getWinnerName(r16[96]) }
+  };
+
+  applyDbMatches(qf);
+
+  const sf = {
+    101: { matchNumber: 101, homeTeam: getWinnerName(qf[97]), awayTeam: getWinnerName(qf[98]) },
+    102: { matchNumber: 102, homeTeam: getWinnerName(qf[99]), awayTeam: getWinnerName(qf[100]) }
+  };
+
+  applyDbMatches(sf);
+
+  const getLoserName = (match) => {
+    if (match.winner) return match.winner === match.homeTeam ? match.awayTeam : match.homeTeam;
+    if (match.homeTeam && !isPlaceholderName(match.homeTeam)) {
+      if (match.homeScore !== undefined && match.homeScore !== null && match.awayScore !== undefined && match.awayScore !== null) {
+        return match.homeScore > match.awayScore ? match.awayTeam : match.homeTeam;
+      }
+    }
+    return `Perdedor M${match.matchNumber}`;
+  };
+
+  const finalMatch = { matchNumber: 104, homeTeam: getWinnerName(sf[101]), awayTeam: getWinnerName(sf[102]) };
+  const thirdPlaceMatch = { matchNumber: 103, homeTeam: getLoserName(sf[101]), awayTeam: getLoserName(sf[102]) };
+
+  applyDbMatches({ 104: finalMatch });
+  applyDbMatches({ 103: thirdPlaceMatch });
+
+  return { r32, r16, qf, sf, finalMatch, thirdPlaceMatch };
+}
+
+function resolveKnockoutTeamNames(matchesToResolve, allMatches) {
+  if (!matchesToResolve || matchesToResolve.length === 0) return;
+  const { groupStandings, thirdPlaces } = calculateGroupStandings(allMatches);
+  const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, allMatches);
+  
+  const knockoutMatchesByNumber = new Map();
+  [
+    ...Object.values(bracket.r32),
+    ...Object.values(bracket.r16),
+    ...Object.values(bracket.qf),
+    ...Object.values(bracket.sf),
+    bracket.finalMatch,
+    bracket.thirdPlaceMatch
+  ].filter(Boolean).forEach((km) => knockoutMatchesByNumber.set(km.matchNumber, km));
+
+  matchesToResolve.forEach(match => {
+    const km = knockoutMatchesByNumber.get(match.match_number);
+    if (km) {
+      if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
+      if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
+    }
+  });
 }
 
 const WIKIPEDIA_API = 'https://en.wikipedia.org/w/api.php';
@@ -564,28 +816,23 @@ async function markMatchProcessed(matchId) {
 async function main() {
   console.log('[sync-player-stats] Starting run at', new Date().toISOString());
 
-  // 1. Fetch unprocessed finished matches
-  let matches;
-
-  const { data: matchesWithFlag, error: matchErr } = await supabase
+  // 1. Fetch all matches to compute bracket standings and resolve placeholders
+  const { data: allMatches, error: matchErr } = await supabase
     .from('matches')
-    .select('id, match_number, home_team, away_team, group_name, home_score, away_score')
-    .eq('status', 'finished')
-    .eq('stats_processed', false)
-    .order('id', { ascending: true });
+    .select('id, phase_id, home_team, away_team, group_name, home_score, away_score, status, match_number, penalty_winner, stats_processed')
+    .order('match_time', { ascending: true });
 
   if (matchErr) {
-    if (matchErr.message.includes('stats_processed')) {
-      console.warn(
-        '[sync-player-stats] ⚠️  Column "stats_processed" does not exist on the matches table.'
-      );
-      process.exit(1);
-    }
     console.error('[sync-player-stats] Error fetching matches:', matchErr.message);
     process.exit(1);
   }
 
-  matches = matchesWithFlag;
+  // 2. Resolve placeholders in-memory
+  console.log('[sync-player-stats] Resolving knockout placeholders...');
+  resolveKnockoutTeamNames(allMatches, allMatches);
+
+  // 3. Filter finished and unprocessed matches
+  const matches = allMatches.filter(m => m.status === 'finished' && m.stats_processed === false);
 
   if (!matches || matches.length === 0) {
     console.log('[sync-player-stats] No unprocessed matches found. Nothing to do.');

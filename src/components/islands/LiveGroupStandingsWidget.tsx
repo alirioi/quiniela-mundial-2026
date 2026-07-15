@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase-browser';
 import { BarChart3, ChevronLeft, ChevronRight, Trophy, Award } from 'lucide-react';
 import { TeamFlag } from '../ui/TeamFlag';
+import { calculateKnockoutBracket, isPlaceholderName } from '../../utils/knockout';
 
 interface Match {
   id: number;
@@ -198,6 +199,35 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
     return activeGroup ? groupStandings[activeGroup] || [] : [];
   }, [groupStandings, activeGroup]);
 
+  // 2.5 Resolver nombres de equipos eliminatorios in-memory para el cliente
+  const resolvedMatches = useMemo(() => {
+    // Si no hay standings calculados todavía, devolver copia normal
+    if (!groupStandings || Object.keys(groupStandings).length === 0) return matches;
+
+    const matchesCopy = matches.map(m => ({ ...m }));
+    const bracket = calculateKnockoutBracket(groupStandings, thirdPlaces, undefined, matchesCopy);
+    
+    const knockoutMatchesByNumber = new Map();
+    [
+      ...Object.values(bracket.r32),
+      ...Object.values(bracket.r16),
+      ...Object.values(bracket.qf),
+      ...Object.values(bracket.sf),
+      bracket.finalMatch,
+      bracket.thirdPlaceMatch
+    ].filter(Boolean).forEach((km) => knockoutMatchesByNumber.set(km.matchNumber, km));
+
+    matchesCopy.forEach(match => {
+      const km = knockoutMatchesByNumber.get(match.match_number);
+      if (km) {
+        if (!isPlaceholderName(km.homeTeam)) match.home_team = km.homeTeam;
+        if (!isPlaceholderName(km.awayTeam)) match.away_team = km.awayTeam;
+      }
+    });
+
+    return matchesCopy;
+  }, [matches, groupStandings, thirdPlaces]);
+
   // 3. Obtener goles de los 6 equipos favoritos del Pronóstico de Oro
   const goldTeamsStats = useMemo(() => {
     // Mapear todas las estadísticas de los equipos en la fase de grupos
@@ -209,7 +239,7 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
     });
 
     // Calcular goles anotados
-    matches.forEach(match => {
+    resolvedMatches.forEach(match => {
       if ((match.status === 'finished' || match.status === 'live') && match.home_score !== null && match.away_score !== null) {
         if (allStats[match.home_team] !== undefined) {
           allStats[match.home_team].gf += match.home_score;
@@ -221,7 +251,7 @@ export default function LiveGroupStandingsWidget({ initialMatches, initialPlayer
     });
 
     return Object.values(allStats).sort((a, b) => b.gf - a.gf);
-  }, [matches, goldTeams]);
+  }, [resolvedMatches, goldTeams]);
 
   // Estadísticas generales del torneo para Slide 0
   const tournamentStats = useMemo(() => {
